@@ -33,8 +33,9 @@ node('zowe-dependency-scanning') {
     timeout       : [time: 5, unit: 'MINUTES'],
     isSkippable   : false,
     operation     : {
+        sh "npm config list"
+        sh "npm whoami"
 
-        sh "cat .npmrc"
     }
   )
 
