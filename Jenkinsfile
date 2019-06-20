@@ -12,7 +12,7 @@
 
 
 node('zowe-dependency-scanning') {
-    
+
   def lib = library("jenkins-library").org.zowe.jenkins_shared_library
 
   def pipeline = lib.pipelines.generic.GenericPipeline.new(this)
@@ -26,6 +26,8 @@ node('zowe-dependency-scanning') {
       usernamePasswordCredential: lib.Constants.DEFAULT_NPM_PRIVATE_REGISTRY_CREDENTIAL
   );
   registry.login();
+
+  pipeline.setup();
 
   pipeline.build(
     timeout       : [time: 5, unit: 'MINUTES'],
