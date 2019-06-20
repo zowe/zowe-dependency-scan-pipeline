@@ -13,6 +13,9 @@
 
 node('zowe-dependency-scanning') {
 
+  def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
+  def 
+
   def lib = library("jenkins-library").org.zowe.jenkins_shared_library
 
   def pipeline = lib.pipelines.generic.GenericPipeline.new(this)
@@ -27,15 +30,20 @@ node('zowe-dependency-scanning') {
   );
   registry.login();
 
-  pipeline.setup();
+  pipeline.setup(
+    github: [
+      email                      : lib.Constants.DEFAULT_GITHUB_ROBOT_EMAIL,
+      usernamePasswordCredential : lib.Constants.DEFAULT_GITHUB_ROBOT_CREDENTIAL,
+    ]
+  );
 
   pipeline.build(
     timeout       : [time: 5, unit: 'MINUTES'],
     isSkippable   : false,
     operation     : {
-        sh "npm config list"
-        sh "npm whoami"
-
+        sh "cd ${DEPENDENCY_SCAN_HOME}"
+        sh "yarn install && yarn build"
+        sh "node lib/index.js"
     }
   )
 
