@@ -73,7 +73,7 @@ node('zowe-dependency-scanning') {
       stage: {
           dir("${DEPENDENCY_SCAN_HOME}/build") {
             publishHTML(target: [
-                reportName: "Pending Approvals Required",
+                reportName: "Pending Dependency Attribution Markdown File",
                 allowMissing: true,
                 alwaysLinkToLastBuild: true,
                 keepAll: true,
