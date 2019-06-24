@@ -14,7 +14,8 @@
 node('zowe-dependency-scanning') {
 
   def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
-  def 
+  def PENDING_APPROVAL_REPORT_NAME = "dependency_approval_action_aggregates.json"
+  def MARKDOWN_REPORT_NAME = "markdown_dependency_report.md"
 
   def lib = library("jenkins-library").org.zowe.jenkins_shared_library
 
@@ -38,13 +39,65 @@ node('zowe-dependency-scanning') {
   );
 
   pipeline.build(
-    timeout       : [time: 5, unit: 'MINUTES'],
+    timeout       : [time: 500, unit: 'MINUTES'],
     isSkippable   : false,
     operation     : {
-        sh "cd ${DEPENDENCY_SCAN_HOME}"
-        sh "yarn install && yarn build"
-        sh "node lib/index.js"
+        dir("${DEPENDENCY_SCAN_HOME}") {
+            sh "npm set registry ${lib.Constants.DEFAULT_NPM_PRIVATE_REGISTRY_INSTALL}"
+            sh "echo always-auth=true >> ~/.npmrc"
+            sh "cp ~/.npmrc private_npmrc/.npmrc"
+            sh "yarn install && yarn build"
+            sh "node lib/index.js"
+        }
     }
+  )
+
+  pipeline.createStage(
+      name: "Publish Approvals Required",
+      stage: {
+          dir("${DEPENDENCY_SCAN_HOME}/build") {
+            publishHTML(target: [
+                reportName: "Pending Approvals Required",
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: "reports",
+                reportFiles: "${PENDING_APPROVAL_REPORT_NAME}"
+            ])
+          }
+      }
+  )
+
+  pipeline.createStage(
+      name: "Publish Dependency Attribution Markdown File",
+      stage: {
+          dir("${DEPENDENCY_SCAN_HOME}/build") {
+            publishHTML(target: [
+                reportName: "Pending Approvals Required",
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: "reports",
+                reportFiles: "${MARKDOWN_REPORT_NAME}"
+            ])
+          }
+      }
+  )
+
+  pipeline.createStage(
+      name: "Publish Logs",
+      stage: {
+          dir("${DEPENDENCY_SCAN_HOME}/build") {
+            publishHTML(target: [
+                reportName: "Logs",
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: "logs",
+                reportFiles: "*"
+            ])
+          }
+      }
   )
 
   pipeline.end()
