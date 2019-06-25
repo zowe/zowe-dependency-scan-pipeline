@@ -89,14 +89,7 @@ node('zowe-dependency-scanning') {
       name: "Publish Logs",
       stage: {
           dir("${DEPENDENCY_SCAN_HOME}/build") {
-            publishHTML(target: [
-                reportName: "Logs",
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: "/",
-                reportFiles: "logs.zip"
-            ])
+            archiveArtifacts artifacts: "logs.zip"
           }
       }
   )
