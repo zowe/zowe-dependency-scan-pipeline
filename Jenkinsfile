@@ -48,6 +48,7 @@ node('zowe-dependency-scanning') {
             sh "cp ~/.npmrc private_npmrc/.npmrc"
             sh "yarn install && yarn build"
             sh "node lib/index.js"
+            sh "cd build && zip -r logs.zip logs/"
         }
     }
   )
@@ -93,8 +94,8 @@ node('zowe-dependency-scanning') {
                 allowMissing: true,
                 alwaysLinkToLastBuild: true,
                 keepAll: true,
-                reportDir: "logs",
-                reportFiles: "*"
+                reportDir: "/",
+                reportFiles: "logs.zip"
             ])
           }
       }
