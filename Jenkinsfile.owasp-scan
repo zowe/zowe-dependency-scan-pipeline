@@ -17,8 +17,7 @@ opts.push(buildDiscarder(logRotator(numToKeepStr: '5')))
 opts.push(disableConcurrentBuilds())
 if (env.BRANCH_NAME && (env.BRANCH_NAME == 'master')) {
   // run every night 10pm EST
-  opts.push(pipelineTriggers([cron('''TZ=America/New_York
-  H 22 * * 4,7''')]))
+  opts.push(pipelineTriggers([cron("TZ=America/New_York\nH 22 * * 4,7")]))
 }
 // set build properties
 properties(opts)
