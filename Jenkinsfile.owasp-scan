@@ -206,6 +206,7 @@ EOT
       "explorer-api-common": [
         "init": initGradleExplorerProject,
         "src": "build/dependency-jars",
+        "branch": "master",
       ],
 
       "api-layer": [
