@@ -15,25 +15,22 @@ def opts = []
 opts.push(buildDiscarder(logRotator(numToKeepStr: '5')))
 // disable concurrent build
 opts.push(disableConcurrentBuilds())
-if (env.BRANCH_NAME && (env.BRANCH_NAME == 'master')) {
-  // run every night 10pm EST
-  opts.push(pipelineTriggers([cron("TZ=America/New_York\nH 22 * * 4,7")]))
-}
+// run every night 11pm EST
+// opts.push(pipelineTriggers([cron('''TZ=America/New_York
+// H 22 * * *''')]))
 // set build properties
 properties(opts)
 
-node('ibm-jenkins-slave-dind') {
+node('zowe-oss-ibm-jenkins-slave-nvm') {
   currentBuild.result = 'SUCCESS'
   def EMAIL_RECIPIENTS = "jackjia.ibm@gmail.com"
 
 try {
-  stage ('OWASP Scan') {
-    def GITHUB_SSH_KEY = "zlux-jenkins"
+  stage ('WICKED Scan') {
+    def GITHUB_SSH_KEY = "zowe-oss-zlux-jenkins"
     // check staging branch if exists
     def DEFAULT_BRANCH = "staging"
-    def OWASP_CACHE = "/home/jenkins/.owasp"
-    // this is the folder on host
-    def OWASP_CACHE_ON_HOST = "/tmp/docker-cache/.owasp"
+    def WICKED_WORKDIR = "/home/jenkins/.wicked"
     def initZluxPlugin = {
       sshagent(credentials: [GITHUB_SSH_KEY]) {
         sh """
@@ -123,111 +120,135 @@ EOT
     def allRepositories = [
       "zlux-app-manager": [
         "init": initZluxPlugin,
+        "branch": 'v1.3.0',
       ],
       "zlux-app-server": [
         init: initZluxPlugin,
-      ],
-      "zlux-build": [
-        init: initZluxPlugin,
+        "branch": "v1.3.0",
       ],
       "zlux-file-explorer": [
         init: initZluxPlugin,
-        branch: "master",
+        branch: "v1.0.0",
       ],
       "zlux-grid": [
         init: initZluxPlugin,
-        branch: "master",
+        branch: "v0.0.5",
       ],
       "zlux-platform": [
         init: initZluxPlugin,
+        "branch": "v1.3.0",
       ],
       "zlux-server-framework": [
         init: initZluxPlugin,
+        "branch": "v1.3.0",
       ],
       "zlux-shared": [
         init: initZluxPlugin,
+        "branch": "v1.3.0",
       ],
       "zlux-widgets": [
         init: initZluxPlugin,
-        branch: "master",
+        "branch": "v0.0.3",
       ],
       "sample-angular-app": [
         init: initZluxPlugin,
+        "branch": "v1.3.0",
       ],
       "sample-iframe-app": [
         init: initZluxPlugin,
+        "branch": "v1.3.0",
       ],
       "sample-react-app": [
         init: initZluxPlugin,
+        "branch": "v1.3.0",
       ],
       "tn3270-ng2": [
         init: initZluxPlugin,
+        "branch": "v1.3.0",
       ],
       "vt-ng2": [
         init: initZluxPlugin,
+        "branch": "v1.3.0",
       ],
       "zlux-editor": [
         init: initZluxPlugin,
+        "branch": "v1.3.0",
       ],
       "zlux-workflow": [
         init: initZluxPlugin,
+        "branch": "v1.3.0",
       ],
       "zosmf-auth": [
         init: initZluxPlugin,
+        "branch": "v1.3.0",
       ],
       "zss-auth": [
         init: initZluxPlugin,
+        "branch": "v1.3.0",
+      ],
+      "zss": [
+        "branch": "v1.2.0",
+      ],
+      "zowe-common-c" : [
+        "branch": "zss-v1.3.0",
       ],
 
       "explorer-jes": [
         "init": initExplorerPlugin,
+        "branch": "v0.0.21",
       ],
       "explorer-mvs": [
         init: initExplorerPlugin,
+        "branch": "v0.0.15",
       ],
       "explorer-uss": [
         init: initExplorerPlugin,
+        "branch": "v0.0.13",
       ],
       "explorer-ui-server": [
         init: initExplorerPlugin,
+        "branch": "v0.2.8",
       ],
       "orion-editor-component": [
         init: initExplorerPlugin,
+        "branch": "v0.0.9",
       ],
 
       "data-sets": [
         "init": initGradleExplorerProject,
         "src": "build/dependency-jars",
+        "branch": "v0.2.2",
       ],
       "jobs": [
         "init": initGradleExplorerProject,
         "src": "build/dependency-jars",
+        "branch": "v0.2.4",
       ],
       "explorer-api-common": [
         "init": initGradleExplorerProject,
         "src": "build/dependency-jars",
-        "branch": "master",
+        "branch": "0.3.2",
       ],
 
       "api-layer": [
-        "branch": "master",
         "init": initGradleApimlProject,
+        "branch": "v1.1.5",
       ],
 
       "imperative": [
-        "branch": "lts-incremental",
+        "branch": "v2.4.8",
         "init": initCliProject,
       ],
       "zowe-cli": [
-        "branch": "lts-incremental",
+        "branch": "v2.28.2",
         "init": initCliProject,
       ],
       "zowe-cli-db2-plugin": [
-        "branch": "lts-incremental",
+        "branch": "v2.1.0",
         "init": initCliPluginProject,
       ],
       "zowe-cli-cics-plugin": [
-        "branch": "lts-incremental",
+        "branch": "v1.0.0",
         "init": initCliPluginProject,
       ],
     ]
@@ -236,45 +257,44 @@ EOT
     echo "###############################################################################"
     echo "#                                     PREPARE                                 #"
     echo "###############################################################################"
-    echo ">>>>>>>>>>>>>>>>>>>>>>>>> Preparing OWASP cache folder ..."
+    echo ">>>>>>>>>>>>>>>>>>>>>>>>> Preparing WICKED working folder ..."
     sh """
     set +x
-    if [ ! -d "$OWASP_CACHE" ]; then
-      mkdir -p $OWASP_CACHE
-      chmod 777 $OWASP_CACHE
+    if [ ! -d "$WICKED_WORKDIR" ]; then
+      mkdir -p $WICKED_WORKDIR
+      chmod 777 $WICKED_WORKDIR
     fi
-    if [ ! -d "$OWASP_CACHE/data" ]; then
-      mkdir -p "$OWASP_CACHE/data"
-      chmod 777 "$OWASP_CACHE/data"
+    if [ ! -d "$WICKED_WORKDIR/data" ]; then
+      mkdir -p "$WICKED_WORKDIR/data"
+      chmod 777 "$WICKED_WORKDIR/data"
     fi
-    if [ -d "$OWASP_CACHE/workspace" ]; then
-      rm -fr "$OWASP_CACHE/workspace"
+    if [ -d "$WICKED_WORKDIR/workspace" ]; then
+      rm -fr "$WICKED_WORKDIR/workspace"
     fi
-    if [ -d "$OWASP_CACHE/workspace@tmp" ]; then
-      rm -fr "$OWASP_CACHE/workspace@tmp"
+    if [ -d "$WICKED_WORKDIR/workspace@tmp" ]; then
+      rm -fr "$WICKED_WORKDIR/workspace@tmp"
     fi
-    mkdir -p "$OWASP_CACHE/workspace"
-    chmod 777 "$OWASP_CACHE/workspace"
-    if [ -d "$OWASP_CACHE/reports" ]; then
-      rm -fr "$OWASP_CACHE/reports"
+    mkdir -p "$WICKED_WORKDIR/workspace"
+    chmod 777 "$WICKED_WORKDIR/workspace"
+    if [ -d "$WICKED_WORKDIR/reports" ]; then
+      rm -fr "$WICKED_WORKDIR/reports"
     fi
-    mkdir -p "$OWASP_CACHE/reports"
-    chmod 777 "$OWASP_CACHE/reports"
-    echo \$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ") >"$OWASP_CACHE/reports/REPORT-DATE"
-    if [ -d "$OWASP_CACHE/logs" ]; then
-      rm -fr "$OWASP_CACHE/logs"
+    mkdir -p "$WICKED_WORKDIR/reports"
+    chmod 777 "$WICKED_WORKDIR/reports"
+    echo \$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ") >"$WICKED_WORKDIR/reports/REPORT-DATE"
+    if [ -d "$WICKED_WORKDIR/logs" ]; then
+      rm -fr "$WICKED_WORKDIR/logs"
     fi
-    mkdir -p "$OWASP_CACHE/logs"
-    chmod 777 "$OWASP_CACHE/logs"
+    mkdir -p "$WICKED_WORKDIR/logs"
+    chmod 777 "$WICKED_WORKDIR/logs"
     """
-    echo ">>>>>>>>>>>>>>>>>>>>>>>>> Pulling the latest scanner ..."
-    sh 'docker pull jackjiaibm/owasp-dependency-check'
     echo ">>>>>>>>>>>>>>>>>>>>>>>>> Preparing private npmrc ..."
-    def npmCredentialUP = 'GizaArtifactory'
-    def npmCredentialToken = 'giza-jenkins-basicAuth'
+    def npmCredentialWicked = 'zowe-oss-wicked-artifactory'
+    def npmCredentialUP = 'zowe-oss-zowe-artifactory'
+    def npmCredentialToken = 'zowe-oss-zowe-artifactory-token'
     def npmEmail = 'giza-jenkins@gmail.com'
     def npmRegistry = 'https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-release/'
-    def npmRegistryWithoutProtocol = '//gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-release/'
+    def npmRegistryWicked = 'https://na.artifactory.swg-devops.com/artifactory/api/npm/wicked-npm-local/'
     withCredentials([
         usernamePassword(
             credentialsId: npmCredentialUP,
@@ -303,6 +323,21 @@ EOT
         configEntries.push("mv /home/jenkins/.npmrc /home/jenkins/.npmrc-explorer")
         sh configEntries.join("\n")
     }
+    withCredentials([
+        usernamePassword(
+            credentialsId: npmCredentialWicked,
+            passwordVariable: 'PASSWORD',
+            usernameVariable: 'USERNAME'
+        )
+    ]) {
+        List<String> configEntries = ['set +x']
+        // cli - only @zowe scope
+        configEntries.push("rm -f /home/jenkins/.npmrc")
+        configEntries.push("curl -u \${USERNAME}:\${PASSWORD} ${npmRegistryWicked}auth/wicked > /home/jenkins/.npmrc-wicked")
+        sh configEntries.join("\n")
+    }
+    echo ">>>>>>>>>>>>>>>>>>>>>>>>> Installing WICKED CLI ..."
+    sh 'mv /home/jenkins/.npmrc-wicked /home/jenkins/.npmrc && npm install @wicked/cli -g'
     echo ">>>>>>>>>>>>>>>>>>>>>>>>> Trust github.com ..."
     sh """
     set +x
@@ -315,27 +350,25 @@ EOT
     echo "###############################################################################"
     echo "#                             CHECKOUT & SCAN                                 #"
     echo "###############################################################################"
-    def SUPPRESSION_FILE = '.owasp-dependency-scan-suppression.xml'
     def index = 0
     allRepositories.each { repo, rc ->
       index += 1
       def branch = rc.containsKey('branch') ? rc.branch : DEFAULT_BRANCH
-      def branchSanitized = branch.replaceAll(/[^0-9a-zA-Z]/, '-')
       try {
         echo "==============================================================================="
         echo ">>>>>>>>>>>>>>>>>>>>>>>>> Checkout ${index}/${allRepositoriesSize} ${repo} ..."
         def cloneCmd = "git clone --depth 1  --single-branch --branch \"${branch}\" https://github.com/zowe/${repo}"
-        dir("$OWASP_CACHE/workspace") {
+        dir("$WICKED_WORKDIR/workspace") {
           sh "rm -fr ${repo} && ${cloneCmd}"
         }
 
         echo "==============================================================================="
         echo ">>>>>>>>>>>>>>>>>>>>>>>>> Prepare report folder for ${repo} ..."
-        sh "set +x\nmkdir -p \"${OWASP_CACHE}/reports/${repo}.${branchSanitized}\" && chmod -R 777 \"${OWASP_CACHE}/reports/${repo}.${branchSanitized}\" && ln -s \"${OWASP_CACHE}/reports/${repo}.${branchSanitized}\""
+        sh "set +x\nmkdir -p \"${WICKED_WORKDIR}/reports/${repo}\" && chmod -R 777 \"${WICKED_WORKDIR}/reports/${repo}\" && ln -s \"${WICKED_WORKDIR}/reports/${repo}\""
 
-        dir("$OWASP_CACHE/workspace/${repo}") {
+        dir("$WICKED_WORKDIR/workspace/${repo}") {
           def commit = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
-          sh "echo \"${commit}\" > \"${OWASP_CACHE}/reports/${repo}.${branchSanitized}/COMMIT\""
+          sh "echo \"${commit}\" > \"${WICKED_WORKDIR}/reports/${repo}/COMMIT\""
 
           if (rc.containsKey('init')) {
             echo "==============================================================================="
@@ -346,47 +379,32 @@ EOT
 
         echo "==============================================================================="
         echo ">>>>>>>>>>>>>>>>>>>>>>>>> Scanning ${repo} ..."
-        // if we have mount "/var/run/docker.sock" to the dind container, we should use OWASP_CACHE_ON_HOST
-        // otherwise use OWASP_CACHE in below docker run command
-        def src = "${OWASP_CACHE}/workspace/${repo}"
-        def suppression = ""
-        if (fileExists("${src}/${SUPPRESSION_FILE}")) {
-          suppression = "--suppression \"/src/${SUPPRESSION_FILE}\""
-        }
+        def src = "${WICKED_WORKDIR}/workspace/${repo}"
         if (rc.containsKey('src')) {
-          if (fileExists("${src}/${SUPPRESSION_FILE}")) {
-            sh "cp \"${src}/${SUPPRESSION_FILE}\" \"${src}/${rc['src']}/${SUPPRESSION_FILE}\""
-          }
           src += "/${rc['src']}"
         }
-        // --log "/logs/${repo}.log" \
-        sh """
+        timeout(time: 180, unit: 'MINUTES') {
+          sh """
 set +x
 echo ">>>> started at \$(date)"
-echo "> folders    :"
-echo "  - source   : ${src}"
-echo "  - reports  : ${OWASP_CACHE}/reports/${repo}.${branchSanitized}"
-echo "  - logs     : ${OWASP_CACHE}/logs"
-echo "  - data     : ${OWASP_CACHE}/data"
-echo "> suppression: ${suppression}"
-docker run --rm \
-    --volume "${src}":/src \
-    --volume "${OWASP_CACHE}/reports/${repo}.${branchSanitized}":/reports \
-    --volume "${OWASP_CACHE}/logs":/logs \
-    --volume "${OWASP_CACHE}/data":/usr/share/dependency-check/data \
-    jackjiaibm/owasp-dependency-check \
-    --scan /src ${suppression} \
-    --format "ALL" \
-    --project "${repo} - ${branch}" \
-    --out /reports || true
+wicked-cli \
+  -s "${src}" \
+  -o "${WICKED_WORKDIR}/reports/${repo}" \
+  -p "${repo}"
+if [ -f "${WICKED_WORKDIR}/reports/${repo}/${repo}_scan-results/Scan-Report.json" ]; then
+  mv ${WICKED_WORKDIR}/reports/${repo}/${repo}_scan-results/* ${WICKED_WORKDIR}/reports/${repo}/
+  rmdir ${WICKED_WORKDIR}/reports/${repo}/${repo}_scan-results
+fi
 echo "<<<< ended at \$(date)"
 """
+        }
       } catch (ep) {
         echo "==============================================================================="
         echo "[ERROR] processing ${repo}: ${ep}"
-        if (!fileExists("${OWASP_CACHE}/reports/${repo}.${branchSanitized}/dependency-check-report.html")) {
+        if (!fileExists("${WICKED_WORKDIR}/reports/${repo}/${repo}_scan-results/Scan-Report.json") &&
+          !fileExists("${WICKED_WORKDIR}/reports/${repo}/Scan-Report.json")) {
           echo ">>>>>>>>>>>>>>>>>>>>>>>>> Removing empty report folder ..."
-          sh "rm -fr \"${OWASP_CACHE}/reports/${repo}.${branchSanitized}\""
+          sh "rm -fr \"${WICKED_WORKDIR}/reports/${repo}\""
         }
 
         // manually aborted: hudson.AbortException: script returned exit code 143
@@ -394,7 +412,7 @@ echo "<<<< ended at \$(date)"
           error "Build aborted"
         }
 
-        emailext body: "Job \"${env.JOB_NAME}\" build #${env.BUILD_NUMBER} failed on ${repo}.\n\nError: ${ep}\n\nCheck detail: ${env.BUILD_URL}" ,
+        mail body: "Job \"${env.JOB_NAME}\" build #${env.BUILD_NUMBER} failed on ${repo}.\n\nError: ${ep}\n\nCheck detail: ${env.BUILD_URL}" ,
             subject: "[Jenkins] Job \"${env.JOB_NAME}\" build #${env.BUILD_NUMBER} failed on ${repo}",
             to: EMAIL_RECIPIENTS
 
@@ -407,9 +425,9 @@ echo "<<<< ended at \$(date)"
     echo "###############################################################################"
     def GITHUB_USER_EMAIL = 'zowe.robot@gmail.com'
     def GITHUB_USER_NAME = 'Zowe Robot'
-    def GITHUB_CREDENTIALS = 'zowe-robot-github'
-    def GITHUB_REPOSITORY = 'zowe/community-ghsa-49jx-47m7-vf8f'
-    def PUBLISH_BRANCH = 'owasp'
+    def GITHUB_CREDENTIALS = 'zowe-oss-github-zowe-robot'
+    def GITHUB_REPOSITORY = 'zowe/community-ghsa-j4hx-p5p2-r92q'
+    def PUBLISH_BRANCH = 'wicked'
     withCredentials([usernamePassword(
       credentialsId: GITHUB_CREDENTIALS,
       passwordVariable: 'GIT_PASSWORD',
@@ -427,11 +445,11 @@ git remote add origin https://github.com/${GITHUB_REPOSITORY}.git
 git fetch
 git checkout -B ${PUBLISH_BRANCH}
 if [ -n "\$(git ls-remote --heads origin ${PUBLISH_BRANCH})" ]; then git pull origin ${PUBLISH_BRANCH}; fi
-mkdir -p OWASP
-cd OWASP
-cp -r ${OWASP_CACHE}/reports/* .
-if [ -f "parse-reports.sh" ]; then
-  ./parse-reports.sh
+mkdir -p WICKED
+cd WICKED
+cp -r ${WICKED_WORKDIR}/reports/* .
+if [ -f "parse-pedigree.sh" ]; then
+  ./parse-pedigree.sh
 fi
 git add -A
 git commit -s -m \"deploy from ${env.JOB_NAME}#${env.BUILD_NUMBER}\"
@@ -440,14 +458,14 @@ git push 'https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${GITHUB_REPOSITORY
     }
   }
 
-  emailext body: "Job \"${env.JOB_NAME}\" build #${env.BUILD_NUMBER} succeeded.\n\nCheck detail: ${env.BUILD_URL}" ,
+  mail body: "Job \"${env.JOB_NAME}\" build #${env.BUILD_NUMBER} succeeded.\n\nCheck detail: ${env.BUILD_URL}" ,
       subject: "[Jenkins] Job \"${env.JOB_NAME}\" build #${env.BUILD_NUMBER} succeeded",
       to: EMAIL_RECIPIENTS
 
 } catch (err) {
   currentBuild.result = 'FAILURE'
 
-  emailext body: "Job \"${env.JOB_NAME}\" build #${env.BUILD_NUMBER} failed.\n\nError: ${err}\n\nCheck detail: ${env.BUILD_URL}" ,
+  mail body: "Job \"${env.JOB_NAME}\" build #${env.BUILD_NUMBER} failed.\n\nError: ${err}\n\nCheck detail: ${env.BUILD_URL}" ,
       subject: "[Jenkins] Job \"${env.JOB_NAME}\" build #${env.BUILD_NUMBER} failed",
       to: EMAIL_RECIPIENTS
 
