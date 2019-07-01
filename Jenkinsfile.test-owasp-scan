@@ -14,8 +14,7 @@
 node('zowe-dependency-scanning') {
 
   def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
-  def PENDING_APPROVAL_REPORT_NAME = "dependency_approval_action_aggregates.json"
-  def MARKDOWN_REPORT_NAME = "markdown_dependency_report.md"
+  def OWASP_CHECK_HOME = "/home/jenkins/dependency-check"
 
   def lib = library("jenkins-library").org.zowe.jenkins_shared_library
 
@@ -41,6 +40,10 @@ node('zowe-dependency-scanning') {
   pipeline.build(
     timeout       : [time: 500, unit: 'MINUTES'],
     isSkippable   : false,
+    environment   : {
+      APP_OWASP_SCAN            : true,
+      OWASP_CLI_BIN_PATH        : "${OWASP_CHECK_HOME}/bin"
+    },
     operation     : {
         dir("${DEPENDENCY_SCAN_HOME}") {
             sh "npm set registry ${lib.Constants.DEFAULT_NPM_PRIVATE_REGISTRY_INSTALL}"
@@ -49,40 +52,9 @@ node('zowe-dependency-scanning') {
             sh "yarn install && yarn build"
             sh "node lib/index.js"
             sh "cd build && zip -r logs.zip logs/"
+            sh "cd build && zip -r reports.zip owasp_reports/"
         }
     }
-  )
-
-  pipeline.createStage(
-      name: "Publish Approvals Required",
-      stage: {
-          dir("${DEPENDENCY_SCAN_HOME}/build") {
-            publishHTML(target: [
-                reportName: "Pending Approvals Required",
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: "reports",
-                reportFiles: "${PENDING_APPROVAL_REPORT_NAME}"
-            ])
-          }
-      }
-  )
-
-  pipeline.createStage(
-      name: "Publish Dependency Attribution Markdown File",
-      stage: {
-          dir("${DEPENDENCY_SCAN_HOME}/build") {
-            publishHTML(target: [
-                reportName: "Pending Dependency Attribution Markdown File",
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: "reports",
-                reportFiles: "${MARKDOWN_REPORT_NAME}"
-            ])
-          }
-      }
   )
 
   pipeline.createStage(
@@ -90,6 +62,15 @@ node('zowe-dependency-scanning') {
       stage: {
           dir("${DEPENDENCY_SCAN_HOME}/build") {
             archiveArtifacts artifacts: "logs.zip"
+          }
+      }
+  )
+
+    pipeline.createStage(
+      name: "Publish OWASP Reports [Zipped]",
+      stage: {
+          dir("${DEPENDENCY_SCAN_HOME}/build") {
+            archiveArtifacts artifacts: "reports.zip"
           }
       }
   )
