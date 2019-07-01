@@ -41,8 +41,8 @@ node('zowe-dependency-scanning') {
     timeout       : [time: 500, unit: 'MINUTES'],
     isSkippable   : false,
     environment   : {
-      APP_OWASP_SCAN            : "true",
-      OWASP_CLI_BIN_PATH        : "${OWASP_CHECK_HOME}/bin"
+      'APP_OWASP_SCAN'           : "true",
+      'OWASP_CLI_BIN_PATH'        : "${OWASP_CHECK_HOME}/bin"
     },
     operation     : {
         dir("${DEPENDENCY_SCAN_HOME}") {
