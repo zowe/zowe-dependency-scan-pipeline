@@ -37,14 +37,14 @@ node('zowe-dependency-scanning') {
     ]
   );
 
-  pipeline.createStage(
-    name          : "Scan All Zowe Projects"
+  pipeline.build(
+    name          : "Scan All Zowe Projects",
     timeout       : [time: 500, unit: 'MINUTES'],
     isSkippable   : false,
-    environment   : {
-      'APP_OWASP_SCAN'          :"true",
-      'OWASP_CLI_BIN_PATH'      :"${OWASP_CHECK_HOME}/bin"
-    },
+    environment   : [
+      OWASP_CLI_BIN_PATH      :"${OWASP_CHECK_HOME}/bin",
+      APP_OWASP_SCAN          : true
+    ],
     operation     : {
         dir("${DEPENDENCY_SCAN_HOME}") {
             sh "npm set registry ${lib.Constants.DEFAULT_NPM_PRIVATE_REGISTRY_INSTALL}"
