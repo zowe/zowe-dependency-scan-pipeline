@@ -37,7 +37,7 @@ node('zowe-dependency-scanning') {
     ]
   );
 
-:  pipeline.createStage(
+  pipeline.createStage(
     name          : "Scan All Zowe Projects"
     timeout       : [time: 500, unit: 'MINUTES'],
     isSkippable   : false,
