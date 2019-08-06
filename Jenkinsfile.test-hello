@@ -18,4 +18,8 @@ node('ubuntu1804-docker-2c-2g') {
   stage('Server info') {
     sh 'cat /etc/os-release'
   }
+
+  stage('Dockr info') {
+    sh 'docker -v && docker images && docker ps'
+  }
 }
