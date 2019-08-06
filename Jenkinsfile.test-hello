@@ -10,7 +10,7 @@
  * Copyright IBM Corporation 2019
  */
 
-node('ubuntu1804-docker-1c-1g') {
+node {
   stage ('Say Hello') {
     sh 'echo hello!'
   }
