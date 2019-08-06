@@ -14,4 +14,8 @@ node {
   stage ('Say Hello') {
     sh 'echo hello!'
   }
+
+  stage('Server info') {
+    sh 'cat /etc/os-release'
+  }
 }
