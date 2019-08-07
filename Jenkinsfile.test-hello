@@ -23,7 +23,7 @@ node('ubuntu1804-docker-2c-2g') {
     sh 'docker -v && docker images && docker ps'
   }
 
-  docker.image('hello-world') {
+  docker.image('hello-world').inside {
     stage ('Say Hello 1') {
       sh 'echo hello!'
     }
