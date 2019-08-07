@@ -23,7 +23,7 @@ node('ubuntu1804-docker-2c-2g') {
     sh 'docker -v && docker images && docker ps'
   }
 
-  docker.image('jackjiaibm/ibm-jenkins-slave-nvm').inside {
+  docker.image('hello-world') {
     stage ('Say Hello 1') {
       sh 'echo hello!'
     }
