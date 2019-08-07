@@ -22,4 +22,18 @@ node('ubuntu1804-docker-2c-2g') {
   stage('Dockr info') {
     sh 'docker -v && docker images && docker ps'
   }
+
+  docker.image('jackjiaibm/ibm-jenkins-slave-nvm').inside {
+    stage ('Say Hello 1') {
+      sh 'echo hello!'
+    }
+
+    stage('Server info 1') {
+      sh 'cat /etc/os-release'
+    }
+
+    stage('Dockr info 1') {
+      sh 'docker -v && docker images && docker ps'
+    }
+  }
 }
