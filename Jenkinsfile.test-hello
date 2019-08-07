@@ -23,7 +23,7 @@ node('ubuntu1804-docker-2c-2g') {
     sh 'docker -v && docker images && docker ps'
   }
 
-  docker.image('docker:dind').withRun('-v /var/run/docker.sock:/var/run/docker.sock').inside {
+  docker.image('alpine:latest').inside {
     stage ('Say Hello 1') {
       sh 'echo hello!'
     }
@@ -33,7 +33,7 @@ node('ubuntu1804-docker-2c-2g') {
     }
 
     stage('Dockr info 1') {
-      sh 'docker -v && docker images && docker ps'
+      sh 'docker -v'
     }
   }
 }
