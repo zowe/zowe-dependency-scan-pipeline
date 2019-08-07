@@ -23,7 +23,7 @@ node('ubuntu1804-docker-2c-2g') {
     sh 'docker -v && docker images && docker ps'
   }
 
-  docker.image('docker:dind').inside {
+  docker.image('docker:latest').withRun('-v /var/run/docker.sock:/var/run/docker.sock') {
     stage ('Say Hello 1') {
       sh 'echo hello!'
     }
