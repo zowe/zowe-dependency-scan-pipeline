@@ -23,7 +23,7 @@ node('ubuntu1804-docker-2c-2g') {
     sh 'docker -v && docker images && docker ps'
   }
 
-  stagge('Java & Node') {
+  stage('Java & Node') {
     sh 'java -version || true'
     sh 'node --version || true'
   }
@@ -41,7 +41,7 @@ node('ubuntu1804-docker-2c-2g') {
       sh 'docker -v'
     }
 
-    stagge('Java & Node') {
+    stage('Java & Node') {
       sh 'java -version || true'
       sh 'node --version || true'
     }
