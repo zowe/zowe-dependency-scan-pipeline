@@ -50,7 +50,7 @@ try {
       sh """
       cp /home/jenkins/.npmrc-explorer /home/jenkins/.npmrc
       if [ -f "package-lock.json" ]; then
-        npm ci --no-audit
+        npm ci --no-audit --production
       else
         npm install --no-audit --production
       fi
