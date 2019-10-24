@@ -7,7 +7,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * Copyright IBM Corporation 2018, 2019
+ * Copyright Contributors to the Zowe Project.
  */
 
 
@@ -41,6 +41,9 @@ node('zowe-dependency-scanning') {
   pipeline.build(
     timeout       : [time: 500, unit: 'MINUTES'],
     isSkippable   : false,
+    environment   : [
+      ZOWE_MANIFEST_BRANCH: "v1.5.0"
+    ],
     operation     : {
         dir("${DEPENDENCY_SCAN_HOME}") {
             sh "npm set registry ${lib.Constants.DEFAULT_NPM_PRIVATE_REGISTRY_INSTALL}"
@@ -49,6 +52,7 @@ node('zowe-dependency-scanning') {
             sh "yarn install && yarn build"
             sh "node lib/index.js"
             sh "cd build && zip -r logs.zip logs/"
+            sh "cd build && zip -r reports.zip license_reports/"
         }
     }
   )
@@ -62,7 +66,7 @@ node('zowe-dependency-scanning') {
                 allowMissing: true,
                 alwaysLinkToLastBuild: true,
                 keepAll: true,
-                reportDir: "reports",
+                reportDir: "license_reports",
                 reportFiles: "${PENDING_APPROVAL_REPORT_NAME}"
             ])
           }
@@ -78,7 +82,7 @@ node('zowe-dependency-scanning') {
                 allowMissing: true,
                 alwaysLinkToLastBuild: true,
                 keepAll: true,
-                reportDir: "reports",
+                reportDir: "license_reports",
                 reportFiles: "${MARKDOWN_REPORT_NAME}"
             ])
           }
@@ -90,6 +94,7 @@ node('zowe-dependency-scanning') {
       stage: {
           dir("${DEPENDENCY_SCAN_HOME}/build") {
             archiveArtifacts artifacts: "logs.zip"
+            archiveArtifacts artifacts: "reports.zip"
           }
       }
   )
