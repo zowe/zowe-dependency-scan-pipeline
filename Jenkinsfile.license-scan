@@ -42,7 +42,7 @@ node('zowe-dependency-scanning') {
     timeout       : [time: 500, unit: 'MINUTES'],
     isSkippable   : false,
     environment   : [
-      ZOWE_MANIFEST_BRANCH: "v1.6.0/master"
+      ZOWE_MANIFEST_BRANCH: "v1.6.0"
     ],
     operation     : {
         dir("${DEPENDENCY_SCAN_HOME}") {
