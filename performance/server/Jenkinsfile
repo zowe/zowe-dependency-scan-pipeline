@@ -65,9 +65,7 @@ node('ibm-jenkins-slave-nvm') {
       }
     },
     junit         : "performance/server/junit.xml",
-    cobertura     : [
-      coberturaReportFile       : "performance/server/coverage/clover.xml",
-    ],
+    // FIXME: publish clover coverage report: https://github.com/zowe/jenkins-library/issues/55
     htmlReports   : [
       [dir: "performance/server/coverage/lcov-report", files: "index.html", name: "Report: Code Coverage"],
     ],
@@ -77,7 +75,7 @@ node('ibm-jenkins-slave-nvm') {
   pipeline.packaging(
     name             : 'zowe-metrics-server',
     localWorkspace   : "${PROJECT_ROOT_PATH}/.pax",
-    keepTempFolder   : true
+    keepTempFolder   : false
   )
 
   // define we need publish stage

@@ -43,7 +43,7 @@ cp LICENSE "${PAX_WORKSPACE_DIR}/content"
 cp README.md "${PAX_WORKSPACE_DIR}/content"
 cp package.json "${PAX_WORKSPACE_DIR}/content"
 cp package-lock.json "${PAX_WORKSPACE_DIR}/content"
-cp .env.example "${PAX_WORKSPACE_DIR}/content/.env.example"
+cp .env.example "${PAX_WORKSPACE_DIR}/content/.env"
 cp -r dist "${PAX_WORKSPACE_DIR}/content"
 cp -r views "${PAX_WORKSPACE_DIR}/content"
 
