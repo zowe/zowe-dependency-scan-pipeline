@@ -52,16 +52,16 @@ cd "${PAX_WORKSPACE_DIR}/content"
 npm install --production
 cd "${ROOT_DIR}"
 
-# # move content to another folder
-# rm -fr "${PAX_WORKSPACE_DIR}/ascii"
-# mkdir -p "${PAX_WORKSPACE_DIR}/ascii"
-# rsync -rv \
-#   --exclude '*.png' --exclude '*.ico' \
-#   --exclude '*.zip' --exclude '*.pax' \
-#   --exclude '*.tgz' --exclude '*.tar.gz' \
-#   --prune-empty-dirs --remove-source-files \
-#   "${PAX_WORKSPACE_DIR}/content/" \
-#   "${PAX_WORKSPACE_DIR}/ascii"
+# move content to another folder
+rm -fr "${PAX_WORKSPACE_DIR}/ascii"
+mkdir -p "${PAX_WORKSPACE_DIR}/ascii"
+rsync -rv \
+  --exclude '*.png' --exclude '*.ico' \
+  --exclude '*.zip' --exclude '*.pax' \
+  --exclude '*.tgz' --exclude '*.tar.gz' \
+  --prune-empty-dirs --remove-source-files \
+  "${PAX_WORKSPACE_DIR}/content/" \
+  "${PAX_WORKSPACE_DIR}/ascii"
 
 echo "[${SCRIPT_NAME}] ${PAX_WORKSPACE_DIR} folder is prepared."
 exit 0
