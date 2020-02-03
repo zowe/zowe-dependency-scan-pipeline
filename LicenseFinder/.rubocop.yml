@@ -1,0 +1,64 @@
+AllCops:
+  TargetRubyVersion: 2.3.3 
+  Exclude:
+    - 'lib/license_finder/reports/**/*'
+    - 'features/fixtures/**/*'
+    - 'releases/**/*'
+    - 'ci/**/*'
+    - 'tmp/**/*'
+    - 'Gemfile'
+
+#Layout Cops
+IndentHeredoc:
+  Enabled: false
+EmptyLinesAroundArguments:
+  Enabled: false
+
+#Linting Cops
+AmbiguousRegexpLiteral:
+  Enabled: false
+
+# Metrics Cops
+AbcSize:
+  Max: 35
+BlockLength:
+  Enabled: false # TODO: enable and refactor long methods
+#  ExcludedMethods: ['describe', 'context', 'it', 'shared_examples']  # uncomment once enabled
+ClassLength:
+  Enabled: false
+CyclomaticComplexity:
+  Max: 10
+PerceivedComplexity:
+  Max: 10
+LineLength:
+  Max: 200
+MethodLength:
+  Enabled: false
+ModuleLength:
+  Enabled: false
+
+# Security Cops
+YAMLLoad:
+  Enabled: false
+
+#Style Cops
+Style/MethodMissingSuper:
+  Enabled: false
+Style/MissingRespondToMissing:
+  Enabled: false
+Style/FormatStringToken:
+  EnforcedStyle: unannotated
+Layout/MultilineMethodCallIndentation:
+    Enabled: false
+DoubleNegation:
+  Enabled: false
+Documentation:
+  Enabled: false
+FileName:
+  Exclude:
+    - '**/Rakefile'
+    - '**/Gemfile'
+    - '**/Podfile'
+ModuleFunction:
+  Enabled: false
+  EnforcedStyle: extend_self

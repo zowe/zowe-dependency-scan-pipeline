@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    "types": [
+      "node",
+      "reflect-metadata"
+    ],
+    "lib": [
+      "esnext"
+    ],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "target": "es2017",
+    "module": "commonjs",
+    "declaration": true,
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "outDir": "./lib",
+    "preserveConstEnums": true,
+    "removeComments": false,
+    "pretty": true,
+    "sourceMap": true,
+    "newLine": "lf",
+    "plugins": [
+      {
+        "name": "typescript-tslint-plugin",
+        "alwaysShowRuleFailuresAsWarnings": false,
+        "ignoreDefinitionFiles": true,
+        "configFile": "../tslint-packages.json",
+        "suppressWhileTypeErrorsPresent": false,
+        "mockTypeScriptVersion": false
+      }
+    ]
+  },
+  "typeRoots": [
+    "./node_modules/@types"
+  ],
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "lib",
+    "node_modules",
+    "**/__mocks__/*",
+    "**/__tests__/*",
+    "**/*.spec.ts",
+    "**/*-spec.ts",
+    "**/*.test.ts"
+  ]
+}

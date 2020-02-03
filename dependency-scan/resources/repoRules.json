@@ -1,0 +1,49 @@
+{
+	"api-layer": {
+		"paths": [
+			"api-catalog-ui/frontend",
+			"helloworld-expressjs",
+			"apiml-auth"
+		],
+		"gradleArgs": ["-x", "bundle"]
+	},
+	"db-browser": {
+		"paths": ["webClient"]
+	},
+	"db-browser-db2": {
+		"paths": ["nodeServer"]
+	},
+	"file-transfer-app": {
+		"paths": ["webClient", "nodeServer"]
+	},
+	"sample-angular-app": {
+		"paths": ["nodeServer", "webClient"]
+	},
+	"sample-react-app": {
+		"paths": ["webClient"]
+	},
+	"tn3270-ng2": {
+		"paths": ["webClient"]
+	},
+	"vt-ng2": {
+		"paths": ["webClient"]
+	},
+	"zlux-app-manager": {
+		"paths": ["bootstrap", "system-apps/app-prop-viewer/webClient", "virtual-desktop", "virtual-desktop/nodeServer"]
+	},
+	"zlux-editor": {
+		"paths": ["webClient"]
+	},
+	"zlux-file-explorer": {
+		"paths": ["webClient"]
+	},
+	"zlux-file-properties": {
+		"paths": ["webClient"]
+	},
+	"zlux-shared": {
+		"paths": ["src/logging"]
+	},
+	"zos-subsystems": {
+		"paths": ["webClient"]
+	}
+}
