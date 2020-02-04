@@ -1,0 +1,3 @@
+<% sorted_dependencies.each do |dependency| -%>
+| <%= project_official(project_name) %> | <%= dependency.name %> |  <%= version_groups(dependency) %> | <%= markdown_link_to_license(dependency) %> | <%= markdown_link_to_repo(dependency) %> |
+<% end %>
