@@ -26,6 +26,8 @@ export class Constants {
 
     public static readonly LOG_DIR: string = path.join(Constants.BASE_WORK_DIR, "logs");
 
+    public static readonly NOTICE_REPORTS_DIR: string = path.join(Constants.BASE_WORK_DIR, "notice_reports");
+
     public static readonly LICENSE_REPORTS_DIR: string = path.join(Constants.BASE_WORK_DIR, "license_reports");
 
     public static readonly OWASP_REPORTS_DIR: string = path.join(Constants.BASE_WORK_DIR, "owasp_reports");
@@ -47,11 +49,16 @@ export class Constants {
 
     public static readonly PARALLEL_REPORT_COUNT: number = 1;
 
+    public static readonly PARALLEL_NOTICE_REPORT_COUNT: number = 4;
+
     public static readonly CLEAN_REPO_DIR_ON_START: boolean = true;
 
     public static readonly CLEAN_LOGS_ON_START: boolean = true;
 
-    public static readonly APP_LICENSE_SCAN: boolean = Utilities.getExclusiveEnv("APP_LICENSE_SCAN", "APP_OWASP_SCAN", true);
+    // Must fix application invocation later, as part of eventual conversion to CLI plugin this should become far more natural.
+    public static readonly APP_LICENSE_SCAN: boolean = Utilities.getExclusiveEnv("APP_LICENSE_SCAN", "APP_NOTICES_SCAN", true);
+
+    public static readonly APP_NOTICES_SCAN: boolean = Utilities.getExclusiveEnv("APP_NOTICES_SCAN", "APP_OWASP_SCAN", false);
 
     public static readonly APP_OWASP_SCAN: boolean = Utilities.getEnv("APP_OWASP_SCAN", false);
 

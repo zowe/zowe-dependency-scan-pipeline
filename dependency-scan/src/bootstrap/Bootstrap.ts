@@ -20,6 +20,7 @@ import { CloneAction } from "../actions/base/CloneAction";
 import { InstallAction } from "../actions/base/InstallAction";
 import { LicenseReportAction } from "../actions/license/LicenseReportAction";
 import { LicenseScanAction } from "../actions/license/LicenseScanAction";
+import { NoticeReportAction } from "../actions/notices/NoticeReportAction";
 import { OwaspPublishAction } from "../actions/owasp/OwaspPublishAction";
 import { OwaspScanReportAction } from "../actions/owasp/OwaspScanReportAction";
 import { ScanApplication } from "../app/ScanApplication";
@@ -73,6 +74,7 @@ export function bootstrap(container: Container) {
                 container.bind(TYPES.Logger).to(Logger).inSingletonScope();
                 container.bind(TYPES.CloneAction).to(CloneAction).inSingletonScope();
                 container.bind(TYPES.InstallAction).to(InstallAction).inSingletonScope();
+                container.bind(TYPES.NoticesReportAction).to(NoticeReportAction).inSingletonScope();
                 container.bind(TYPES.LicenseScanAction).to(LicenseScanAction).inSingletonScope();
                 container.bind(TYPES.LicenseReportAction).to(LicenseReportAction).inSingletonScope();
                 container.bind(TYPES.OwaspScanReportAction).to(OwaspScanReportAction).inSingletonScope();

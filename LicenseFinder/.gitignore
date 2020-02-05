@@ -11,3 +11,9 @@ features/fixtures/maven-wrapper/target
 features/fixtures/sbt/target
 features/fixtures/sbt/project/target
 features/fixtures/sbt/project/project
+features/fixtures/.settings
+features/fixtures/.classpath
+features/fixtures/.project
+spec/fixtures/all_pms/.settings
+spec/fixtures/all_pms/.project
+
