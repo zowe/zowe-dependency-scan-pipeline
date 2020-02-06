@@ -11,11 +11,13 @@
  */
 
 
-node('zowe-dependency-scanning') {
+node('zowe-dependency-scanning-rev2') {
 
+  def ZOWE_BRANCH = "v1.7.1"
   def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
   def PENDING_APPROVAL_REPORT_NAME = "dependency_approval_action_aggregates.json"
   def MARKDOWN_REPORT_NAME = "markdown_dependency_report.md"
+  def NOTICES_AGGREGATE_FILE = "notices_aggregate.txt"
 
   def lib = library("jenkins-library").org.zowe.jenkins_shared_library
 
@@ -40,6 +42,9 @@ node('zowe-dependency-scanning') {
 
   pipeline.build(
     timeout       : [time: 500, unit: 'MINUTES'],
+    environment: [
+      ZOWE_MANIFEST_BRANCH: "${ZOWE_BRANCH}"
+    ],
     isSkippable   : false,
     operation     : {
         dir("${DEPENDENCY_SCAN_HOME}") {
@@ -47,6 +52,23 @@ node('zowe-dependency-scanning') {
             sh "echo always-auth=true >> ~/.npmrc"
             sh "cp ~/.npmrc resources/private_npmrc/.npmrc"
             sh "yarn install && yarn build"
+            sh "node lib/index.js"
+        }
+    }
+  )
+
+  pipeline.createStage(
+    timeout       : [time: 500, unit: 'MINUTES'],
+    isSkippable   : false,
+    environment: [
+      ZOWE_MANIFEST_BRANCH: "${ZOWE_BRANCH}",
+      APP_NOTICES_SCAN: "true"
+    ],
+    operation     : {
+        dir("${DEPENDENCY_SCAN_HOME}") {
+            sh "npm set registry ${lib.Constants.DEFAULT_NPM_PRIVATE_REGISTRY_INSTALL}"
+            sh "echo always-auth=true >> ~/.npmrc"
+            sh "cp ~/.npmrc resources/private_npmrc/.npmrc"
             sh "node lib/index.js"
             sh "cd build && zip -r logs.zip logs/"
         }
@@ -84,6 +106,23 @@ node('zowe-dependency-scanning') {
           }
       }
   )
+
+  pipeline.createStage(
+      name: "Publish Notices File Required",
+      stage: {
+          dir("${DEPENDENCY_SCAN_HOME}/build") {
+            publishHTML(target: [
+                reportName: "Notices",
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: "notice_reports",
+                reportFiles: "${NOTICES_AGGREGATE_FILE}"
+            ])
+          }
+      }
+  )
+
 
   pipeline.createStage(
       name: "Publish Logs",
