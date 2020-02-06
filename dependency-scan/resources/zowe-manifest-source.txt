@@ -1,1 +1,0 @@
-https://raw.githubusercontent.com/zowe/zowe-install-packaging/v1.7.1/manifest.json.template

@@ -26,6 +26,8 @@ export class Constants {
 
     public static readonly LOG_DIR: string = path.join(Constants.BASE_WORK_DIR, "logs");
 
+    public static readonly NOTICE_REPORTS_DIR: string = path.join(Constants.BASE_WORK_DIR, "notice_reports");
+
     public static readonly LICENSE_REPORTS_DIR: string = path.join(Constants.BASE_WORK_DIR, "license_reports");
 
     public static readonly OWASP_REPORTS_DIR: string = path.join(Constants.BASE_WORK_DIR, "owasp_reports");
@@ -47,11 +49,16 @@ export class Constants {
 
     public static readonly PARALLEL_REPORT_COUNT: number = 1;
 
+    public static readonly PARALLEL_NOTICE_REPORT_COUNT: number = 4;
+
     public static readonly CLEAN_REPO_DIR_ON_START: boolean = true;
 
     public static readonly CLEAN_LOGS_ON_START: boolean = true;
 
-    public static readonly APP_LICENSE_SCAN: boolean = Utilities.getExclusiveEnv("APP_LICENSE_SCAN", "APP_OWASP_SCAN", true);
+    // Must fix application invocation later, as part of eventual conversion to CLI plugin this should become far more natural.
+    public static readonly APP_LICENSE_SCAN: boolean = Utilities.getExclusiveEnv("APP_LICENSE_SCAN", "APP_NOTICES_SCAN", true);
+
+    public static readonly APP_NOTICES_SCAN: boolean = Utilities.getExclusiveEnv("APP_NOTICES_SCAN", "APP_OWASP_SCAN", false);
 
     public static readonly APP_OWASP_SCAN: boolean = Utilities.getEnv("APP_OWASP_SCAN", false);
 
@@ -64,7 +71,7 @@ export class Constants {
     // only change if re-running builds / modifying manifest or other metadata locally
     public static readonly DOWNLOAD_MANIFEST: boolean = Utilities.getEnv("ZOWE_DL_MANIFEST", true);
 
-    public static readonly ZOWE_MANIFEST_BRANCH: string = Utilities.getEnvStr("ZOWE_MANIFEST_BRANCH", "staging");
+    public static readonly ZOWE_MANIFEST_BRANCH: string = Utilities.getEnvStr("ZOWE_MANIFEST_BRANCH", "v1.7.0");
 
     public static readonly EXEC_CLONE: boolean = Utilities.getEnv("ZOWE_STEP_CLONE", true);
 

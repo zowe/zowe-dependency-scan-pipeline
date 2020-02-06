@@ -19,6 +19,7 @@ export class ScanApplication {
 
     @inject(TYPES.CloneAction) private readonly cloneAction: IAction;
     @inject(TYPES.InstallAction) private readonly installAction: IAction;
+    @inject(TYPES.NoticesReportAction) private readonly noticeReportaction: IAction;
     @inject(TYPES.LicenseScanAction) private readonly licenseScanAction: IAction;
     @inject(TYPES.LicenseReportAction) private readonly licenseReportAction: IAction;
     @inject(TYPES.OwaspScanReportAction) private readonly owaspScanReportAction: IAction;
@@ -56,7 +57,15 @@ export class ScanApplication {
             // (Constants.EXEC_REPORTS) ? (appFns.push(this.reportAction.run.bind(this.installAction)), console.log("Will Execute OWASP Publish Step"))
             //   : console.log("Will Skip Report Step");
         }
-
+        else if (Constants.APP_NOTICES_SCAN) {
+            console.log("Performing NOTICES scan");
+            (Constants.EXEC_CLONE) ? (appFns.push(this.cloneAction.run.bind(this.cloneAction)), console.log("Will Execute Clone Step"))
+                : console.log("Will Skip Clone Step");
+            (Constants.EXEC_INSTALLS) ? (appFns.push(this.installAction.run.bind(this.installAction)), console.log("Will Execute Install Step"))
+                : console.log("Will Skip Install Step");
+            (Constants.EXEC_SCANS) ? (appFns.push(this.noticeReportaction.run.bind(this.noticeReportaction)), console.log("Will Execute Notices Report Step"))
+                : console.log("Will Skip Scan Step");
+        }
         // tslint:enable
         appFns.reduce((prev, cur) => prev.then(cur), Promise.resolve());
     }
