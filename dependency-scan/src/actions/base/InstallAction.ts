@@ -65,7 +65,7 @@ export class InstallAction implements IAction {
             const bootstrapGradle = spawn.sync(`./bootstrap_gradlew.sh`, [], { cwd: absDir, env: process.env, shell: true });
             this.log.logOutputSync(bootstrapGradle, projectDir, "install");
 
-            let gradleArgs = ["build", "-x", "test"];
+            let gradleArgs = ["build", "-x", "test", "-x", "check"];
             if (this.repoRules.hasExtraGradleArgs(projectDir)) {
                 gradleArgs = gradleArgs.concat(this.repoRules.getExtraGradleArgs(projectDir));
             }
@@ -88,7 +88,8 @@ export class InstallAction implements IAction {
             // Integrity isn't *critically* important here as we just want to get dependency trees down and check their license info.
             // So far, there are no failures downstream due to an integrity mismatch at this step.
             /// -- Alternatives to skip-integrity-check are dropping network-concurrency to 1 and/or setting a mutex on yarn install.
-            const installProcess = spawn("yarn", ["install", "--production", "--network-timeout", "300000",
+            const installProcess = spawn("yarn", ["install", "--production", "--network-timeout", "300000", "--ignore-engines",
+                "--registry", "https://zowe.jfrog.io/zowe/api/npm/npm-release",
                 "--skip-integrity-check", "--network-concurrency", "5"], { cwd: absDir, env: process.env, shell: true });
             processPromises.push(this.log.logOutputAsync(installProcess, projectDir, "install"));
         }

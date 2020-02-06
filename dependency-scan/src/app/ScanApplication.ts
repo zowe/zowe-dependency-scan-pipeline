@@ -63,7 +63,7 @@ export class ScanApplication {
                 : console.log("Will Skip Clone Step");
             (Constants.EXEC_INSTALLS) ? (appFns.push(this.installAction.run.bind(this.installAction)), console.log("Will Execute Install Step"))
                 : console.log("Will Skip Install Step");
-            (Constants.EXEC_SCANS) ? (appFns.push(this.owaspScanReportAction.run.bind(this.noticeReportaction)), console.log("Will Execute Notices Report Step"))
+            (Constants.EXEC_SCANS) ? (appFns.push(this.noticeReportaction.run.bind(this.noticeReportaction)), console.log("Will Execute Notices Report Step"))
                 : console.log("Will Skip Scan Step");
         }
         // tslint:enable
