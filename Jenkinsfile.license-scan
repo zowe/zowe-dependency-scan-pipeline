@@ -65,7 +65,7 @@ node('zowe-dependency-scanning-rev2') {
       ZOWE_MANIFEST_BRANCH: "${ZOWE_BRANCH}",
       APP_NOTICES_SCAN: "true"
     ],
-    operation     : {
+    stage     : {
         dir("${DEPENDENCY_SCAN_HOME}") {
             sh "npm set registry ${lib.Constants.DEFAULT_LFJ_NPM_PRIVATE_REGISTRY_INSTALL}"
             sh "cp ~/.npmrc resources/private_npmrc/.npmrc"
