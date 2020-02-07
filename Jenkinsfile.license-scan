@@ -41,7 +41,7 @@ node('zowe-dependency-scanning-rev2') {
   );
 
   pipeline.build(
-    name          : "Generate License Report"
+    name          : "Generate License Report",
     timeout       : [time: 500, unit: 'MINUTES'],
     environment: [
       ZOWE_MANIFEST_BRANCH: "${ZOWE_BRANCH}"
@@ -58,7 +58,7 @@ node('zowe-dependency-scanning-rev2') {
   )
 
   pipeline.createStage(
-    name          : "Generate Notices"
+    name          : "Generate Notices",
     timeout       : [time: 500, unit: 'MINUTES'],
     isSkippable   : false,
     environment: [
