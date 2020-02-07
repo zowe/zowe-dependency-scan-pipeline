@@ -74,51 +74,52 @@ export class LicenseScanAction implements IAction {
     private scanAggregate(allProjects: string[]): Promise<any> {
         return new Promise((resolve, reject) => {
             console.log("Running scan with aggregate-paths=" + allProjects.join(" "));
-            // const licenseProcess = spawn.sync("license_finder", ["action_items", "--format", "json", "--quiet",
-            //     "--decisions-file=" + Constants.DEPENDENCY_DECISIONS_YAML,
-            //     "--aggregate-paths='" + allProjects.join("' '") + "'"], {
-            const licenseProcess = spawn.sync("docker", [
-                "run",
-                "--rm",
-                "-v", `${process.cwd()}/${Constants.BASE_WORK_DIR}:/build`,
-                "-v", `${Constants.LICENSE_FINDER_DIR}:/LicenseFinder`,
-                "licensefinder/license_finder",
-                "/bin/bash",
-                "-c",
-                "'" + [
-                // [
-                    ". /root/.bash_profile",
-                    "&&",
-                    "cd /LicenseFinder",
-                    "&&",
-                    "rm -f pkg/*",
-                    "&&",
-                    "bundle install --local",
-                    "&&",
-                    // bundle clean failed if don't run bundle install
-                    // bundle clean is required to clean up license-finder gem cache
-                    "bundle clean --force",
-                    "&&",
-                    "bundle install -j4",
-                    "&&",
-                    "rake install",
-                    "&&",
-                    "cd ~",
-                    "&&",
-                    "license_finder",
-                    "action_items",
-                    "--format", "json",
-                    "--quiet",
-                    `--decisions-file=/${Constants.DEPENDENCY_DECISIONS_YAML}`,
-                    "--aggregate-paths", "/" + allProjects.join(" /"),
-                ].join(" ") + "'",
-                // ].join(" "),
-            ], {
+            const licenseProcess = spawn.sync("license_finder", ["action_items", "--format", "json", "--quiet",
+                "--decisions-file=" + Constants.DEPENDENCY_DECISIONS_YAML,
+                "--aggregate-paths='" + allProjects.join("' '") + "'"], {
                 cwd: process.env.cwd,
                 env: process.env,
                 // Shell true required for aggregate paths with spaces between projects
                 shell: true
             });
+            /*  const licenseProcess = spawn.sync("docker", [
+                  "run",
+                  "--rm",
+                  "-v", `${process.cwd()}/${Constants.BASE_WORK_DIR}:/build`,
+                  "-v", `${Constants.LICENSE_FINDER_DIR}:/LicenseFinder`,
+                  "licensefinder/license_finder",
+                  "/bin/bash",
+                  "-c",
+                  "'" + [
+                  // [
+                      ". /root/.bash_profile",
+                      "&&",
+                      "cd /LicenseFinder",
+                      "&&",
+                      "rm -f pkg/*",
+                      "&&",
+                      "bundle install --local",
+                      "&&",
+                      // bundle clean failed if don't run bundle install
+                      // bundle clean is required to clean up license-finder gem cache
+                      "bundle clean --force",
+                      "&&",
+                      "bundle install -j4",
+                      "&&",
+                      "rake install",
+                      "&&",
+                      "cd ~",
+                      "&&",
+                      "license_finder",
+                      "action_items",
+                      "--format", "json",
+                      "--quiet",
+                      `--decisions-file=/${Constants.DEPENDENCY_DECISIONS_YAML}`,
+                      "--aggregate-paths", "/" + allProjects.join(" /"),
+                  ].join(" ") + "'",
+                  // ].join(" "),
+              ], {*/
+
             this.log.logOutputSync(licenseProcess, "dependency_approvals_aggregate");
             const logFile: number = this.log.getLogFile("dependency_approvals_aggregate");
             // The log is pure JSON with a header, so we strip the header and write the final "output" of the aggregate scan.
@@ -130,48 +131,49 @@ export class LicenseScanAction implements IAction {
 
     private scanProject(projectDir: string, cb: (error: any, val?: any) => void) {
         console.log("Scanning individual project " + projectDir);
-        // const licenseProcess = spawn("license_finder", ["report", "--project-path", projectDir, "--format", "json",
-        //     "--decisions-file=" + Constants.DEPENDENCY_DECISIONS_YAML], {
-        const licenseProcess = spawn("docker", [
-            "run",
-            "--rm",
-            "-v", `${process.cwd()}/${Constants.BASE_WORK_DIR}:/build`,
-            "-v", `${Constants.LICENSE_FINDER_DIR}:/LicenseFinder`,
-            "licensefinder/license_finder",
-            "/bin/bash",
-            "-c",
-            // "'" + [
-            [
-                ". /root/.bash_profile",
-                "&&",
-                "cd /LicenseFinder",
-                "&&",
-                "rm -f pkg/*",
-                "&&",
-                "bundle install --local",
-                "&&",
-                // bundle clean failed if don't run bundle install
-                // bundle clean is required to clean up license-finder gem cache
-                "bundle clean --force",
-                "&&",
-                "bundle install -j4",
-                "&&",
-                "rake install",
-                "&&",
-                "cd ~",
-                "&&",
-                "license_finder",
-                "report",
-                "--project-path", `/${projectDir}`,
-                "--format", "json",
-                `--decisions-file=/${Constants.DEPENDENCY_DECISIONS_YAML}`,
-            // ].join(" ") + "'",
-            ].join(" "),
-        ], {
+        const licenseProcess = spawn("license_finder", ["report", "--project-path", projectDir, "--format", "json",
+            "--decisions-file=" + Constants.DEPENDENCY_DECISIONS_YAML], {
             cwd: process.env.cwd,
             env: process.env,
             shell: false
         });
+        /* const licenseProcess = spawn("docker", [
+             "run",
+             "--rm",
+             "-v", `${process.cwd()}/${Constants.BASE_WORK_DIR}:/build`,
+             "-v", `${Constants.LICENSE_FINDER_DIR}:/LicenseFinder`,
+             "licensefinder/license_finder",
+             "/bin/bash",
+             "-c",
+             // "'" + [
+             [
+                 ". /root/.bash_profile",
+                 "&&",
+                 "cd /LicenseFinder",
+                 "&&",
+                 "rm -f pkg/*",
+                 "&&",
+                 "bundle install --local",
+                 "&&",
+                 // bundle clean failed if don't run bundle install
+                 // bundle clean is required to clean up license-finder gem cache
+                 "bundle clean --force",
+                 "&&",
+                 "bundle install -j4",
+                 "&&",
+                 "rake install",
+                 "&&",
+                 "cd ~",
+                 "&&",
+                 "license_finder",
+                 "report",
+                 "--project-path", `/${projectDir}`,
+                 "--format", "json",
+                 `--decisions-file=/${Constants.DEPENDENCY_DECISIONS_YAML}`,
+                 // ].join(" ") + "'",
+             ].join(" "),
+         ], {*/
+
         const processComplete = this.log.logOutputAsync(licenseProcess, projectDir, "license_scan");
         processComplete.then((res) => {
             cb(null, res);
