@@ -13,7 +13,7 @@
 
 node('zowe-dependency-scanning-rev2') {
 
-  def ZOWE_BRANCH = "v1.7.1"
+  def ZOWE_BRANCH = "v1.8.0"
   def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
   def PENDING_APPROVAL_REPORT_NAME = "dependency_approval_action_aggregates.json"
   def MARKDOWN_REPORT_NAME = "markdown_dependency_report.md"
@@ -41,6 +41,7 @@ node('zowe-dependency-scanning-rev2') {
   );
 
   pipeline.build(
+    name          : "Generate License Report"
     timeout       : [time: 500, unit: 'MINUTES'],
     environment: [
       ZOWE_MANIFEST_BRANCH: "${ZOWE_BRANCH}"
@@ -48,8 +49,7 @@ node('zowe-dependency-scanning-rev2') {
     isSkippable   : false,
     operation     : {
         dir("${DEPENDENCY_SCAN_HOME}") {
-            sh "npm set registry ${lib.Constants.DEFAULT_NPM_PRIVATE_REGISTRY_INSTALL}"
-            sh "echo always-auth=true >> ~/.npmrc"
+            sh "npm set registry ${lib.Constants.DEFAULT_LFJ_NPM_PRIVATE_REGISTRY_INSTALL}"
             sh "cp ~/.npmrc resources/private_npmrc/.npmrc"
             sh "yarn install && yarn build"
             sh "node lib/index.js"
@@ -58,6 +58,7 @@ node('zowe-dependency-scanning-rev2') {
   )
 
   pipeline.createStage(
+    name          : "Generate Notices"
     timeout       : [time: 500, unit: 'MINUTES'],
     isSkippable   : false,
     environment: [
@@ -66,8 +67,7 @@ node('zowe-dependency-scanning-rev2') {
     ],
     operation     : {
         dir("${DEPENDENCY_SCAN_HOME}") {
-            sh "npm set registry ${lib.Constants.DEFAULT_NPM_PRIVATE_REGISTRY_INSTALL}"
-            sh "echo always-auth=true >> ~/.npmrc"
+            sh "npm set registry ${lib.Constants.DEFAULT_LFJ_NPM_PRIVATE_REGISTRY_INSTALL}"
             sh "cp ~/.npmrc resources/private_npmrc/.npmrc"
             sh "node lib/index.js"
             sh "cd build && zip -r logs.zip logs/"
