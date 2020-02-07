@@ -44,33 +44,15 @@ node('zowe-dependency-scanning-rev2') {
     name          : "Generate License Report",
     timeout       : [time: 500, unit: 'MINUTES'],
     environment: [
-      ZOWE_MANIFEST_BRANCH: "${ZOWE_BRANCH}"
+      ZOWE_MANIFEST_BRANCH: "${ZOWE_BRANCH}",
+      APP_LICENSE_SCAN: "true",
+      APP_NOTICES_SCAN: "true"
     ],
     isSkippable   : false,
     operation     : {
         dir("${DEPENDENCY_SCAN_HOME}") {
-            sh "npm set registry ${lib.Constants.DEFAULT_LFJ_NPM_PRIVATE_REGISTRY_INSTALL}"
             sh "yarn install && yarn build"
             sh "node lib/index.js"
-        }
-    }
-  )
-
-  pipeline.createStage(
-    name          : "Generate Notices",
-    timeout       : [time: 500, unit: 'MINUTES'],
-    isSkippable   : false,
-    environment: [
-      ZOWE_STEP_CLONE: "false",
-      ZOWE_STEP_INSTALL: "false",
-      ZOWE_MANIFEST_BRANCH: "${ZOWE_BRANCH}",
-      APP_NOTICES_SCAN: "true"
-    ],
-    stage     : {
-        dir("${DEPENDENCY_SCAN_HOME}") {
-            sh "npm set registry ${lib.Constants.DEFAULT_LFJ_NPM_PRIVATE_REGISTRY_INSTALL}"
-            sh "node lib/index.js"
-            sh "cd build && zip -r logs.zip logs/"
         }
     }
   )
