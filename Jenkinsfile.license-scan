@@ -27,9 +27,9 @@ node('zowe-dependency-scanning-rev2') {
 
   def registry = lib.npm.Registry.new(this);
   registry.init(
-      registry: lib.Constants.DEFAULT_NPM_PRIVATE_REGISTRY_INSTALL,
-      email: lib.Constants.DEFAULT_NPM_PRIVATE_REGISTRY_EMAIL,
-      usernamePasswordCredential: lib.Constants.DEFAULT_NPM_PRIVATE_REGISTRY_CREDENTIAL
+      registry: lib.Constants.DEFAULT_LFJ_NPM_PRIVATE_REGISTRY_INSTALL,
+      email: lib.Constants.DEFAULT_LFJ_NPM_PRIVATE_REGISTRY_EMAIL,
+      usernamePasswordCredential: lib.Constants.DEFAULT_LFJ_NPM_PRIVATE_REGISTRY_CREDENTIAL
   );
   registry.login();
 
