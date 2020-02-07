@@ -56,9 +56,9 @@ export class Constants {
     public static readonly CLEAN_LOGS_ON_START: boolean = true;
 
     // Must fix application invocation later, as part of eventual conversion to CLI plugin this should become far more natural.
-    public static readonly APP_LICENSE_SCAN: boolean = Utilities.getExclusiveEnv("APP_LICENSE_SCAN", "APP_NOTICES_SCAN", true);
+    public static readonly APP_LICENSE_SCAN: boolean = Utilities.getEnv("APP_LICENSE_SCAN", true);
 
-    public static readonly APP_NOTICES_SCAN: boolean = Utilities.getExclusiveEnv("APP_NOTICES_SCAN", "APP_OWASP_SCAN", false);
+    public static readonly APP_NOTICES_SCAN: boolean = Utilities.getEnv("APP_NOTICES_SCAN", false);
 
     public static readonly APP_OWASP_SCAN: boolean = Utilities.getEnv("APP_OWASP_SCAN", false);
 
