@@ -13,7 +13,7 @@
 
 node('zowe-dependency-scanning-rev2') {
 
-  def ZOWE_BRANCH = "v1.8.0"
+  def ZOWE_BRANCH = "user/markackert/update-cli-branch"
   def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
   def PENDING_APPROVAL_REPORT_NAME = "dependency_approval_action_aggregates.json"
   def MARKDOWN_REPORT_NAME = "markdown_dependency_report.md"
@@ -23,7 +23,7 @@ node('zowe-dependency-scanning-rev2') {
 
   def pipeline = lib.pipelines.generic.GenericPipeline.new(this)
 
-  pipeline.admins.add("markackert")
+  pipeline.admins.add("markackert", "awharn")
 
   def registry = lib.npm.Registry.new(this);
   registry.init(
