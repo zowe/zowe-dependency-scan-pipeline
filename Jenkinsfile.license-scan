@@ -13,7 +13,7 @@
 
 node('zowe-dependency-scanning-rev2') {
 
-  def ZOWE_BRANCH = "user/markackert/update-cli-branch"
+  def ZOWE_BRANCH = "staging"
   def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
   def PENDING_APPROVAL_REPORT_NAME = "dependency_approval_action_aggregates.json"
   def MARKDOWN_REPORT_NAME = "markdown_dependency_report.md"
