@@ -130,9 +130,10 @@ node('zowe-dependency-scanning-rev2') {
             sh "cp notice_reports/notices_aggregate.txt zowe_licenses_full/zowe_full_notices.txt"
             sh "cp license_reports/markdown_dependency_report.md zowe_licenses_full/zowe_full_dependency_list.md"
             sh "curl -o zowe_licenses_full/zowe_full_bill_of_materials.md https://raw.githubusercontent.com/zowe/docs-site/docs-staging/docs/appendix/bill-of-materials.md"
+          }
 
-            //Change directory so ZIP file will contain the same structure as before when created.
-            sh "cd zowe_licenses_full"
+          //Change directory so ZIP file will contain the same structure as before when created.
+          dir("${DEPENDENCY_SCAN_HOME}/build/zowe_licenses_full") {
             sh "zip -r zowe_licenses_full.zip ./*"
 
             archiveArtifacts artifacts: "zowe_licenses_full.zip"
