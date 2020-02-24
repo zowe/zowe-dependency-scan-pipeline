@@ -125,11 +125,11 @@ node('zowe-dependency-scanning-rev2') {
       stage: {
           dir("${DEPENDENCY_SCAN_HOME}/build") {
             sh "mkdir zowe_licenses_full"
-            sh "cp /home/jenkins/LICENSE zowe_licenses_full/ZOWE_PROJECT_LICENSE_EPL_2.0.txt"
             //Get the full notices, full dependency list, and current staging branch's bill of materials
             sh "cp notice_reports/notices_aggregate.txt zowe_licenses_full/zowe_full_notices.txt"
             sh "cp license_reports/markdown_dependency_report.md zowe_licenses_full/zowe_full_dependency_list.md"
             sh "curl -o zowe_licenses_full/zowe_full_bill_of_materials.md https://raw.githubusercontent.com/zowe/docs-site/docs-staging/docs/appendix/bill-of-materials.md"
+            sh "curl -o zowe_licenses_full/ZOWE_PROJECT_LICENSE_EPL_2.0.txt https://raw.githubusercontent.com/zowe/zowe-dependency-scan-pipeline/master/LICENSE"
           }
 
           //Change directory so ZIP file will contain the same structure as before when created.
