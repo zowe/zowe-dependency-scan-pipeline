@@ -1,0 +1,21 @@
+#
+services:
+    - serviceId: zowe-metric-server
+      title: Zowe Metric Server
+      description: A metrics collecting service running on z/OS.
+      catalogUiTileId: zowe-metric-server
+      instanceBaseUrls:
+        - https://{ZOWE_EXPLORER_HOST}:18000/
+      homePageRelativeUrl:  # Home page is at the same URL
+      routedServices:
+        - gatewayUrl: api/v1  # [api/ui/ws]/v{majorVersion}
+          serviceRelativeUrl:
+      apiInfo:
+        - apiId: org.zowe.zowe-metric-server
+          gatewayUrl: api/v1
+          version: 0.5.0
+
+catalogUiTiles:
+    zowe-metric-server:
+      title: zowe-metric-server
+      description: A metrics collecting service running on z/OS.

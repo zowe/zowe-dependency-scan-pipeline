@@ -53,3 +53,6 @@ yarn.lock
 !.pax/post-packaging.sh
 !.pax/catchall-packaging.sh
 !.pax/prepare-workspace.sh
+
+# this is required for logs collector
+!src/collectors/logs

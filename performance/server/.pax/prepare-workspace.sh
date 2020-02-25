@@ -31,21 +31,15 @@ echo "[${SCRIPT_NAME}] cleaning PAX workspace ..."
 rm -fr "${PAX_WORKSPACE_DIR}/content"
 mkdir -p "${PAX_WORKSPACE_DIR}/content"
 
-# build client
-if [ ! -f "dist/app.js" ]; then
-  echo "[${SCRIPT_NAME}] building client ..."
-  yarn start build
-fi
-
 # copy build result to target folder
 echo "[${SCRIPT_NAME}] copying build result ..."
 cp LICENSE "${PAX_WORKSPACE_DIR}/content"
 cp README.md "${PAX_WORKSPACE_DIR}/content"
 cp package.json "${PAX_WORKSPACE_DIR}/content"
 cp package-lock.json "${PAX_WORKSPACE_DIR}/content"
-cp .env.example "${PAX_WORKSPACE_DIR}/content/.env"
-cp -r dist "${PAX_WORKSPACE_DIR}/content"
-cp -r views "${PAX_WORKSPACE_DIR}/content"
+cp zms-server.yml "${PAX_WORKSPACE_DIR}/content"
+cp -r src "${PAX_WORKSPACE_DIR}/content"
+cp -r configs "${PAX_WORKSPACE_DIR}/content"
 
 echo "[${SCRIPT_NAME}] install npm packages ..."
 cd "${PAX_WORKSPACE_DIR}/content"

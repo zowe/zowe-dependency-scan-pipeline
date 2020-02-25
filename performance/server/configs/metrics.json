@@ -1,0 +1,14 @@
+[
+    {
+        "name": "da-cpu-memory",
+        "schedule": "5s",
+        "command": "da.rexx",
+        "outputFormat": "json"
+    },
+    {
+        "name": "memory1",
+        "schedule": "5s",
+        "command": "spool",
+        "outputFormat": "json"
+    }
+]
