@@ -8,6 +8,7 @@
     },
     "license": "EPL-2.0",
     "scripts": {
+        "build": "echo under construction",
         "start": "node server/app.js",
         "debug": "node --inspect server/app.js",
         "test": "echo under construction"
