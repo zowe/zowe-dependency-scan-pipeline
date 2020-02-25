@@ -64,11 +64,7 @@ node('ibm-jenkins-slave-nvm') {
         }
       }
     },
-    junit         : "performance/server/junit.xml",
-    // FIXME: publish clover coverage report: https://github.com/zowe/jenkins-library/issues/55
-    htmlReports   : [
-      [dir: "performance/server/coverage/lcov-report", files: "index.html", name: "Report: Code Coverage"],
-    ],
+    allowMissingJunit: true
   )
 
   // we have pax packaging step
