@@ -55,17 +55,22 @@ class MetricWorker {
      * @param {Object} row 
      */
     createRowString(row) {
-        let rowString = '';
-        rowString += row.key
-        let extraKeysString = '';
+        let rowKey = row.key;
+        let extraKeys = [];
         for (const key of Object.keys(row)) {
             if (key !== 'key' && key !== 'value') {
-                extraKeysString += key + '=' + row[key] + ','
+                extraKeys.push(key + '="' + row[key] + '"');
             }
         }
-        rowString += '{' + extraKeysString.substring(0, extraKeysString.length - 1) + '} '
-            + row.value + ' ' + this.collectionTime + '\n';
-        return rowString
+        if (extraKeys.length > 0) {
+            rowKey += '{' + extraKeys.join(',') + '}'
+        }
+
+        return [
+            rowKey,
+            row.value,
+            this.collectionTime,
+        ].join(' ') + '\n';
     }
 }
 
