@@ -14,7 +14,10 @@
 # - NODE_HOME
 
 NODE_BIN=${NODE_HOME}/bin/node
-# SCRIPT_PWD=$(cd "$(dirname "$0")" && pwd)
+SCRIPT_PWD=$(cd "$(dirname "$0")" && pwd)
+if [ -z "${ROOT_DIR}" ]; then
+  ROOT_DIR=$(cd "$SCRIPT_PWD" && cd ../../.. && pwd)
+fi
 # get component directory
 SERVER_DIR="${ROOT_DIR}/components/zms"
 # start service
