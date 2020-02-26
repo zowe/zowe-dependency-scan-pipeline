@@ -1,4 +1,6 @@
+const util = require('util');
 const shell = require('shelljs');
+const logger = require('../services/logger.service');
 
 /**
  * Calling the run function and passing in a script will result in a message
@@ -15,8 +17,11 @@ class MetricWorker {
      * @param {string} script Shell command or script to be executed
      */
     run(script) {
+        logger.silly(`metric worker run ${script}`);
         let scriptOutput = this.executeScript(script);
+        logger.silly(`metric worker response: ${scriptOutput}`);
         const response = this.parseScriptOutput(scriptOutput);
+        logger.silly(`metric worker formatted response: ${response}`);
         return response;
     }
 
@@ -35,19 +40,26 @@ class MetricWorker {
      * @param {String} scriptOutput stdout of a worker/collector script
      */
     parseScriptOutput(scriptOutput) {
-        let responseString = '';
-        // if (scriptOutput.indexOf('\"') == 0) {
-        scriptOutput = scriptOutput.replace('\n', '');
-        //}
+        let responseString = [];
+        let outputObject;
 
-        for (let row of JSON.parse(scriptOutput)) {
-            //sanetise special characters
-            if (row.process && row.process.includes('*')) {
-                row.process = 'MASTER'
-            }
-            responseString += this.createRowString(row);
+        try {
+            outputObject = JSON.parse(scriptOutput);
+        } catch (e) {
+            logger.warn(util.format(`Failed to parse output with error: ${e}. Original output is: %j`, scriptOutput));
         }
-        return responseString;
+
+        if (outputObject) {
+            for (let row of outputObject) {
+                //sanetise special characters
+                if (row.process && row.process.includes('*')) {
+                    row.process = 'MASTER'
+                }
+                responseString.push(this.createRowString(row));
+            }
+        }
+
+        return responseString.join('');
     }
 
     /**
