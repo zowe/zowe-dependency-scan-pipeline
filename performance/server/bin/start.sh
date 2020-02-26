@@ -14,6 +14,9 @@
 # - NODE_HOME
 
 NODE_BIN=${NODE_HOME}/bin/node
-SCRIPT_PWD=$(cd "$(dirname "$0")" && pwd)
-cd "$SCRIPT_PWD" && cd ..
-${NODE_BIN} src/app.js &
+# SCRIPT_PWD=$(cd "$(dirname "$0")" && pwd)
+# get component directory
+SERVER_DIR="${ROOT_DIR}/components/zms"
+# start service
+echo "Starting Zowe Metrics Server >>>>>>>>>>> $NODE_BIN $SERVER_DIR/src/app.js"
+$NODE_BIN $SERVER_DIR/src/app.js
