@@ -10,7 +10,8 @@ const makeMetricEntry = (metricConfig) => {
     newMetric.worker = '';
     newMetric.lastRequest = new Date();
     newMetric.lastResponse = new Date();
-    newMetric.value = {};
+    // FIXME: this should be an object and aggregate later when display
+    newMetric.value = '';
     return newMetric;
 }
 
