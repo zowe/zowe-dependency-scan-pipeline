@@ -13,7 +13,7 @@
 # Variables required on shell:
 # - NODE_HOME
 
-NPM_BIN=${NODE_HOME}/bin/npm
+NODE_BIN=${NODE_HOME}/bin/node
 SCRIPT_PWD=$(cd "$(dirname "$0")" && pwd)
 cd "$SCRIPT_PWD" && cd ..
-${NPM_BIN} start &
+${NODE_BIN} src/app.js &
