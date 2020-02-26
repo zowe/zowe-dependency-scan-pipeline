@@ -34,6 +34,7 @@ cp LICENSE "${PAX_WORKSPACE_DIR}/content"
 cp README.md "${PAX_WORKSPACE_DIR}/content"
 cp package.json "${PAX_WORKSPACE_DIR}/content"
 cp package-lock.json "${PAX_WORKSPACE_DIR}/content"
+cp -r bin "${PAX_WORKSPACE_DIR}/content"
 cp -r src "${PAX_WORKSPACE_DIR}/content"
 cp -r configs "${PAX_WORKSPACE_DIR}/content"
 
