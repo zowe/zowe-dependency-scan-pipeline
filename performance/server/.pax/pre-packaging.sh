@@ -17,9 +17,14 @@
 # contants
 SCRIPT_NAME=$(basename "$0")
 BASEDIR=$(cd "$(dirname "$0")"; pwd)
+cd content
 
 echo "[${SCRIPT_NAME}] chmod +x to *.rexx"
-cd content
 chmod a+x src/collectors/metrics/*.rexx
 # check result
 ls -l src/collectors/metrics
+
+echo "[${SCRIPT_NAME}] chmod +x to *.sh"
+chmod a+x bin/*.sh
+# check result
+ls -l bin
