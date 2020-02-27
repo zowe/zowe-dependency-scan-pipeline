@@ -14,7 +14,7 @@ npm install
 npm start
 ```
 
-Finally, navigate to https://localhost:19000 and you should see the template being served and rendered locally!
+Finally, navigate to https://localhost:19000 and you should see the home page shows `Hello World!`. Navigate to https://localhost:19000/metrics to see the most recent metrics.
 
 ## Start on z/OS
 
@@ -28,7 +28,8 @@ Finally, navigate to https://localhost:19000 and you should see the template bei
 - Upload the pax file to the server where Zowe is running.
 - Create directory `zms` under your favorite directory.
 - Change to the new created folder and extract the pax file: `pax -rf /path/to/zms.pax`.
-- Run `./bin/start.sh` or `./bin/start.sh &` to start in background.
+- Run `./bin/start.sh` to start the server.
+- If you want to keep the ZMS running after you exit USS, run `nohup ./bin/start.sh` instead. _Remember to kill your ZMS process if you don't need it._
 
 ### Install and Start with Zowe
 
@@ -42,5 +43,5 @@ _Note: this way requires the Zowe runtime user (ZWESVUSR) has SDSF permission._
 
 ### Start ZMS in Debug Mode
 
-- Locate the `zms` folder and edit `bin/start.sh`, find line of `$NODE_BIN $SERVER_DIR/src/app.js` and change to `LOG_LEVEL=debug $NODE_BIN $SERVER_DIR/src/app.js` or `LOG_LEVEL=silly $NODE_BIN $SERVER_DIR/src/app.js`.
-- Restart Zowe.
+- Locate the `zms` folder and edit `bin/start.sh`, find line of `$NODE_BIN $ZMS_ROOT_DIR/src/app.js` and change to `LOG_LEVEL=debug $NODE_BIN $ZMS_ROOT_DIR/src/app.js` or `LOG_LEVEL=silly $NODE_BIN $ZMS_ROOT_DIR/src/app.js`.
+- Restart Zowe if you run ZMS with Zowe, restart ZMS if you run it as independent process.
