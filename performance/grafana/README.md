@@ -14,3 +14,11 @@ You need `docker-compose` - checkout the [install guide](https://docs.docker.com
 ```
 $ docker-compose run -d
 ```
+
+Visit `http://localhost:3030` to access Grafana.
+
+## Import Zowe Metrics Dashboard
+
+- From Grafana UI, click on `+` icon on the left, then choose `Import`.
+- Click on `Upload` and select `zowe-metrics-dashboard.json` from local computer.
+- Name the dashboard and save.
