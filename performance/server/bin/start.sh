@@ -13,13 +13,18 @@
 # Variables required on shell:
 # - NODE_HOME
 
+if [ -z "${NODE_HOME}" ]; then
+  echo "[ERROR] NODE_HOME environment variable is required to start Zowe Metrics Server."
+  exit 1
+fi
+
 NODE_BIN=${NODE_HOME}/bin/node
 SCRIPT_PWD=$(cd "$(dirname "$0")" && pwd)
-if [ -z "${ROOT_DIR}" ]; then
-  ROOT_DIR=$(cd "$SCRIPT_PWD" && cd ../../.. && pwd)
-fi
-# get component directory
-SERVER_DIR="${ROOT_DIR}/components/zms"
+ZMS_ROOT_DIR=$(cd "$SCRIPT_PWD" && cd .. && pwd)
 # start service
-echo "Starting Zowe Metrics Server >>>>>>>>>>> $NODE_BIN $SERVER_DIR/src/app.js"
-$NODE_BIN $SERVER_DIR/src/app.js
+echo "Starting Zowe Metrics Server >>>>>>>>>>> $NODE_BIN $ZMS_ROOT_DIR/src/app.js"
+$NODE_BIN $ZMS_ROOT_DIR/src/app.js
+## debug mode
+# LOG_LEVEL=debug $NODE_BIN $ZMS_ROOT_DIR/src/app.js
+## silly debug more
+# LOG_LEVEL=silly $NODE_BIN $ZMS_ROOT_DIR/src/app.js

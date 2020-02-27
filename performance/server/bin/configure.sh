@@ -17,7 +17,7 @@ cat <<EOF >${STATIC_DEF_CONFIG_DIR}/zms.ebcidic.yml
 #
 services:
 - serviceId: zowe-metric-server
-  title: Zowe Metric Server
+  title: Zowe Metrics Server
   description: A metrics collecting service running on z/OS.
   catalogUiTileId: zowe-metric-server
   instanceBaseUrls:
