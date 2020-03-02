@@ -22,7 +22,7 @@
       "datasource": null,
       "gridPos": {
         "h": 5,
-        "w": 9,
+        "w": 7,
         "x": 0,
         "y": 0
       },
@@ -76,10 +76,68 @@
     },
     {
       "datasource": null,
+      "description": "",
       "gridPos": {
         "h": 5,
-        "w": 9,
-        "x": 9,
+        "w": 6,
+        "x": 7,
+        "y": 0
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "fieldOptions": {
+          "calcs": [
+            "last"
+          ],
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "#EAB839",
+                  "value": 40
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "title": "",
+            "unit": "none"
+          },
+          "overrides": [],
+          "values": false
+        },
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "pluginVersion": "6.6.2",
+      "targets": [
+        {
+          "expr": "sum(rate(CPU{process=~\"ZWE.*\"}[1m]))*100",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Zowe CPU %",
+      "type": "stat"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 13,
         "y": 0
       },
       "id": 4,
@@ -152,8 +210,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 18,
+        "w": 5,
+        "x": 19,
         "y": 0
       },
       "id": 6,
@@ -593,5 +651,5 @@
   "timezone": "",
   "title": "Zowe Metrics",
   "uid": "c0cs3GlZz",
-  "version": 12
+  "version": 3
 }
