@@ -72,10 +72,7 @@ node('ibm-jenkins-slave-nvm') {
                         usernameVariable: "SSH_USER"
                     )
                 ]) {
-                    sh """SSHPASS=${SSH_PASSWORD} sshpass -e sftp -o BatchMode=no -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -b - -P ${SSH_PORT} ${SSH_USER}@${SSH_HOST} << EOF
-cd /tmp
-put scripts/cleanup.sh
-EOF"""
+                    sh "SSHPASS=${SSH_PASSWORD} sshpass scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o PubkeyAuthentication=no scripts/cleanup.sh ${SSH_USER}@${SSH_HOST}:/tmp/cleanup.sh"
 
                     sh """SSHPASS=${SSH_PASSWORD} sshpass -e ssh -tt -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} << EOF
 cd /tmp && chmod +x cleanup.sh && ./cleanup.sh
