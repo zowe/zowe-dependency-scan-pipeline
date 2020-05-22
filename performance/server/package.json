@@ -1,0 +1,25 @@
+{
+    "name": "zowe-metric-server",
+    "version": "0.5.0",
+    "description": "A metrics collecting service running on z/OS.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/zowe/zowe-dependency-scan-pipeline"
+    },
+    "license": "EPL-2.0",
+    "scripts": {
+        "build": "echo under construction",
+        "lint": "echo under construction",
+        "start": "node src/app.js",
+        "debug": "node --inspect src/app.js",
+        "test": "echo under construction"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "eslint": "^5.16.0",
+        "express": "^4.16.4",
+        "line-by-line": "^0.1.6",
+        "shelljs": "^0.8.3",
+        "winston": "^3.2.1"
+    }
+}

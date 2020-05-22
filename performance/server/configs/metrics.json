@@ -1,0 +1,20 @@
+[
+    {
+        "name": "sdsf-sys",
+        "schedule": "60s",
+        "command": "sysagg.rexx",
+        "outputFormat": "json"
+    },
+    {
+        "name": "sdsf-da-cpu-memory",
+        "schedule": "5s",
+        "command": "da.rexx",
+        "outputFormat": "json"
+    },
+    {
+        "name": "memory1",
+        "schedule": "5s",
+        "command": "spool",
+        "outputFormat": "json"
+    }
+]

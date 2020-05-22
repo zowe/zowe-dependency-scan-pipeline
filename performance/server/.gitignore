@@ -1,0 +1,58 @@
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+*.swp
+
+pids
+logs
+results
+tmp
+
+# tsconfig build
+tsconfig.build.json
+
+# Build
+public/css/main.css
+
+# Coverage reports
+coverage
+
+# jUnit result
+junit.xml
+
+# API keys and secrets
+.env
+
+# Dependency directory
+node_modules
+bower_components
+
+# Editors
+.idea
+*.iml
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Ignore built ts files
+dist/**/*
+
+# ignore yarn.lock
+yarn.lock
+
+# pax workspace
+.pax/*
+!.pax/.keep
+!.pax/pre-packaging.sh
+!.pax/post-packaging.sh
+!.pax/catchall-packaging.sh
+!.pax/prepare-workspace.sh
+
+# this is required for logs collector
+!src/collectors/logs
