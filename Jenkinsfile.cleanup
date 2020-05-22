@@ -49,5 +49,37 @@ node('ibm-jenkins-slave-nvm') {
         timeout: [time: 40, unit: 'MINUTES']
     )
 
+    pipeline.createStage(
+        name          : "Marist",
+        isSkippable   : true,
+        stage         : {
+            def serverCredentials = [
+                'marist-1': ['ssh-marist-server-zzow01-hostport', 'ssh-marist-server-zzow01'],
+                'marist-2': ['ssh-marist-server-zzow02-hostport', 'ssh-marist-server-zzow02'],
+                'marist-3': ['ssh-marist-server-zzow03-hostport', 'ssh-marist-server-zzow03'],
+            ]
+            
+            serverCredentials.each { host, creds ->
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: creds[0],
+                        passwordVariable: "SSH_PORT",
+                        usernameVariable: "SSH_HOST"
+                    ),
+                    usernamePassword(
+                        credentialsId: creds[1],
+                        passwordVariable: "SSH_PASSWORD",
+                        usernameVariable: "SSH_USER"
+                    )
+                ]) {
+                    sh """SSHPASS=${SSH_PASSWORD} sshpass -e ssh -tt -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} << EOF
+echo "done" && exit 0
+EOF"""
+                }
+            }
+        },
+        timeout: [time: 20, unit: 'MINUTES']
+    )
+
     pipeline.end()
 }
