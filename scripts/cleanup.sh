@@ -23,25 +23,25 @@ echo
 ################################################################################
 echo "[${SCRIPT_NAME}] deleting /ZOWE/tmp/zowe-packaging*"
 cd /ZOWE/tmp
-items=\$(find . -type d -ctime +1 -name 'zowe-packaging*')
-for i in "\$items"; do
-  echo "- \${i}"
-  echo "rm -fr \${i}" | su
+items=$(find . -type d -ctime +1 -name 'zowe-packaging*')
+for i in "$items"; do
+  echo "- ${i}"
+  echo "rm -fr ${i}" | su
 done
-items=\$(find . -type f -ctime +1 -name 'zowe-packaging*')
-for i in "\$items"; do
-  echo "- \${i}"
-  echo "rm -fr \${i}" | su
+items=$(find . -type f -ctime +1 -name 'zowe-packaging*')
+for i in "$items"; do
+  echo "- ${i}"
+  echo "rm -fr ${i}" | su
 done
 echo
 
 ################################################################################
 echo "[${SCRIPT_NAME}] deleting /ZOWE/tmp/~jenkins*"
 cd /ZOWE/tmp
-items=\$(find . -type d -ctime +1 -name '~jenkins*')
-for i in "\$items"; do
-  echo "- \${i}"
-  echo "rm -fr \${i}" | su
+items=$(find . -type d -ctime +1 -name '~jenkins*')
+for i in "$items"; do
+  echo "- ${i}"
+  echo "rm -fr ${i}" | su
 done
 echo
 
