@@ -78,7 +78,8 @@ put scripts/cleanup.sh
 EOF"""
 
                     sh """SSHPASS=${SSH_PASSWORD} sshpass -e ssh -tt -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} << EOF
-cd /tmp && chmod +x cleanup.sh && ./cleanup.sh && exit 0
+cd /tmp && chmod +x cleanup.sh && ./cleanup.sh
+echo "done" && exit 0
 EOF"""
                 }
             }
