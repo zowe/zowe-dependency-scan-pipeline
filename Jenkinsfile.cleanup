@@ -16,7 +16,10 @@ node('ibm-jenkins-slave-nvm') {
     pipeline.admins.add("jackjia")
 
     // run the build every day between 1am ~ 7am
-    pipeline.addBuildOption(pipelineTriggers([cron('H H(1-6) * * *')]))
+    def isMasterBranch = env && env.BRANCH_NAME == 'master'
+    if (isMasterBranch) {
+        pipeline.addBuildOption(pipelineTriggers([cron('H H(1-6) * * *')]))
+    }
 
     pipeline.setup(
         packageName: 'org.zowe',
