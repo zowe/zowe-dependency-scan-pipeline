@@ -28,7 +28,7 @@ node('ibm-jenkins-slave-nvm') {
     )
 
     pipeline.createStage(
-        name          : "Clean Up Nightly Builds",
+        name          : "Artifactory Nightly Builds",
         isSkippable   : true,
         stage         : {
             dir('artifactory-tools') {
@@ -39,7 +39,7 @@ node('ibm-jenkins-slave-nvm') {
     )
 
     pipeline.createStage(
-        name          : "Clean Up Snapshot Builds",
+        name          : "Artifactory Snapshot Builds",
         isSkippable   : true,
         stage         : {
             dir('artifactory-tools') {
