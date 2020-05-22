@@ -73,6 +73,33 @@ node('ibm-jenkins-slave-nvm') {
                     )
                 ]) {
                     sh """SSHPASS=${SSH_PASSWORD} sshpass -e ssh -tt -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} << EOF
+echo "deleting /ZOWE/tmp/zowe-packaging*"
+cd /ZOWE/tmp
+items=\$(find . -type d -ctime +1 -name 'zowe-packaging*')
+for i in "$items"; do
+  echo "- ${i}"
+  echo "rm -fr ${i}" | su
+done
+items=\$(find . -type f -ctime +1 -name 'zowe-packaging*')
+for i in "$items"; do
+  echo "- ${i}"
+  echo "rm -fr ${i}" | su
+done
+echo "deleting /ZOWE/tmp/~jenkins*"
+cd /ZOWE/tmp
+items=\$(find . -type d -ctime +1 -name '~jenkins*')
+for i in "$items"; do
+  echo "- ${i}"
+  echo "rm -fr ${i}" | su
+done
+items=\$(find . -type f -ctime +1 -name '~jenkins*')
+for i in "$items"; do
+  echo "- ${i}"
+  echo "rm -fr ${i}" | su
+done
+echo "deleting /tmp/tomcat*"
+cd /tmp
+echo "rm -fr tomcat.*" | su
 echo "done" && exit 0
 EOF"""
                 }
