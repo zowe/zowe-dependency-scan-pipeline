@@ -408,8 +408,8 @@ echo "<<<< ended at \$(date)"
     def GITHUB_USER_EMAIL = 'zowe.robot@gmail.com'
     def GITHUB_USER_NAME = 'Zowe Robot'
     def GITHUB_CREDENTIALS = 'zowe-robot-github'
-    def GITHUB_REPOSITORY = 'zowe/community-ghsa-49jx-47m7-vf8f'
-    def PUBLISH_BRANCH = 'owasp'
+    def GITHUB_REPOSITORY = 'zowe/security-reports'
+    def PUBLISH_BRANCH = 'master'
     withCredentials([usernamePassword(
       credentialsId: GITHUB_CREDENTIALS,
       passwordVariable: 'GIT_PASSWORD',
