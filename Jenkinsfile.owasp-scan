@@ -28,6 +28,7 @@ node('ibm-jenkins-slave-dind') {
 
 try {
   stage ('OWASP Scan') {
+    def npmRegistry = 'https://zowe.jfrog.io/zowe/api/npm/npm-release/'
     def GITHUB_SSH_KEY = "zlux-jenkins"
     // check staging branch if exists
     def DEFAULT_BRANCH = "staging"
@@ -65,7 +66,8 @@ try {
     def initCliPluginProject = {
       sh """
       rm -f /home/jenkins/.npmrc
-      npm config set @brightside:registry https://api.bintray.com/npm/ca/brightside
+      npm config set @zowe:registry ${npmRegistry}
+      npm config set @brightside:registry ${npmRegistry}
       npm install --no-audit
       npm install --save @brightside/imperative@lts-incremental
       """
@@ -270,39 +272,19 @@ EOT
     echo ">>>>>>>>>>>>>>>>>>>>>>>>> Pulling the latest scanner ..."
     sh 'docker pull jackjiaibm/owasp-dependency-check'
     echo ">>>>>>>>>>>>>>>>>>>>>>>>> Preparing private npmrc ..."
-    def npmCredentialUP = 'GizaArtifactory'
-    def npmCredentialToken = 'giza-jenkins-basicAuth'
-    def npmEmail = 'giza-jenkins@gmail.com'
-    def npmRegistry = 'https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-release/'
-    def npmRegistryWithoutProtocol = '//gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-release/'
-    withCredentials([
-        usernamePassword(
-            credentialsId: npmCredentialUP,
-            passwordVariable: 'PASSWORD',
-            usernameVariable: 'USERNAME'
-        )
-    ]) {
-        List<String> configEntries = ['set +x']
-        // cli - only @zowe scope
-        configEntries.push("rm -f /home/jenkins/.npmrc")
-        configEntries.push("curl -u \${USERNAME}:\${PASSWORD} ${npmRegistry}auth/zowe > /home/jenkins/.npmrc-cli")
-        sh configEntries.join("\n")
-    }
-    withCredentials([
-        string(
-            credentialsId: npmCredentialToken,
-            variable: 'TOKEN'
-        )
-    ]) {
-        List<String> configEntries = ['set +x']
-        // explorers - global auth to private
-        configEntries.push("npm config set _auth \${TOKEN}")
-        configEntries.push("npm config set email ${npmEmail}")
-        configEntries.push("npm config set always-auth true")
-        configEntries.push("npm config set registry ${npmRegistry}")
-        configEntries.push("mv /home/jenkins/.npmrc /home/jenkins/.npmrc-explorer")
-        sh configEntries.join("\n")
-    }
+    sh """
+    set +x
+    rm -f /home/jenkins/.npmrc
+    npm config set @zowe:registry ${npmRegistry}
+    npm config set @brightside:registry ${npmRegistry}
+    mv /home/jenkins/.npmrc /home/jenkins/.npmrc-cli
+    """
+    sh """
+    set +x
+    rm -f /home/jenkins/.npmrc
+    npm config set registry ${npmRegistry}
+    mv /home/jenkins/.npmrc /home/jenkins/.npmrc-explorer
+    """
     echo ">>>>>>>>>>>>>>>>>>>>>>>>> Trust github.com ..."
     sh """
     set +x
