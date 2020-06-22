@@ -38,7 +38,7 @@ try {
     def initZluxPlugin = {
       sshagent(credentials: [GITHUB_SSH_KEY]) {
         sh """
-        rm -f /home/jenkins/.npmrc
+        cp /home/jenkins/.npmrc-explorer /home/jenkins/.npmrc
         packages=\$(find . -name package.json | { grep -v node_modules || true; })
         for package in \$packages
         do
