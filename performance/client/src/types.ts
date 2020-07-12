@@ -8,10 +8,17 @@
  * Copyright IBM Corporation 2020
  */
 
+import type {Global} from '@jest/types';
+
 export interface PerformanceTestCase {
   // test case name
   name: string;
 
+  // to prepare test
+  before(): Promise<void|number>;
+  // to clean up test
+  after(): Promise<void|number>;
+  // to perform test
   run(): Promise<void|number>;
 
   // this method will define the test which jest can understand
@@ -20,24 +27,19 @@ export interface PerformanceTestCase {
 };
 
 export interface PerformanceTestParameters {
-  // how long this test should last in seconds
-  duration: number;
-
-  // how many concurrent connections we can send to the target server
-  concurrency?: number;
-
-  // timeout for the connection to target server
-  connectionTimeout?: number;
-
   // timeout for the jest test case
-  testTimeout: number;
+  testTimeout?: number;
 };
+
+export interface MetricsCollector {
+
+};
+
+export type PerformanceTestReportFormat = 'json' | 'yaml';
 
 export type PerformanceTestReporterOptions = {
   // default test report format, supported values are:
-  // - json
-  // - yaml
-  format?: string;
+  format?: PerformanceTestReportFormat;
   // default path where to store test reports
   reportPath?: string;
 };

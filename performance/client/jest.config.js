@@ -9,11 +9,8 @@
  */
 
 module.exports = {
-  // FIXME: disable the customized runner to handle running test in parallel.
-  //        The complexity is not just running multiple tests in different sub-
-  //        processes, but also how can we separate the test reports and merge
-  //        them later.
-  // runner: "./dist/worker-group-runner.js",
+  rootDir: "./dist",
+  testEnvironment: "node",
   reporters: [
     "default",
     // two ways of defining reporter
@@ -21,7 +18,7 @@ module.exports = {
     // "./dist/test-reporter.js",
     // 2. customize options
     [
-      "./dist/performance-test-reporter.js",
+      "<rootDir>/performance-test-reporter",
       {
         "format": "yaml",
       }

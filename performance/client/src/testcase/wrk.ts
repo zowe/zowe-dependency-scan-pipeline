@@ -11,5 +11,10 @@
 import BaseTestCase from "./base";
 
 export default class WrkTestCase extends BaseTestCase {
-
+  // which endpoint to test
+  public endpoint: string;
+  // how many concurrent connections we can send to the target server
+  public concurrency = 1;
+  // timeout for the connection to target server
+  public connectionTimeout = 30;
 };

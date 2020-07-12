@@ -4,7 +4,7 @@ Perform performance test on the target server.
 
 ## Programming Language And Main Testing Method
 
-- Node.js, with recommended [v8.x LTS](https://nodejs.org/docs/latest-v8.x/api/index.html)
+- Node.js, with recommended [v12.x LTS](https://nodejs.org/docs/latest-v10.x/api/index.html)
 - [Jest](https://jestjs.io/)
 
 ## Run Test Cases On Your Local
@@ -17,7 +17,7 @@ Run `npm install` to install dependencies.
 
 ```
 DEBUG=zowe-performance-test:* \
-ZMS_HOST=zzow01.zowe.marist.cloud \
+ZMS_HOST=<your-zms-host> \
 ZMS_PORT=19000 \
 npm run test
 ```

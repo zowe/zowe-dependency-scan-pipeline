@@ -8,20 +8,17 @@
  * Copyright IBM Corporation 2020
  */
 
-import { PerformanceTestReporterOptions, PerformanceTestParameters } from "./types";
+import { PerformanceTestReporterOptions } from "./types";
 
 export const DEFAULT_PERFORMANCE_TEST_REPORTS_OPTIONS: PerformanceTestReporterOptions = {
   format: 'json',
   reportPath: 'reports',
 };
 
-export const DEFAULT_PERFORMANCE_TEST_PARAMETERS: PerformanceTestParameters = {
-  // default test duration
-  duration: 1,
-  // concurrency
-  concurrency: 1,
-  // default test timeout is set to 1 day
-  testTimeout: 86400,
-};
+export const PERFORMANCE_TEST_CONTEXT_FILE = ".test-context.json";
 
+// default test timeout is set to 1 day
+export const DEFAULT_PERFORMANCE_TEST_TIMEOUT = 86400;
+
+// default Zowe metric server port
 export const DEFAULT_ZMS_PORT = 19000;

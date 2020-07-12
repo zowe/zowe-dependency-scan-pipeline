@@ -8,14 +8,18 @@
  * Copyright IBM Corporation 2020
  */
 
+import * as fs from "fs";
+import * as path from "path";
 import { BaseReporter } from "@jest/reporters";
 import type { AggregatedResult, TestResult } from "@jest/test-result";
 import type { Config } from '@jest/types';
 import type { Context, ReporterOnStartOptions, Test } from "@jest/reporters";
+import { dump } from 'js-yaml';
 
 import PerformanceTestException from "./exceptions/performance-test-exception";
 import {
   DEFAULT_PERFORMANCE_TEST_REPORTS_OPTIONS,
+  PERFORMANCE_TEST_CONTEXT_FILE,
 } from "./constants";
 import type {
   PerformanceTestReporterOptions,
@@ -47,6 +51,9 @@ export default class PerformanceTestReporter extends BaseReporter {
     this._options = { ...DEFAULT_PERFORMANCE_TEST_REPORTS_OPTIONS, ...options};
     // debug('constructor(globalConfig):', globalConfig);
     debug('constructor(options):', this._options);
+
+    // prepare report folder
+    fs.mkdirSync(this._options.reportPath, { recursive: true });
   }
 
   onRunStart(
@@ -82,6 +89,18 @@ export default class PerformanceTestReporter extends BaseReporter {
       throw new PerformanceTestException(`Cannot find test result for test ${_testResult.testFilePath}`);
     }
 
+    const testEnv: {[key: string]: string} = Object.create({});
+    for (const k of Object.keys(process.env)) {
+      // ignore some environment variables
+      if (k.startsWith('npm_')) {
+        continue;
+      }
+      testEnv[k] = process.env[k];
+    }
+
+    // this context file should be written/prepared by test beforeAll step
+    const testParameters = JSON.parse(fs.readFileSync(PERFORMANCE_TEST_CONTEXT_FILE).toString());
+
     const testCaseReport: PerformanceTestCaseReport = {
       name: _testResult.testResults[0].title,
       path: _testResult.testFilePath,
@@ -89,8 +108,8 @@ export default class PerformanceTestReporter extends BaseReporter {
         start: _testResult.perfStats.start,
         end: _testResult.perfStats.end,
       },
-      environments: {},
-      parameters: {},
+      environments: testEnv,
+      parameters: testParameters,
     };
     debug('onTestResult(testCaseReport):', testCaseReport);
     this.report.tests.push(testCaseReport);
@@ -104,12 +123,20 @@ export default class PerformanceTestReporter extends BaseReporter {
     _contexts?: Set<Context>,
     _aggregatedResults?: AggregatedResult,
   ): Promise<void> | void {
-    // debug('onRunComplete(_contexts):', _contexts);
-    // debug('onRunComplete(_aggregatedResults):', _aggregatedResults);
+    debug('onRunComplete(_contexts):', _contexts);
+    debug('onRunComplete(_aggregatedResults):', _aggregatedResults);
 
     this.report.timestamps.end = (new Date()).getTime();
     debug('onRunComplete(report):', this.report);
-    // TODO: write to file
+    
+    const reportFile = `test-report-${new Date().toISOString().replace(/[:\-]/g, "")}.${this._options.format}`;
+    let content;
+    if (this._options.format === 'yaml') {
+      content = dump(this.report);
+    } else {
+      content = JSON.stringify(this.report);
+    }
+    fs.writeFileSync(path.join(this._options.reportPath, reportFile), content);
   }
 
 }

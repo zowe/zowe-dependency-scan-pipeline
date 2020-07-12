@@ -8,13 +8,14 @@
  * Copyright IBM Corporation 2020
  */
 
-import BaseTestCase from "../../testcase/base";
+import BaseTestCase from "../../../testcase/base";
 
-class Test extends BaseTestCase {
+class IdleTest extends BaseTestCase {
   name = "Test when Zowe is idling";
+
   // 15 minutes
-  // duration = 15 * 60;
-  duration = 10;    // FIXME: debug purpose
+  // duration: 15 * 60;
+  duration = 3;    // FIXME: debug purpose
 };
 
-(new Test()).init();
+new IdleTest().init();
