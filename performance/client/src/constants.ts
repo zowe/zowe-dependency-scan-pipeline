@@ -8,7 +8,7 @@
  * Copyright IBM Corporation 2020
  */
 
-import { PerformanceTestReporterOptions } from "./types";
+import { PerformanceTestReporterOptions, ClientMetrics } from "./types";
 
 export const DEFAULT_PERFORMANCE_TEST_REPORTS_OPTIONS: PerformanceTestReporterOptions = {
   format: 'json',
@@ -19,11 +19,23 @@ export const PERFORMANCE_TEST_CONTEXT_FILE = ".test-context.json";
 export const PERFORMANCE_TEST_METRICS_ZMS_FILE = ".test-metrics-zms.yaml"
 export const PERFORMANCE_TEST_METRICS_CLIENT_FILE = ".test-metrics-client.yaml"
 
+export const DEFAULT_CLIENT_METRICS: ClientMetrics[] = [
+  "cpu.system", "cpu.user"
+];
+
 // default test timeout is set to 1 day
 export const DEFAULT_PERFORMANCE_TEST_TIMEOUT = 86400;
 
-// default Zowe metric server port
+// default Zowe metrics server port
 export const DEFAULT_ZMS_PORT = 19000;
+// default Zowe metrics server endpoint
+export const DEFAULT_ZMS_ENDPOINT = "/metrics";
 
-export const DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL = 2;
-export const DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL = 2;
+export const DEFAULT_ZMS_METRICS: string[] = [
+  "CPUPR", "REAL",
+  "CPU\\{process=\"ZWE.*\"\\}", "REAL\\{process=\"ZWE.*\"\\}",
+  "CPU\\{process=\"IZUSVR1\"\\}", "REAL\\{process=\"IZUSVR1\"\\}",
+];
+
+export const DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL = 5;
+export const DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL = 5;

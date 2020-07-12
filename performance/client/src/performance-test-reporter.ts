@@ -21,6 +21,7 @@ import {
   DEFAULT_PERFORMANCE_TEST_REPORTS_OPTIONS,
   PERFORMANCE_TEST_CONTEXT_FILE,
   PERFORMANCE_TEST_METRICS_CLIENT_FILE,
+  PERFORMANCE_TEST_METRICS_ZMS_FILE,
 } from "./constants";
 import type {
   PerformanceTestReporterOptions,
@@ -39,7 +40,7 @@ const debug = Debug('zowe-performance-test:test-reporter');
  */
 export default class PerformanceTestReporter extends BaseReporter {
   private _globalConfig: Config.GlobalConfig;
-  private _options: PerformanceTestReporterOptions;
+  private options: PerformanceTestReporterOptions;
 
   private report: PerformanceTestReport;
 
@@ -49,20 +50,20 @@ export default class PerformanceTestReporter extends BaseReporter {
   ) {
     super();
     this._globalConfig = globalConfig;
-    this._options = { ...DEFAULT_PERFORMANCE_TEST_REPORTS_OPTIONS, ...options};
+    this.options = { ...DEFAULT_PERFORMANCE_TEST_REPORTS_OPTIONS, ...options};
     // debug('constructor(globalConfig):', globalConfig);
-    debug('constructor(options):', this._options);
+    debug('constructor(options):', this.options);
 
     // prepare report folder
-    fs.mkdirSync(this._options.reportPath, { recursive: true });
+    fs.mkdirSync(this.options.reportPath, { recursive: true });
   }
 
   onRunStart(
     _results?: AggregatedResult,
-    _options?: ReporterOnStartOptions,
+    options?: ReporterOnStartOptions,
   ): void {
     // debug('onRunStart(_results):', _results);
-    // debug('onRunStart(_options):', _options);
+    // debug('onRunStart(options):', options);
 
     this.report = {
       timestamps: {
@@ -105,6 +106,9 @@ export default class PerformanceTestReporter extends BaseReporter {
     // read client metrics
     const clientMetrics = load(fs.readFileSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE).toString());
 
+    // read server metrics
+    const serverMetrics = load(fs.readFileSync(PERFORMANCE_TEST_METRICS_ZMS_FILE).toString());
+
     const testCaseReport: PerformanceTestCaseReport = {
       name: _testResult.testResults[0].title,
       path: _testResult.testFilePath,
@@ -115,6 +119,7 @@ export default class PerformanceTestReporter extends BaseReporter {
       environments: testEnv,
       parameters: testParameters,
       clientMetrics,
+      serverMetrics,
     };
     debug('onTestResult(testCaseReport):', testCaseReport);
     this.report.tests.push(testCaseReport);
@@ -135,14 +140,14 @@ export default class PerformanceTestReporter extends BaseReporter {
 
     debug('onRunComplete(report):', this.report);
     
-    const reportFile = `test-report-${new Date().toISOString().replace(/[:\-]/g, "")}.${this._options.format}`;
+    const reportFile = `test-report-${new Date().toISOString().replace(/[:\-]/g, "")}.${this.options.format}`;
     let content;
-    if (this._options.format === 'yaml') {
+    if (this.options.format === 'yaml') {
       content = dump(this.report);
     } else {
       content = JSON.stringify(this.report);
     }
-    fs.writeFileSync(path.join(this._options.reportPath, reportFile), content);
+    fs.writeFileSync(path.join(this.options.reportPath, reportFile), content);
   }
 
 }

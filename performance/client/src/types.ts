@@ -22,12 +22,12 @@ export interface PerformanceTestCase {
   // this method will define the test which jest can understand
   // it should be called right away after the test case is defined
   init(): void;
-};
+}
 
 export interface PerformanceTestParameters {
   // timeout for the jest test case
   testTimeout?: number;
-};
+}
 
 export interface MetricsCollector {
   // this will be triggered before test starts
@@ -38,14 +38,44 @@ export interface MetricsCollector {
   destroy(): Promise<any>;
   // what should do for each poll
   poll(): Promise<any>;
-};
+}
 
-export type MetricsCollectorOptions = {
+export interface MetricsCollectorOptions {
   // what's the interval to collecting metrics, in seconds
   interval?: number;
   // file to store metrics
   cacheFile?: string;
-};
+  // metrics should be collected
+  metrics?: string[];
+}
+
+// References:
+// - https://nodejs.org/api/process.html#process_process_cpuusage_previousvalue
+// - https://nodejs.org/api/process.html#process_process_memoryusage
+// - https://nodejs.org/api/process.html#process_process_resourceusage
+export type ClientMetrics = "cpu.system" | "cpu.user" |
+                            "resource.fsRead" | "resource.fsWrite" |
+                            "resource.involuntaryContextSwitches" | "resource.voluntaryContextSwitches" |
+                            "resource.swappedOut" |
+                            "resource.ipcReceived" | "resource.ipcSent" |
+                            "resource.signalsCount" |
+                            "resource.majorPageFault" | "resource.minorPageFault" |
+                            "resource.sharedMemorySize" |
+                            "resource.unsharedDataSize" | "resource.unsharedStackSize" |
+                            "resource.maxRSS" | "memory.rss" |
+                            "memory.heapTotal" | "memory.heapUsed" |
+                            "memory.external" |
+                            "memory.arrayBuffers";
+
+export interface ClientMetricsCollectorOptions extends MetricsCollectorOptions {
+  metrics?: ClientMetrics[];
+}
+
+export interface ZMSMetricsCollectorOptions extends MetricsCollectorOptions {
+  zmsHost?: string;
+  zmsPort?: number;
+  zmsEndpoint?: string;
+}
 
 export type PerformanceTestReportFormat = 'json' | 'yaml';
 

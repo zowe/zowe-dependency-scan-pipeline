@@ -16,16 +16,16 @@ import Debug from 'debug';
 const debug = Debug('zowe-performance-test:base-metrics-collector');
 
 export default class BaseMetricsCollector implements MetricsCollector {
-  protected _options: MetricsCollectorOptions;
+  protected options: MetricsCollectorOptions;
   protected _cronTask: ScheduledTask; 
 
   constructor(options: MetricsCollectorOptions) {
-    this._options = options;
-    debug('metrics collector options:', this._options);
+    this.options = options;
+    debug('metrics collector options:', this.options);
   }
 
   async prepare(): Promise<any> {
-    this._cronTask = schedule(`*/${this._options.interval} * * * * *`, async () => {
+    this._cronTask = schedule(`*/${this.options.interval} * * * * *`, async () => {
       await this.poll();
     }, {
       scheduled: false
@@ -34,7 +34,7 @@ export default class BaseMetricsCollector implements MetricsCollector {
 
   async start(): Promise<any> {
     this._cronTask.start();
-    fs.writeFileSync(this._options.cacheFile, "---\n", { flag: "w" });
+    fs.writeFileSync(this.options.cacheFile, "---\n", { flag: "w" });
   }
 
   async destroy(): Promise<any> {

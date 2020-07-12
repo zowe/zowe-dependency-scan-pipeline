@@ -10,39 +10,80 @@
 
 import * as fs from "fs";
 import BaseMetricsCollector from "./base";
-import { MetricsCollectorOptions } from "../types";
+import { ClientMetricsCollectorOptions, ClientMetrics } from "../types";
+import { DEFAULT_CLIENT_METRICS } from "../constants";
+
+import Debug from 'debug';
+const debug = Debug('zowe-performance-test:client-metrics');
 
 export default class ClientMetricsCollector extends BaseMetricsCollector {
-  constructor(options: MetricsCollectorOptions) {
+  protected options: ClientMetricsCollectorOptions;
+
+  private collectCpu = false;
+  private collectMemory = false;
+  private collectResource = false;
+
+  constructor(options: ClientMetricsCollectorOptions) {
     super(options);
+
+    if (!this.options.metrics) {
+      this.options.metrics = DEFAULT_CLIENT_METRICS;
+    }
+
+    for (const m of this.options.metrics) {
+      if (m.startsWith("cpu.")) {
+        this.collectCpu = true;
+      } else if (m.startsWith("memory.")) {
+        this.collectMemory = true;
+      } else if (m.startsWith("resource.")) {
+        this.collectResource = true;
+      } 
+    }
   }
  
   async poll(): Promise<any> {
-    const resourceUsage: NodeJS.ResourceUsage = process.resourceUsage();
     const ts = new Date().getTime();
-    const content = [];
-    content.push(`- timestamp: ${ts}`);
-    content.push(`  name: userCPUTime`);
-    content.push(`  value: ${resourceUsage.userCPUTime}`);
-    content.push(`- timestamp: ${ts}`);
-    content.push(`  name: systemCPUTime`);
-    content.push(`  value: ${resourceUsage.systemCPUTime}`);
-    fs.writeFileSync(this._options.cacheFile, content.join("\n") + "\n", { flag: "a" });
+    const content: string[] = [];
+
+    if (this.collectCpu) {
+      const cpuUsage = process.cpuUsage() as {[key: string]: any};
+      Object.keys(cpuUsage).map(m => {
+        if (this.options.metrics.includes("cpu." + m as ClientMetrics)) {
+          debug(`- cpu.${m} = ${cpuUsage[m]}`);
+
+          content.push(`- timestamp: ${ts}`);
+          content.push(`  name: cpu.${m}`);
+          content.push(`  value: ${cpuUsage[m]}`);
+        }
+      });
+    }
+
+    if (this.collectMemory) {
+      const memoryUsage = process.memoryUsage() as {[key: string]: any};
+      Object.keys(memoryUsage).map(m => {
+        if (this.options.metrics.includes("memory." + m as ClientMetrics)) {
+          debug(`- memory.${m} = ${memoryUsage[m]}`);
+
+          content.push(`- timestamp: ${ts}`);
+          content.push(`  name: memory.${m}`);
+          content.push(`  value: ${memoryUsage[m]}`);
+        }
+      });
+    }
+
+    if (this.collectResource) {
+      const resourceUsage = process.resourceUsage() as {[key: string]: any};
+      Object.keys(resourceUsage).map(m => {
+        if (this.options.metrics.includes("resource." + m as ClientMetrics)) {
+          debug(`- resource.${m} = ${resourceUsage[m]}`);
+
+          content.push(`- timestamp: ${ts}`);
+          content.push(`  name: resource.${m}`);
+          content.push(`  value: ${resourceUsage[m]}`);
+        }
+      });
+    }
+
+    fs.writeFileSync(this.options.cacheFile, content.join("\n") + "\n", { flag: "a" });
   }
 };
-// fsRead: number;
-// fsWrite: number;
-// involuntaryContextSwitches: number;
-// ipcReceived: number;
-// ipcSent: number;
-// majorPageFault: number;
-// maxRSS: number;
-// minorPageFault: number;
-// sharedMemorySize: number;
-// signalsCount: number;
-// swappedOut: number;
-// systemCPUTime: number;
-// unsharedDataSize: number;
-// unsharedStackSize: number;
-// userCPUTime: number;
-// voluntaryContextSwitches: number;
