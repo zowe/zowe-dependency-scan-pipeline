@@ -14,12 +14,13 @@ import { BaseReporter } from "@jest/reporters";
 import type { AggregatedResult, TestResult } from "@jest/test-result";
 import type { Config } from '@jest/types';
 import type { Context, ReporterOnStartOptions, Test } from "@jest/reporters";
-import { dump } from 'js-yaml';
+import { dump, load } from 'js-yaml';
 
 import PerformanceTestException from "./exceptions/performance-test-exception";
 import {
   DEFAULT_PERFORMANCE_TEST_REPORTS_OPTIONS,
   PERFORMANCE_TEST_CONTEXT_FILE,
+  PERFORMANCE_TEST_METRICS_CLIENT_FILE,
 } from "./constants";
 import type {
   PerformanceTestReporterOptions,
@@ -101,6 +102,9 @@ export default class PerformanceTestReporter extends BaseReporter {
     // this context file should be written/prepared by test beforeAll step
     const testParameters = JSON.parse(fs.readFileSync(PERFORMANCE_TEST_CONTEXT_FILE).toString());
 
+    // read client metrics
+    const clientMetrics = load(fs.readFileSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE).toString());
+
     const testCaseReport: PerformanceTestCaseReport = {
       name: _testResult.testResults[0].title,
       path: _testResult.testFilePath,
@@ -110,6 +114,7 @@ export default class PerformanceTestReporter extends BaseReporter {
       },
       environments: testEnv,
       parameters: testParameters,
+      clientMetrics,
     };
     debug('onTestResult(testCaseReport):', testCaseReport);
     this.report.tests.push(testCaseReport);
@@ -123,10 +128,11 @@ export default class PerformanceTestReporter extends BaseReporter {
     _contexts?: Set<Context>,
     _aggregatedResults?: AggregatedResult,
   ): Promise<void> | void {
-    debug('onRunComplete(_contexts):', _contexts);
-    debug('onRunComplete(_aggregatedResults):', _aggregatedResults);
+    // debug('onRunComplete(_contexts):', _contexts);
+    // debug('onRunComplete(_aggregatedResults):', _aggregatedResults);
 
     this.report.timestamps.end = (new Date()).getTime();
+
     debug('onRunComplete(report):', this.report);
     
     const reportFile = `test-report-${new Date().toISOString().replace(/[:\-]/g, "")}.${this._options.format}`;

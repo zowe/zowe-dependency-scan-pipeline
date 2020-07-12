@@ -15,7 +15,7 @@ class IdleTest extends BaseTestCase {
 
   // 15 minutes
   // duration: 15 * 60;
-  duration = 3;    // FIXME: debug purpose
+  duration = 15;    // FIXME: debug purpose
 };
 
 new IdleTest().init();

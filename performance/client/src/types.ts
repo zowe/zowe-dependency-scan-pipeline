@@ -8,8 +8,6 @@
  * Copyright IBM Corporation 2020
  */
 
-import type {Global} from '@jest/types';
-
 export interface PerformanceTestCase {
   // test case name
   name: string;
@@ -32,7 +30,21 @@ export interface PerformanceTestParameters {
 };
 
 export interface MetricsCollector {
+  // this will be triggered before test starts
+  prepare(): Promise<any>;
+  // this will triggered when the test is started
+  start(): Promise<any>;
+  // this will be triggered after test ends
+  destroy(): Promise<any>;
+  // what should do for each poll
+  poll(): Promise<any>;
+};
 
+export type MetricsCollectorOptions = {
+  // what's the interval to collecting metrics, in seconds
+  interval?: number;
+  // file to store metrics
+  cacheFile?: string;
 };
 
 export type PerformanceTestReportFormat = 'json' | 'yaml';
@@ -60,6 +72,7 @@ export type PerformanceTestCaseReport = {
   environments: {[key: string]: any};
   parameters: {[key: string]: any};
   result?: {[key: string]: any};
+  clientMetrics?: PerformanceMetric[];
   serverMetrics?: PerformanceMetric[];
 };
 

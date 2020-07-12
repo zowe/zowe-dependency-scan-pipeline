@@ -87,3 +87,6 @@ test/cli/zowe-cli-command-wrapper.sh
 
 # test context
 .test-context.json
+
+# test metrics collected
+.test-metrics-*.yaml
