@@ -85,8 +85,6 @@ test/cli/zowe-cli-command-wrapper.sh
 # SonarQube Scan
 .scannerwork
 
-# test context
-.test-context.json
-
-# test metrics collected
-.test-metrics-*.yaml
+# test temporary files
+.test-*.json
+.test-*.yaml

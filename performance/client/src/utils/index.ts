@@ -8,12 +8,36 @@
  * Copyright IBM Corporation 2020
  */
 
+import PerformanceTestException from "../exceptions/performance-test-exception";
+
 /**
  * Sleep for certain time
  * @param {Integer} ms 
  */
-export function sleep(ms: number): Promise<void> {
+export const sleep = (ms: number): Promise<void> => {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
-}
+};
+
+/**
+ * Prepare Basic Authorization Header
+ *
+ * @param user        username
+ * @param password    password
+ */
+export const getBasicAuthorizationHeader = (user?: string, password?: string): string => {
+  if (!user) {
+    user = process.env.TEST_AUTH_USER;
+  }
+  if (!password) {
+    password = process.env.TEST_AUTH_PASSWORD;
+  }
+  if (user && password) {
+    // use basic authentication
+    const userPassBase64: string = Buffer.from(`${user}:${password}`).toString("base64");
+    return `Authorization: Basic ${userPassBase64}`;
+  } else {
+    throw new PerformanceTestException("Authentication is required for this test");
+  }
+};

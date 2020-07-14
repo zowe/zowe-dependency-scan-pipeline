@@ -15,6 +15,7 @@ import {
 } from "../types";
 import {
   DEFAULT_PERFORMANCE_TEST_TIMEOUT,
+  PERFORMANCE_TEST_RESULT_FILE,
   PERFORMANCE_TEST_CONTEXT_FILE,
   PERFORMANCE_TEST_METRICS_ZMS_FILE,
   PERFORMANCE_TEST_METRICS_CLIENT_FILE,
@@ -42,14 +43,18 @@ export default class BaseTestCase implements PerformanceTestCase {
 
   constructor(options?: {[key: string]: any}) {
     Object.assign(this, options);
-    this.serverMetricsCollector = new ZMSMetricsCollector({
-      interval: DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL,
-      cacheFile: PERFORMANCE_TEST_METRICS_ZMS_FILE,
-    });
-    this.clientMetricsCollector = new ClientMetricsCollector({
-      interval: DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL,
-      cacheFile: PERFORMANCE_TEST_METRICS_CLIENT_FILE,
-    })
+    if (DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL > 0) {
+      this.serverMetricsCollector = new ZMSMetricsCollector({
+        interval: DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL,
+        cacheFile: PERFORMANCE_TEST_METRICS_ZMS_FILE,
+      });
+    }
+    if (DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL > 0) {
+      this.clientMetricsCollector = new ClientMetricsCollector({
+        interval: DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL,
+        cacheFile: PERFORMANCE_TEST_METRICS_CLIENT_FILE,
+      });
+    }
   }
 
   protected _getParameters(): {[key: string]: any} {
@@ -95,27 +100,38 @@ export default class BaseTestCase implements PerformanceTestCase {
       //        to reporter
       // REF: https://github.com/facebook/jest/issues/7421
       fs.writeFileSync(PERFORMANCE_TEST_CONTEXT_FILE, JSON.stringify(this._getParameters()));
+
+      // delete these file if exists
+      if (fs.existsSync(PERFORMANCE_TEST_RESULT_FILE)) {
+        fs.unlinkSync(PERFORMANCE_TEST_RESULT_FILE);
+      }
+      if (fs.existsSync(PERFORMANCE_TEST_METRICS_ZMS_FILE)) {
+        fs.unlinkSync(PERFORMANCE_TEST_METRICS_ZMS_FILE);
+      }
+      if (fs.existsSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE)) {
+        fs.unlinkSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE);
+      }
     });
 
     beforeEach(async () => {
-      await this.serverMetricsCollector.prepare();
-      await this.clientMetricsCollector.prepare();
+      this.serverMetricsCollector && await this.serverMetricsCollector.prepare();
+      this.clientMetricsCollector && await this.clientMetricsCollector.prepare();
 
       const rc = await this.before();
       undefinedOrZero(rc);
     });
 
     afterEach(async () => {
-      await this.serverMetricsCollector.destroy();
-      await this.clientMetricsCollector.destroy();
+      this.serverMetricsCollector && await this.serverMetricsCollector.destroy();
+      this.clientMetricsCollector && await this.clientMetricsCollector.destroy();
 
       const rc = await this.after();
       undefinedOrZero(rc);
     });
 
     test(this.name, async () => {
-      await this.serverMetricsCollector.start();
-      await this.clientMetricsCollector.start();
+      this.serverMetricsCollector && await this.serverMetricsCollector.start();
+      this.clientMetricsCollector && await this.clientMetricsCollector.start();
 
       const rc = await this.run();
       undefinedOrZero(rc);

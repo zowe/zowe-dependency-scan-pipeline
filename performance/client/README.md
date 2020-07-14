@@ -19,5 +19,9 @@ Run `npm install` to install dependencies.
 DEBUG=zowe-performance-test:* \
 ZMS_HOST=<your-zms-host> \
 ZMS_PORT=19000 \
+TARGET_HOST=<your-target-test-host> \
+TARGET_PORT=<your-target-test-port> \
+TEST_AUTH_USER=<username> \
+TEST_AUTH_PASSWORD=<username> \
 npm run test
 ```

@@ -19,6 +19,7 @@ import { dump, load } from 'js-yaml';
 import PerformanceTestException from "./exceptions/performance-test-exception";
 import {
   DEFAULT_PERFORMANCE_TEST_REPORTS_OPTIONS,
+  PERFORMANCE_TEST_RESULT_FILE,
   PERFORMANCE_TEST_CONTEXT_FILE,
   PERFORMANCE_TEST_METRICS_CLIENT_FILE,
   PERFORMANCE_TEST_METRICS_ZMS_FILE,
@@ -94,20 +95,29 @@ export default class PerformanceTestReporter extends BaseReporter {
     const testEnv: {[key: string]: string} = Object.create({});
     for (const k of Object.keys(process.env)) {
       // ignore some environment variables
-      if (k.startsWith('npm_')) {
+      if (k.startsWith('npm_') || k.startsWith('TEST_AUTH_')) {
         continue;
       }
       testEnv[k] = process.env[k];
     }
 
+    // this test result file should be written/prepared by test run step
+    const testResult = fs.existsSync(PERFORMANCE_TEST_RESULT_FILE) ? 
+      JSON.parse(fs.readFileSync(PERFORMANCE_TEST_RESULT_FILE).toString()) : 
+      null;
+
     // this context file should be written/prepared by test beforeAll step
     const testParameters = JSON.parse(fs.readFileSync(PERFORMANCE_TEST_CONTEXT_FILE).toString());
 
     // read client metrics
-    const clientMetrics = load(fs.readFileSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE).toString());
+    const clientMetrics = fs.existsSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE) ? 
+      load(fs.readFileSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE).toString()) :
+      null;
 
     // read server metrics
-    const serverMetrics = load(fs.readFileSync(PERFORMANCE_TEST_METRICS_ZMS_FILE).toString());
+    const serverMetrics = fs.existsSync(PERFORMANCE_TEST_METRICS_ZMS_FILE) ? 
+      load(fs.readFileSync(PERFORMANCE_TEST_METRICS_ZMS_FILE).toString()) :
+      null;
 
     const testCaseReport: PerformanceTestCaseReport = {
       name: _testResult.testResults[0].title,
@@ -120,6 +130,7 @@ export default class PerformanceTestReporter extends BaseReporter {
       parameters: testParameters,
       clientMetrics,
       serverMetrics,
+      result: testResult,
     };
     debug('onTestResult(testCaseReport):', testCaseReport);
     this.report.tests.push(testCaseReport);
@@ -141,6 +152,7 @@ export default class PerformanceTestReporter extends BaseReporter {
     debug('onRunComplete(report):', this.report);
     
     const reportFile = `test-report-${new Date().toISOString().replace(/[:\-]/g, "")}.${this.options.format}`;
+    debug('report file:', reportFile);
     let content;
     if (this.options.format === 'yaml') {
       content = dump(this.report);

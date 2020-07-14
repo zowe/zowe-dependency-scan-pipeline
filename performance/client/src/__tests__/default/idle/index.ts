@@ -14,8 +14,7 @@ class IdleTest extends BaseTestCase {
   name = "Test when Zowe is idling";
 
   // 15 minutes
-  // duration: 15 * 60;
-  duration = 15;    // FIXME: debug purpose
+  duration = 15 * 60;
 };
 
 new IdleTest().init();

@@ -15,9 +15,10 @@ export const DEFAULT_PERFORMANCE_TEST_REPORTS_OPTIONS: PerformanceTestReporterOp
   reportPath: 'reports',
 };
 
+export const PERFORMANCE_TEST_RESULT_FILE = ".test-result.json";
 export const PERFORMANCE_TEST_CONTEXT_FILE = ".test-context.json";
-export const PERFORMANCE_TEST_METRICS_ZMS_FILE = ".test-metrics-zms.yaml"
-export const PERFORMANCE_TEST_METRICS_CLIENT_FILE = ".test-metrics-client.yaml"
+export const PERFORMANCE_TEST_METRICS_ZMS_FILE = ".test-metrics-zms.yaml";
+export const PERFORMANCE_TEST_METRICS_CLIENT_FILE = ".test-metrics-client.yaml";
 
 export const DEFAULT_CLIENT_METRICS: ClientMetrics[] = [
   "cpu.system", "cpu.user"
