@@ -89,6 +89,7 @@ export type PerformanceTestReporterOptions = {
 export type PerformanceMetric = {
   timestamp: number;
   name: string;
+  // this should usually be a number, but in case there are exceptions
   value: any;
 };
 

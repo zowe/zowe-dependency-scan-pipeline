@@ -13,14 +13,15 @@ module.exports = {
   testEnvironment: "node",
   reporters: [
     "default",
-    // two ways of defining reporter
-    // 1. use default options defined in DEFAULT_TEST_REPORTS_OPTIONS
-    // "./dist/test-reporter.js",
-    // 2. customize options
+
+    // customized reporter will generate performance test report
     [
       "<rootDir>/performance-test-reporter",
+      // use default options are defined in DEFAULT_PERFORMANCE_TEST_REPORTS_OPTIONS
       {
         "format": "yaml",
+        // this can also be overwritten
+        // "reportPath": "reports",
       }
     ]
   ]
