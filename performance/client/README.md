@@ -102,10 +102,10 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // example: 15 minutes
   duration = 15 * 60;
 
-  // endpoint we want to test
+  // required. endpoint we want to test
   endpoint = '/api/v1/datasets/MYUSER.MYDS(MYMEMBER)/content';
 
-  // example to overwrite default collector options
+  // optional. example to overwrite default collector options
   serverMetricsCollectorOptions = {
     // interval 0 will disable server side metrics collecting
     // this value 10 means we poll server metrics every 10 seconds
@@ -121,7 +121,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
     ],
   };
 
-  // example to overwrite default collector options
+  // optional. example to overwrite default collector options
   clientMetricsCollectorOptions = {
     // interval 0 will disable server side metrics collecting
     interval: 0,
@@ -134,7 +134,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
     ],
   };
 
-  // we can add customized headers
+  // optional. we can add customized headers
   headers: string[] = ["X-Special-Header: value"];
 
   async before(): Promise<any> {
