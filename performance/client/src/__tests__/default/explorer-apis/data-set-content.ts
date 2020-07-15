@@ -32,6 +32,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   //     // my special metrics
   //     "my-special-metric-a", "my-special-metric-b",
   //     // example to collect CPU time for processes matching "MY*"
+  //     // this is regular expression, please be aware of the special escape characters
   //     "CPU\\{process=\"MY.*\"\\}",
   //   ],
   // };
