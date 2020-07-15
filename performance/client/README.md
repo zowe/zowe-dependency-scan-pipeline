@@ -4,7 +4,7 @@ Perform performance test on the target server.
 
 ## Programming Language And Main Testing Method
 
-- Node.js, with recommended [v12.x LTS](https://nodejs.org/docs/latest-v10.x/api/index.html)
+- Node.js [v12.x LTS](https://nodejs.org/docs/latest-v12.x/api/index.html) or above
 - [Jest](https://jestjs.io/)
 
 ## Run Test Cases On Your Local
@@ -25,6 +25,13 @@ TEST_AUTH_USER=<username> \
 TEST_AUTH_PASSWORD=<username> \
 npm run test
 ```
+
+The environment variables are:
+
+- **DEBUG**: Optional. If you specify a value like `zowe-performance-test:*`, the test will expose all debugging information. You can limit it to one set of debugging information like assigning a value like `zowe-performance-test:wrk-testcase`.
+- **ZMS_HOST** and **ZMS_PORT**: Optional. If you want to collect server side metrics, you need to specify where is the Zowe Metrics Server started. Usually it should has same value as your target test server. **ZMS_PORT** is optional and has default value `19000`, which is the default port of Zowe Metrics Server.
+- **TARGET_HOST** and **TARGET_PORT**: This is required for `WrkTestCase`. It's the test server and port you want to test. Usually **TARGET_PORT** is the Zowe API Mediation Layer Gateway port.
+- **TEST_AUTH_USER** and **TEST_AUTH_PASSWORD**: Many `WrkTestCase` will require authentication. These are the username and password to call the API you want to test.
 
 The test report will be saved in `reports` folder by default. This can be customized in `jest.config.js`.
 
