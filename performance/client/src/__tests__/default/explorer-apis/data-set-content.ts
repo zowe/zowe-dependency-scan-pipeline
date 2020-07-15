@@ -12,20 +12,43 @@ import WrkTestCase from "../../../testcase/wrk";
 import { getBasicAuthorizationHeader } from "../../../utils";
 
 class ExplorerApiDatasetContentTest extends WrkTestCase {
+  // name/purpose of the test
   name = "Test explorer api endpoint /datasets/{ds}/content";
 
-  // 15 minutes
+  // example: 15 minutes
   duration = 15 * 60;
+  // duration = 15 ;
 
+  // endpoint we want to test
   endpoint = '/api/v1/datasets/ZOWEAD3.PERF.TEST(PURGEJOB)/content';
 
-  headers: string[] = [];
+  // example to overwrite default collector options
+  // serverMetricsCollectorOptions = {
+  //   // interval 0 will disable server side metrics collecting
+  //   interval: 0,
+
+  //   // example to define customized metrics
+  //   metrics: [
+  //     // my special metrics
+  //     "my-special-metric-a", "my-special-metric-b",
+  //     // example to collect CPU time for processes matching "MY*"
+  //     "CPU\\{process=\"MY.*\"\\}",
+  //   ],
+  // };
+
+  // example to overwrite default collector options
+  // clientMetricsCollectorOptions = {};
+
+  // we can add customized headers
+  // headers: string[] = ["X-Special-Header: value"];
 
   async before(): Promise<any> {
     await super.before();
 
+    // this test requires authentication header
     this.headers.push(getBasicAuthorizationHeader());
-}
+  }
 };
 
+// init test case
 new ExplorerApiDatasetContentTest().init();

@@ -30,18 +30,10 @@ export default class ZMSMetricsCollector extends BaseMetricsCollector {
     }
 
     if (!this.options.zmsHost) {
-      if (process.env.ZMS_HOST) {
-        this.options.zmsHost = process.env.ZMS_HOST;
-      } else {
-        throw new PerformanceTestException("Metrics server host is missing");
-      }
+      throw new PerformanceTestException("Metrics server host is missing");
     }
     if (!this.options.zmsPort) {
-      if (process.env.ZMS_PORT) {
-        this.options.zmsPort = parseInt(process.env.ZMS_PORT, 10);
-      } else {
-        this.options.zmsPort = DEFAULT_ZMS_PORT;
-      }
+      this.options.zmsPort = DEFAULT_ZMS_PORT;
     }
     if (!this.options.zmsEndpoint) {
       this.options.zmsEndpoint = DEFAULT_ZMS_ENDPOINT;
@@ -52,38 +44,42 @@ export default class ZMSMetricsCollector extends BaseMetricsCollector {
 
   async poll(): Promise<any> {
     debug('zms request starts');
-    const { body } =  await got(this.url, {
-      https: {
-        rejectUnauthorized: false
-      }
-    });
-    debug('zms request ends');
-    const res = "^(" + this.options.metrics.join("|") + ")$";
-    debug('metrics query:', res);
-    const re = new RegExp(res);
-    const ts = new Date().getTime();
-    const content: string[] = [];
-
-    body.split("\n").map(line => {
-      line = line.trim();
-      if (!line) {
-        return;
-      }
-
-      const kv = line.split(/\s+/);
-      if (kv[0] && kv[1]) {
-        const t = kv[2] || ts;
-
-        if (kv[0].match(re)) {
-          debug(`- ${kv[0]} = ${kv[1]}`);
-
-          content.push(`- timestamp: ${t}`);
-          content.push(`  name: ${kv[0]}`);
-          content.push(`  value: ${kv[1]}`);
+    try {
+      const { body } =  await got(this.url, {
+        https: {
+          rejectUnauthorized: false
         }
-      }
-    });
+      });
+      debug('zms request ends successfully');
+      const res = "^(" + this.options.metrics.join("|") + ")$";
+      debug('metrics query:', res);
+      const re = new RegExp(res);
+      const ts = new Date().getTime();
+      const content: string[] = [];
 
-    fs.writeFileSync(this.options.cacheFile, content.join("\n") + "\n", { flag: "a" });
+      body.split("\n").map(line => {
+        line = line.trim();
+        if (!line) {
+          return;
+        }
+
+        const kv = line.split(/\s+/);
+        if (kv[0] && kv[1]) {
+          const t = kv[2] || ts;
+
+          if (kv[0].match(re)) {
+            debug(`- ${kv[0]} = ${kv[1]}`);
+
+            content.push(`- timestamp: ${t}`);
+            content.push(`  name: ${kv[0]}`);
+            content.push(`  value: ${kv[1]}`);
+          }
+        }
+      });
+
+      fs.writeFileSync(this.options.cacheFile, content.join("\n") + "\n", { flag: "a" });
+    } catch (e) {
+      debug('zms request ends with error', e);
+    }
   }
 };

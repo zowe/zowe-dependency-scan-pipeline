@@ -21,6 +21,9 @@ import {
   PERFORMANCE_TEST_METRICS_CLIENT_FILE,
   DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL,
   DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL,
+  DEFAULT_CLIENT_METRICS,
+  DEFAULT_ZMS_METRICS,
+
 } from "../constants";
 import { sleep } from "../utils";
 import ZMSMetricsCollector from "../metrics-collectors/zms";
@@ -36,33 +39,71 @@ export default class BaseTestCase implements PerformanceTestCase {
   public testTimeout: number = DEFAULT_PERFORMANCE_TEST_TIMEOUT;
   // server side metrics collector
   protected serverMetricsCollector: MetricsCollector;
+  // server side metrics collector options
+  public serverMetricsCollectorOptions: {[key: string]: any};
+  // client side metrics collector
   protected clientMetricsCollector: ClientMetricsCollector;
+  // client side metrics collector options
+  public clientMetricsCollectorOptions: {[key: string]: any};
 
   // how long this test should last in seconds
   public duration = 1;
 
   constructor(options?: {[key: string]: any}) {
     Object.assign(this, options);
-    if (DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL > 0) {
-      this.serverMetricsCollector = new ZMSMetricsCollector({
-        interval: DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL,
+  }
+
+  protected _initMetricsCollector(): void {
+    // init server metrics collector
+    const smco: {[key: string]: any} = Object.create({});
+    Object.assign(
+      smco,
+      {
+        interval:  DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL,
         cacheFile: PERFORMANCE_TEST_METRICS_ZMS_FILE,
-      });
+        metrics:   DEFAULT_ZMS_METRICS,
+        zmsHost:   process.env.ZMS_HOST || null,
+        zmsPort:   process.env.ZMS_PORT || null,
+      },
+      this.serverMetricsCollectorOptions,
+    );
+    this.serverMetricsCollectorOptions = smco;
+    if (this.serverMetricsCollectorOptions.interval > 0) {
+      if (this.serverMetricsCollectorOptions.zmsHost) {
+        this.serverMetricsCollector = new ZMSMetricsCollector(this.serverMetricsCollectorOptions);
+      } else {
+        debug("WARNING: server side metrics collecting is disabled due to missing ZMS_HOST");
+      }
     }
-    if (DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL > 0) {
-      this.clientMetricsCollector = new ClientMetricsCollector({
-        interval: DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL,
+
+    // init client metrics collector
+    const cmco: {[key: string]: any} = Object.create({});
+    Object.assign(
+      cmco,
+      {
+        interval:  DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL,
         cacheFile: PERFORMANCE_TEST_METRICS_CLIENT_FILE,
-      });
+        metrics:   DEFAULT_CLIENT_METRICS,
+      },
+      this.clientMetricsCollectorOptions,
+    );
+    this.clientMetricsCollectorOptions = cmco;
+    if (this.clientMetricsCollectorOptions.interval > 0) {
+      this.clientMetricsCollector = new ClientMetricsCollector(this.clientMetricsCollectorOptions);
     }
   }
 
   protected _getParameters(): {[key: string]: any} {
     const p: {[key: string]: any} = Object.create({});
+    const ignoredParameters = [
+      "serverMetricsCollector", "clientMetricsCollector"
+    ];
 
     Object.entries(this).map(e => {
-      p[e[0]]=e[1];
-    })
+      if (ignoredParameters.indexOf(e[0]) === -1) {
+        p[e[0]]=e[1];
+      }
+    });
 
     return p;
   }
@@ -86,6 +127,8 @@ export default class BaseTestCase implements PerformanceTestCase {
    * Convert information defined for this class to a format jest can understand
    */
   init(): void {
+    this._initMetricsCollector();
+
     const undefinedOrZero = (rc: any): void => {
       if (rc !== undefined) {
         expect(rc).toBe(0);

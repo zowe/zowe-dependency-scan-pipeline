@@ -11,10 +11,13 @@
 import BaseTestCase from "../../../testcase/base";
 
 class IdleTest extends BaseTestCase {
+  // name/purpose of the test
   name = "Test when Zowe is idling";
 
-  // 15 minutes
+  // example: 15 minutes
   duration = 15 * 60;
+  // duration = 15 ;
 };
 
+// init test case
 new IdleTest().init();
