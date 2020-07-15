@@ -9,7 +9,7 @@
  */
 
 import * as fs from "fs";
-import { schedule, validate, ScheduledTask } from "node-cron";
+import { schedule, ScheduledTask } from "node-cron";
 import { MetricsCollectorOptions, MetricsCollector } from "../types";
 
 import Debug from 'debug';
