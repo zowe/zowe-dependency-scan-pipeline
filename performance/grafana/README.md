@@ -12,7 +12,7 @@ You need `docker-compose` - checkout the [install guide](https://docs.docker.com
 ## Usage
 
 ```
-$ docker-compose run -d
+$ docker-compose up -d
 ```
 
 Visit `http://localhost:3000` to access Grafana. Default user name and password are defined in `performance/grafana/docker-compose.yml`.
