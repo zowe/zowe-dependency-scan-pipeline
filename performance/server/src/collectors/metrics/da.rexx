@@ -4,7 +4,7 @@ rc = isfcalls('ON')
 ISFPREFIX = '*'
 ISFOWNER = '*'
 Address SDSF "ISFEXEC DA"
-ISFCOLS = 'JNAME REAL PAGING CPUPR CPU'
+ISFCOLS = 'JNAME REAL PAGING CPUPR CPU ZIIPTIME ZIIPUSE'
 if rc<>0 then
   Exit rc
 /* Get fixed field name from first word */

@@ -80,6 +80,8 @@ export default class WrkTestCase extends BaseTestCase {
       "" + this.duration + "s",
       "--threads",
       "" + this.concurrency,
+      "--connections",
+      "" + this.concurrency,
       ...headersWithOption,
       "--latency",
       "--timeout",
