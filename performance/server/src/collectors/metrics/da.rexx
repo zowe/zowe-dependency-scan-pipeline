@@ -19,7 +19,7 @@ do ix=1 to isfrows
   /* List all columns for job */
   do jx=2 to words(isfcols)
     colsel = word(isfcols,jx)
-    if ix=isfrows & jx=5 then
+    if ix=isfrows & jx=7 then
       say '{"key":"'colsel'","process":"'value(fixedColumn"."ix)'","value":',
         value(colsel"."ix)'}'
     else
