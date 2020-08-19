@@ -16,3 +16,5 @@ cat << EOF
 {"key":"CPU","process":"RASP","value": 1.21}
 ]
 EOF
+
+exit 0

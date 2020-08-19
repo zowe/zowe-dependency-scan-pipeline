@@ -29,7 +29,7 @@ Finally, navigate to https://localhost:19000 and you should see the home page sh
 - Create directory `zms` under your favorite directory.
 - Change to the new created folder and extract the pax file: `pax -rf /path/to/zms.pax`.
 - Run `./bin/start.sh` to start the server.
-- If you want to keep the ZMS running after you exit USS, run `nohup ./bin/start.sh` instead. _Remember to kill your ZMS process if you don't need it._
+- If you want to keep the ZMS running after you exit USS, run `nohup ./bin/start.sh &` instead. _Remember to kill your ZMS process if you don't need it._
 
 ### Install and Start with Zowe
 

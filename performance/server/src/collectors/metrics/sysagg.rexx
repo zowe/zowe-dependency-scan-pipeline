@@ -19,4 +19,4 @@ do ix=1 to isfrows
 end
 rc=isfcalls('OFF')
 say "]"
-exit
+exit 0

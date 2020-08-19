@@ -23,8 +23,8 @@ SCRIPT_PWD=$(cd "$(dirname "$0")" && pwd)
 ZMS_ROOT_DIR=$(cd "$SCRIPT_PWD" && cd .. && pwd)
 # start service
 echo "Starting Zowe Metrics Server >>>>>>>>>>> $NODE_BIN $ZMS_ROOT_DIR/dist/app.js"
-$NODE_BIN $ZMS_ROOT_DIR/dist/app.js &
+$NODE_BIN $ZMS_ROOT_DIR/dist/app.js
 ## debug mode
-# LOG_LEVEL=debug $NODE_BIN $ZMS_ROOT_DIR/dist/app.js &
+# LOG_LEVEL=debug $NODE_BIN $ZMS_ROOT_DIR/dist/app.js
 ## silly debug more
-# LOG_LEVEL=silly $NODE_BIN $ZMS_ROOT_DIR/dist/app.js &
+# LOG_LEVEL=silly $NODE_BIN $ZMS_ROOT_DIR/dist/app.js

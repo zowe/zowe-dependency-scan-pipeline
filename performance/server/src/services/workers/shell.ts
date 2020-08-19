@@ -8,12 +8,12 @@
  * Copyright IBM Corporation 2020
  */
 
-import { ExecOptions } from "child_process";
+import { exec, ExecOptions } from "child_process";
+import { promisify } from "util";
 import { safeLoad } from "js-yaml";
 import ZMSBaseWorker from "./base";
 import { ZMSShellWorkerOptions, ZMSException, MetricWorkerResultItem } from "../../types";
 import { DEFAULT_WORKER_OUTPUT_FORMAT, ZMS_COLLECTORS_DIR } from "../../constants";
-import { execPromise } from "../../utils";
 import logger from "../logger";
 import metricsManager from "../metrics-manager";
 
@@ -34,7 +34,8 @@ export default class ZMSShellWorker extends ZMSBaseWorker {
 
   async poll(): Promise<void> {
     try {
-      logger.debug("shell worker polling: %s", this.options.command);
+      const execPromise = promisify(exec);
+      logger.debug("shell worker polling: %s in %s", this.options.command, ZMS_COLLECTORS_DIR);
 
       const ts = new Date();
       const { stdout, stderr } = await execPromise(this.options.command, {

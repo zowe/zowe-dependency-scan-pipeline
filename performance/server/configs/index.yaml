@@ -13,20 +13,16 @@ metrics:
     options:
       interval: 10
       # command base dir is "src/collectors"
-      command: metrics/sysagg.rexx
+      command: ./metrics/sysagg.rexx
       outputFormat: json
   - name: sdsf-da-cpu-memory
     worker: shell
     options:
       interval: 10
       # command base dir is "src/collectors"
-      # command: metrics/da.rexx
-      command: metrics/dummy.sh
+      command: metrics/da.rexx
+      # command: metrics/dummy.sh
       outputFormat: json
-  # - name: memory1
-  #   schedule: 5s
-  #   command: spool
-  #   outputFormat: json
 logstash:
   server:
   port:
