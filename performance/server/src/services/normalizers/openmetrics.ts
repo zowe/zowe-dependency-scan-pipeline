@@ -10,16 +10,16 @@
 
 import { MetricWorkerResultItem } from "../../types";
 
-const convertToOpenMetrics = (metricsRawResult: MetricWorkerResultItem[], timestamp?: Date) => {
+const convertToOpenMetrics = (metricsRawResult: MetricWorkerResultItem[], timestamp?: Date): string => {
   if (!timestamp) {
     timestamp = new Date();
   }
 
-  let result: string[] = [];
+  const result: string[] = [];
 
   for (const item of metricsRawResult) {
     let name = item.key.toLowerCase();
-    let labels = [];
+    const labels = [];
     for (const xk of Object.keys(item)) {
       if (xk !== 'key' && xk !== 'value') {
         labels.push(xk + '="' + item[xk] + '"');

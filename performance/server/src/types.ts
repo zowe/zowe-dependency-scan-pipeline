@@ -31,7 +31,7 @@ interface ZMSServer {
 export interface MetricsConfig {
   name: string;
   worker: string;
-  options?: any;
+  options?: ZMSWorkerOptions;
 }
 
 interface Logstash {
@@ -80,11 +80,11 @@ export interface ZMSNodeWorkerOptions extends ZMSWorkerOptions {
 
 export interface MetricWorkerResultBaseItem {
   key: string;
-  value: any;
+  value: unknown;
 }
 
 export interface MetricWorkerResultItem extends MetricWorkerResultBaseItem {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export class ZMSException extends Error {

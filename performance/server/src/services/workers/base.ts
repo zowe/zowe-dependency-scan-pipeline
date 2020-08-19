@@ -23,7 +23,7 @@ export default class ZMSBaseWorker {
     logger.silly("initialized worker with options: %j", this.options);
   }
 
-  async prepare(): Promise<any> {
+  async prepare(): Promise<void> {
     this._cronTask = schedule(`*/${this.options.interval} * * * * *`, async () => {
       await this.poll();
     }, {
@@ -31,14 +31,15 @@ export default class ZMSBaseWorker {
     });
   }
 
-  async start(): Promise<any> {
+  async start(): Promise<void> {
     this._cronTask.start();
   }
 
-  async destroy(): Promise<any> {
+  async destroy(): Promise<void> {
     this._cronTask.destroy();
   }
 
-  async poll(): Promise<any> {
+  async poll(): Promise<void> {
+    // dummy poll method
   }
 }

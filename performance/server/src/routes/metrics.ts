@@ -14,6 +14,6 @@ import * as metricsController from "../controllers/metrics";
 const router = Router({ mergeParams: true });
 
 router.route("/")
-      .get(metricsController.getAll);
+  .get(metricsController.getAll);
 
 export default router;

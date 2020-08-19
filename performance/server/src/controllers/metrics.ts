@@ -11,7 +11,7 @@
 import * as metricsService from "../services/metrics";
 import { Request, Response } from "express";
 
-export const getAll = (req: Request, res: Response) => {
+export const getAll = (req: Request, res: Response): void => {
   const data = metricsService.getAll()
   res.set('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
   res.end(data);

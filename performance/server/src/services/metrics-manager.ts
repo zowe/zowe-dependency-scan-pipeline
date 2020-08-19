@@ -45,7 +45,7 @@ class MetricsManager {
     return workerObject;
   }
 
-  async start(): Promise<any> {
+  async start(): Promise<void> {
     for (const name in this.metrics) {
       const m = this.metrics[name];
       logger.debug("> starting %s worker %s", m.worker, name);
@@ -53,7 +53,7 @@ class MetricsManager {
     }
   }
 
-  async destroy(): Promise<any> {
+  async destroy(): Promise<void> {
     for (const name in this.metrics) {
       const m = this.metrics[name];
       logger.debug("> destroying %s worker %s", m.worker, name);

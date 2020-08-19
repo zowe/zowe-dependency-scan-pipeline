@@ -32,14 +32,14 @@ export default class ZMSShellWorker extends ZMSBaseWorker {
     }
   }
 
-  async poll(): Promise<any> {
+  async poll(): Promise<void> {
     try {
       logger.debug("shell worker polling: %s", this.options.command);
 
       const ts = new Date();
       const { stdout, stderr } = await execPromise(this.options.command, {
-          cwd: ZMS_COLLECTORS_DIR,
-        } as ExecOptions);
+        cwd: ZMS_COLLECTORS_DIR,
+      } as ExecOptions);
       if (stderr) {
         throw new ZMSException(`shell error output: ${stderr}`);
       }

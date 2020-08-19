@@ -9,12 +9,13 @@
  */
 
 import metricsManager from "./metrics-manager";
+import { MetricWorker } from "../types";
 import logger from "./logger";
 
-export const getAll = () => {
+export const getAll = (): string => {
   logger.info("metrics.service getAll()");
-  const metricsList = metricsManager.getMetrics();
-  const response = metricsList
+  const metricsList: MetricWorker[] = metricsManager.getMetrics();
+  const response: string = metricsList
     .map(m => m.result)
     .filter(m => !!m)
     .join('\n');

@@ -1,2 +1,2 @@
-reports/*
-dist/*
+node_modules
+dist

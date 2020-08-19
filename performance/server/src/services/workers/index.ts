@@ -10,7 +10,8 @@
 
 import ZMSShellWorker from "./shell";
 
-export const ZMSWorkers: any = {
+// eslint-disable-next-line
+export const ZMSWorkers: {[key: string]: any} = {
   shell: ZMSShellWorker,
 };
 
