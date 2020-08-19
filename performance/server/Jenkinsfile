@@ -37,7 +37,9 @@ node('ibm-jenkins-slave-nvm') {
 
   // we have pax packaging step
   pipeline.packaging(
-    name             : 'zowe-metrics-server'
+    name             : 'zowe-metrics-server',
+    displayTimestamp : true,
+    displayAnsiColor : true
   )
 
   // define we need publish stage
