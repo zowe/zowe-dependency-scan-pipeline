@@ -16,6 +16,9 @@ tmp
 # tsconfig build
 tsconfig.build.json
 
+# build result
+dist/
+
 # Build
 public/css/main.css
 

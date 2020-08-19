@@ -19,12 +19,13 @@ SCRIPT_NAME=$(basename "$0")
 BASEDIR=$(cd "$(dirname "$0")"; pwd)
 cd content
 
-echo "[${SCRIPT_NAME}] chmod +x to *.rexx"
+echo "[${SCRIPT_NAME}] chmod +x to *.rexx and *.sh in metrics collectors"
 chmod a+x src/collectors/metrics/*.rexx
+chmod a+x src/collectors/metrics/*.sh
 # check result
 ls -l src/collectors/metrics
 
-echo "[${SCRIPT_NAME}] chmod +x to *.sh"
+echo "[${SCRIPT_NAME}] chmod +x to *.sh in bin"
 chmod a+x bin/*.sh
 # check result
 ls -l bin

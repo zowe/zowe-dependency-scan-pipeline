@@ -1,0 +1,40 @@
+server:
+  http:
+    enabled: true
+    port: 19001
+  https:
+    enabled: true
+    port: 19000
+    key: sslcert/server.key
+    cert: sslcert/server.cert
+metrics:
+  - name: sdsf-sys
+    worker: shell
+    options:
+      interval: 10
+      # command base dir is "src/collectors"
+      command: metrics/sysagg.rexx
+      outputFormat: json
+  - name: sdsf-da-cpu-memory
+    worker: shell
+    options:
+      interval: 10
+      # command base dir is "src/collectors"
+      # command: metrics/da.rexx
+      command: metrics/dummy.sh
+      outputFormat: json
+  # - name: memory1
+  #   schedule: 5s
+  #   command: spool
+  #   outputFormat: json
+logstash:
+  server:
+  port:
+  max_lines: 2000
+  program: node
+logs:
+  - name: zosmf-logs
+    source: /var/zosmf/data/logs/IZUG0.log
+    script: push-zosmf-log.js
+    max_lines: 1000
+    offset: 514171

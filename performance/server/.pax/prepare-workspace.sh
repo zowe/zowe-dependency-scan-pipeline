@@ -23,10 +23,14 @@ cd $BASEDIR
 cd ..
 ROOT_DIR=$(pwd)
 
+# run npm build
+echo "[${SCRIPT_NAME}] running npm build ..."
+npm run build
+
 # prepare pax workspace
 echo "[${SCRIPT_NAME}] cleaning PAX workspace ..."
 rm -fr "${PAX_WORKSPACE_DIR}/content"
-mkdir -p "${PAX_WORKSPACE_DIR}/content"
+mkdir -p "${PAX_WORKSPACE_DIR}/content/src"
 
 # copy build result to target folder
 echo "[${SCRIPT_NAME}] copying build result ..."
@@ -35,7 +39,8 @@ cp README.md "${PAX_WORKSPACE_DIR}/content"
 cp package.json "${PAX_WORKSPACE_DIR}/content"
 cp package-lock.json "${PAX_WORKSPACE_DIR}/content"
 cp -r bin "${PAX_WORKSPACE_DIR}/content"
-cp -r src "${PAX_WORKSPACE_DIR}/content"
+cp -r dist "${PAX_WORKSPACE_DIR}/content"
+cp -r src/collectors "${PAX_WORKSPACE_DIR}/content/src"
 cp -r configs "${PAX_WORKSPACE_DIR}/content"
 
 echo "[${SCRIPT_NAME}] install npm packages ..."
