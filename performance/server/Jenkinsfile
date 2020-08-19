@@ -20,26 +20,29 @@ node('ibm-jenkins-slave-nvm') {
   pipeline.admins.add("jackjia")
 
   pipeline.setup(
-    packageName: 'org.zowe.metrics-server',
-    baseDirectory: PROJECT_ROOT_PATH,
-    nodeJsVersion: 'v10.18.1'
+    packageName    : 'org.zowe.metrics-server',
+    baseDirectory  : PROJECT_ROOT_PATH,
+    nodeJsVersion  : 'v10.18.1',
+    initWithColor  : true,
+    auditWithColor : true,
+    lintWithColor  : true
   )
 
-  pipeline.build()
+  pipeline.build(displayAnsiColor: true)
 
   pipeline.test(
     name          : 'Unit',
     operation     : {
       echo "under construction"
     },
-    allowMissingJunit: true
+    allowMissingJunit : true,
+    displayAnsiColor  : true
   )
 
   // we have pax packaging step
   pipeline.packaging(
     name             : 'zowe-metrics-server',
-    displayTimestamp : true,
-    displayAnsiColor : true
+    displayTimestamp : true
   )
 
   // define we need publish stage
