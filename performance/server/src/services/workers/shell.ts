@@ -35,16 +35,16 @@ export default class ZMSShellWorker extends ZMSBaseWorker {
   async poll(): Promise<void> {
     try {
       const execPromise = promisify(exec);
-      logger.debug("shell worker polling: %s in %s", this.options.command, ZMS_COLLECTORS_DIR);
+      logger.debug("shell worker \"%s\" polling: %s", this.name, this.options.command);
 
       const ts = new Date();
       const { stdout, stderr } = await execPromise(this.options.command, {
         cwd: ZMS_COLLECTORS_DIR,
       } as ExecOptions);
       if (stderr) {
-        throw new ZMSException(`shell error output: ${stderr}`);
+        throw new ZMSException(`Shell command failed with error: ${stderr}`);
       }
-      logger.silly("command %s output: %j", this.options.command, { stdout, stderr });
+      logger.silly("shell worker \"%s\" output: %j", this.name, { stdout, stderr });
 
       let result: MetricWorkerResultItem[];
       if (this.options.outputFormat === "json") {
@@ -55,11 +55,11 @@ export default class ZMSShellWorker extends ZMSBaseWorker {
         throw new ZMSException(`unsupported output format: ${this.options.outputFormat}`);
       }
 
-      logger.debug("command %s returns %d records", this.options.command, result.length);
-      logger.silly("command %s parsed result: %j", this.options.command, result);
+      logger.info("shell worker \"%s\" returns %d records", this.name, result.length);
+      logger.silly("shell worker \"%s\" parsed result: %j", this.name, result);
       metricsManager.updateResult(this.name, ts, result);
     } catch (e) {
-      logger.warn(`Error on executing shell worker command ${this.options.command}: ${JSON.stringify(e)} - ${JSON.stringify(e.message)}`);
+      logger.warn(`Error on executing shell worker \"${this.name}\" command \"${this.options.command}\": ${JSON.stringify(e)} - ${JSON.stringify(e.message)}`);
       // log the error but do not exit
     }
   }

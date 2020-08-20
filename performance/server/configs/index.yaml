@@ -13,7 +13,7 @@ metrics:
     options:
       interval: 10
       # command base dir is "src/collectors"
-      command: ./metrics/sysagg.rexx
+      command: metrics/sysagg.rexx
       outputFormat: json
   - name: sdsf.da
     worker: shell
