@@ -59,7 +59,7 @@ export default class ZMSShellWorker extends ZMSBaseWorker {
       logger.silly("shell worker \"%s\" parsed result: %j", this.name, result);
       metricsManager.updateResult(this.name, ts, result);
     } catch (e) {
-      logger.warn(`Error on executing shell worker \"${this.name}\" command \"${this.options.command}\": ${JSON.stringify(e)} - ${JSON.stringify(e.message)}`);
+      logger.warn(`Error on executing shell worker "${this.name}" command "${this.options.command}": ${JSON.stringify(e)} - ${JSON.stringify(e.message)}`);
       // log the error but do not exit
     }
   }
