@@ -8,14 +8,14 @@ server:
     key: sslcert/server.key
     cert: sslcert/server.cert
 metrics:
-  - name: sdsf-sys
+  - name: sdsf.sys
     worker: shell
     options:
       interval: 10
       # command base dir is "src/collectors"
       command: ./metrics/sysagg.rexx
       outputFormat: json
-  - name: sdsf-da-cpu-memory
+  - name: sdsf.da
     worker: shell
     options:
       interval: 10

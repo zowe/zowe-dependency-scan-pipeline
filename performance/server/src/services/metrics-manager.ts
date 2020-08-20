@@ -65,7 +65,7 @@ class MetricsManager {
     logger.silly("> MetricsManager.updateMetrics(%s, %s, %j)", name, timestamp, result);
     const metric: MetricWorker = this.metrics[name];
     metric.resultRaw = result;
-    metric.result = convertToOpenMetrics(result, timestamp);
+    metric.result = convertToOpenMetrics(name, result, timestamp);
     metric.lastPoll = timestamp;
   }
 

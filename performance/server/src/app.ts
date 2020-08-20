@@ -37,6 +37,13 @@ import routes from "./routes";
   const app = express();
 
   // app.use(cors());
+  app.enable('trust proxy');
+
+  // log requests
+  app.use((req, res, next) => {
+    logger.info("> %s %s from %j", req.method, req.url, req.ips.length > 0 ? req.ips : req.ip);
+    next();
+  });
 
   app.get("/", (req, res) => res.send(ZMS_LOGGER_LABEL));
   // load external routes

@@ -13,7 +13,7 @@ import { MetricWorker } from "../types";
 import logger from "./logger";
 
 export const getAll = (): string => {
-  logger.info("metrics.service getAll()");
+  logger.debug("metrics.service getAll()");
   const metricsList: MetricWorker[] = metricsManager.getMetrics();
   const response: string = metricsList
     .map(m => m.result)
