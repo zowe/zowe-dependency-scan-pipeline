@@ -9,11 +9,14 @@
  */
 
 import ZMSShellWorker from "./shell";
+import ZMSRmfDdsWorker from "./rmf-dds";
 
 // eslint-disable-next-line
 export const ZMSWorkers: {[key: string]: any} = {
   shell: ZMSShellWorker,
+  "rmf.dds": ZMSRmfDdsWorker,
 };
 
 export { default as ZMSBaseWorker } from "./base";
 export { default as ZMSShellWorker } from "./shell";
+export { default as ZMSRmfDdsWorker } from "./rmf-dds";

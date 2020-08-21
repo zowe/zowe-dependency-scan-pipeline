@@ -23,6 +23,17 @@ metrics:
       command: metrics/da.rexx
       # command: metrics/dummy.sh
       outputFormat: json
+  - name: rmf.dds
+    worker: rmf.dds
+    options:
+      interval: 10
+      # --- optional to overwrite DEFAULT_RMF_DDS_OPTIONS
+      # rmfDdsOptions:
+      #   host: vm30101.svl.ibm.com
+      # --- optional to overwrite DEFAULT_RMF_DDS_METRICS
+      # metrics:
+      #   cpu:
+      #     - PROCESSOR.8D49E0
 logstash:
   server:
   port:

@@ -11,6 +11,11 @@
 import ZMSBaseWorker from "./services/workers/base";
 
 export type OutputFormat = "json" | "yaml";
+export type HttpProtocol = "http" | "https";
+
+type Partial<T> = {
+  [P in keyof T]?: T[P];
+};
 
 interface HttpServer {
   enabled: boolean;
@@ -68,15 +73,19 @@ export interface MetricWorker extends MetricsConfig {
 export interface ZMSWorkerOptions {
   interval: number;
 }
+export type PartialZMSWorkerOptions = Partial<ZMSWorkerOptions>;
 
 export interface ZMSShellWorkerOptions extends ZMSWorkerOptions {
   command: string;
   outputFormat: OutputFormat;
 }
+export type PartialZMSShellWorkerOptions = Partial<ZMSShellWorkerOptions>;
 
-export interface ZMSNodeWorkerOptions extends ZMSWorkerOptions {
-  file: string;
+export interface ZMSRmfDdsWorkerOptions extends ZMSWorkerOptions {
+  rmfDdsOptions: RmfDdsOptions;
+  metrics: {[key: string]: string[]};
 }
+export type PartialZMSRmfDdsWorkerOptions = Partial<ZMSRmfDdsWorkerOptions>;
 
 export interface MetricWorkerResultBaseItem {
   key: string;
@@ -88,4 +97,68 @@ export interface MetricWorkerResultItem extends MetricWorkerResultBaseItem {
 }
 
 export class ZMSException extends Error {
+}
+
+export interface RmfDdsOptions {
+  protocol: HttpProtocol;
+  host: string;
+  port: number;
+  performFilter: string;
+}
+export type PartialRmfDdsOptions = Partial<RmfDdsOptions>;
+
+export interface RmfResource {
+  label: string;
+  type: string;
+  expandable?: boolean;
+  children?: RmfResource[];
+}
+
+export interface RmfMetric {
+  id: string;
+  description: string;
+  format: string;
+  unit: string;
+}
+
+export interface RmfResourceMetrics {
+  resource: RmfResource;
+  metrics: RmfMetric[];
+}
+
+export interface RmfIntervalFormat {
+  interval: number;
+  unit: string;
+}
+
+export interface RmfPerformanceTiming {
+  // in YYYYMMDDHHMMSS format
+  localStart: string;
+  localEnd: string;
+  utcStart: string;
+  utcEnd: string;
+  interval: RmfIntervalFormat;
+}
+
+export interface RmfPerformanceMessage {
+  id: string;
+  description: string;
+  severity: number;
+}
+
+export interface RmfPerformanceRow {
+  item: string;
+  value: unknown;
+  extra?: unknown;
+}
+
+export interface RmfMetricPerformance {
+  metric: RmfMetric;
+  resource: RmfResource;
+  timing: RmfPerformanceTiming;
+  rows: RmfPerformanceRow[];
+  message?: RmfPerformanceMessage;
+}
+
+export class RmfException extends Error {
 }

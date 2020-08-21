@@ -12,15 +12,19 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts,.js",
     "prestart": "npm run build",
-    "start": "node dist/app.js"
+    "start": "node dist/app.js",
+    "a": "npm run build && LOG_LEVEL=debug node dist/a.js"
   },
   "dependencies": {
     "@types/cors": "^2.8.7",
     "@types/node-cron": "^2.0.3",
+    "@types/xml2js": "^0.4.5",
     "express": "^4.17.1",
+    "got": "^11.5.2",
     "js-yaml": "^3.14.0",
     "node-cron": "^2.0.3",
-    "winston": "^3.3.3"
+    "winston": "^3.3.3",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "@types/express": "^4.17.7",

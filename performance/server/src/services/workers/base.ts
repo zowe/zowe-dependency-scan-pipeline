@@ -9,7 +9,8 @@
  */
 
 import { schedule, ScheduledTask } from "node-cron";
-import { ZMSWorkerOptions } from "../../types";
+import { ZMSWorkerOptions, PartialZMSWorkerOptions } from "../../types";
+import { DEFAULT_WORKER_OPTIONS } from "../../constants";
 import logger from "../logger";
 
 export default class ZMSBaseWorker {
@@ -17,9 +18,9 @@ export default class ZMSBaseWorker {
   protected options: ZMSWorkerOptions;
   protected _cronTask: ScheduledTask; 
 
-  constructor(name: string, options: ZMSWorkerOptions) {
+  constructor(name: string, options?: PartialZMSWorkerOptions) {
     this.name = name;
-    this.options = options;
+    this.options = Object.assign({}, DEFAULT_WORKER_OPTIONS, options);
     logger.silly("initialized worker with options: %j", this.options);
   }
 

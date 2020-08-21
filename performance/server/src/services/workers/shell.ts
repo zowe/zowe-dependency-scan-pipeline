@@ -12,7 +12,11 @@ import { exec, ExecOptions } from "child_process";
 import { promisify } from "util";
 import { safeLoad } from "js-yaml";
 import ZMSBaseWorker from "./base";
-import { ZMSShellWorkerOptions, ZMSException, MetricWorkerResultItem } from "../../types";
+import {
+  ZMSShellWorkerOptions, PartialZMSShellWorkerOptions,
+  ZMSException,
+  MetricWorkerResultItem,
+} from "../../types";
 import { DEFAULT_WORKER_OUTPUT_FORMAT, ZMS_COLLECTORS_DIR } from "../../constants";
 import logger from "../logger";
 import metricsManager from "../metrics-manager";
@@ -20,7 +24,7 @@ import metricsManager from "../metrics-manager";
 export default class ZMSShellWorker extends ZMSBaseWorker {
   protected options: ZMSShellWorkerOptions;
 
-  constructor(name: string, options: ZMSShellWorkerOptions) {
+  constructor(name: string, options?: PartialZMSShellWorkerOptions) {
     super(name, options);
 
     if (!this.options.outputFormat) {
@@ -59,7 +63,7 @@ export default class ZMSShellWorker extends ZMSBaseWorker {
       logger.silly("shell worker \"%s\" parsed result: %j", this.name, result);
       metricsManager.updateResult(this.name, ts, result);
     } catch (e) {
-      logger.warn(`Error on executing shell worker "${this.name}" command "${this.options.command}": ${JSON.stringify(e)} - ${JSON.stringify(e.message)}`);
+      logger.warn("Error on executing shell worker \"%s\" command \"%s\": %j - %j - %j", this.name, this.options.command, e, e.message, e.stack);
       // log the error but do not exit
     }
   }
