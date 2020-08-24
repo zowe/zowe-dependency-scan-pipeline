@@ -33,5 +33,5 @@ export const DEFAULT_RMF_DDS_OPTIONS: RmfDdsOptions = {
 
 export const DEFAULT_RMF_DDS_METRICS: {[key: string]: string[]} = {
   cpu: ['PROCESSOR.8D49E0'],
-  cpupr: ['PROCESSOR.8D0460', 'PROCESSOR.8D3450'],
+  cpupr: ['PROCESSOR.8D4770'],
 };
