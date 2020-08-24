@@ -76,6 +76,9 @@ export default class ZMSRmfDdsWorker extends ZMSBaseWorker {
             if (row.item) {
               item.item = row.item;
             }
+            if (row.extra && Array.isArray(row.extra) && row.extra.length > 0) {
+              item.extra = row.extra.join(",");
+            }
 
             result.push(item);
           }
