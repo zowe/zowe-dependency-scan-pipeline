@@ -205,9 +205,9 @@ export default class RmfDds {
     if (!report) {
       throw new RmfException("RMF-DDS performance result doesn't have report.");
     }
-    for (const k of ["metric", "resource", "time-data", "row"]) {
+    for (const k of ["metric", "resource", "time-data"]) {
       if (!(k in report)) {
-        throw new RmfException(`RMF-DDS performance report doesn't have ${k} information.`);
+        throw new RmfException(`RMF-DDS performance report on ${resourceLabel}(${id}) doesn't have ${k} information.`);
       }
     }
 
@@ -235,17 +235,19 @@ export default class RmfDds {
     };
 
     const reportRows: RmfPerformanceRow[] = [];
-    for (const row of (report.row.length ? report.row : [report.row])) {
-      if (!row.col || row.col < 2) {
-        throw new RmfException(`Invalid RMF-DDS performance report row: ${row}`);
-      }
-      const reportRow: RmfPerformanceRow = {
-        item: row.col[0],
-        value: row.col[1],
-        extra: row.col.slice(2),
-      };
+    if (report.row && Array.isArray(report.row)) {
+      for (const row of (report.row.length ? report.row : [report.row])) {
+        if (!row.col || row.col < 2) {
+          throw new RmfException(`Invalid RMF-DDS performance report row: ${row}`);
+        }
+        const reportRow: RmfPerformanceRow = {
+          item: row.col[0],
+          value: row.col[1],
+          extra: row.col.slice(2),
+        };
 
-      reportRows.push(reportRow);
+        reportRows.push(reportRow);
+      }
     }
 
     const result: RmfMetricPerformance = {
