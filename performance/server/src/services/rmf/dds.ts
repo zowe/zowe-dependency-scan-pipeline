@@ -235,8 +235,8 @@ export default class RmfDds {
     };
 
     const reportRows: RmfPerformanceRow[] = [];
-    if (report.row && Array.isArray(report.row)) {
-      for (const row of (report.row.length ? report.row : [report.row])) {
+    if (report.row) {
+      for (const row of (Array.isArray(report.row) ? report.row : [report.row])) {
         if (!row.col || row.col < 2) {
           throw new RmfException(`Invalid RMF-DDS performance report row: ${row}`);
         }

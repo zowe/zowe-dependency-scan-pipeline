@@ -33,9 +33,9 @@ export const DEFAULT_RMF_DDS_OPTIONS: RmfDdsOptions = {
 
 export const DEFAULT_RMF_DDS_METRICS: {[key: string]: string[]} = {
   cpu: ['PROCESSOR.8D49E0'],
-  cpupr: ['PROCESSOR.8D4770'],
-  zaappr: ['PROCESSOR.8D2C20'],
-  ziippr: ['PROCESSOR.8D34E0'],
+  cpupr: ['PROCESSOR.8D4770', 'PROCESSOR.8D2790'],
+  zaappr: ['PROCESSOR.8D2C20', 'PROCESSOR.8D2BF0'],
+  ziippr: ['PROCESSOR.8D34E0', 'PROCESSOR.8D34A0'],
   real: ['AUXILIARY_STORAGE.8D0D40'],
   delaypr: ['MVS_IMAGE.8D0200'],
 };
