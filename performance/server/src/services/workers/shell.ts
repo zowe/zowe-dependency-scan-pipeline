@@ -41,13 +41,13 @@ export default class ZMSShellWorker extends ZMSBaseWorker {
       const execPromise = promisify(exec);
       logger.debug("shell worker \"%s\" polling: %s", this.name, this.options.command);
 
-      const ts = new Date();
       const { stdout, stderr } = await execPromise(this.options.command, {
         cwd: ZMS_COLLECTORS_DIR,
       } as ExecOptions);
       if (stderr) {
         throw new ZMSException(`Shell command failed with error: ${stderr}`);
       }
+      const ts = new Date();
       logger.silly("shell worker \"%s\" output: %j", this.name, { stdout, stderr });
 
       let result: MetricWorkerResultItem[];
