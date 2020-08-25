@@ -11,6 +11,7 @@
 import ZMSBaseWorker from "./base";
 import RmfDds from "../rmf/dds";
 import {
+  MetricWorker,
   ZMSRmfDdsWorkerOptions, PartialZMSRmfDdsWorkerOptions,
   MetricWorkerResultItem,
 } from "../../types";
@@ -86,11 +87,53 @@ export default class ZMSRmfDdsWorker extends ZMSBaseWorker {
       }
 
       logger.info("rmf-dds worker \"%s\" returns %d records", this.name, result.length);
+      this._fixMissingCpuPr(result);
       logger.silly("rmf-dds worker \"%s\" parsed result: %j", this.name, result);
       metricsManager.updateResult(this.name, ts, result);
     } catch (e) {
       logger.warn("Error on executing rmf-dds worker \"%s\" on \"%s\": %j - %j - %j", this.name, this.rmfDds.getPrefixUrl(), e, e.message, e.stack);
       // log the error but do not exit
+    }
+  }
+
+  private _findCpuPrItems(data: MetricWorkerResultItem[]): string[] {
+    const result: string[] = [];
+
+    for (const item of data) {
+      if (item.key === "cpupr") {
+        if (item.item) {
+          result.push(`${item.item}||${item.extra ? item.extra : ""}`);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  private _fixMissingCpuPr(data: MetricWorkerResultItem[]): void {
+    const lastWorkerResult: MetricWorker = (this.name in metricsManager.metrics) ? metricsManager.metrics[this.name] : null;
+    const lastResult: MetricWorkerResultItem[] = lastWorkerResult && lastWorkerResult.resultRaw ? lastWorkerResult.resultRaw : [];
+
+    const lastProcesses: string[] = this._findCpuPrItems(lastResult);
+    const thisProcesses: string[] = this._findCpuPrItems(data);
+    const missingProcesses: string[] = lastProcesses.filter(m => thisProcesses.indexOf(m) == -1);
+    logger.debug("These processes will be added to %s cpupr and set to 0: %j", this.name, missingProcesses);
+
+    for (const m of missingProcesses) {
+      const sm = m.split("||");
+      if (sm[0]) {
+        const newItem: MetricWorkerResultItem = {
+          key: "cpupr",
+          // set to 0 if it's missing
+          value: 0,
+          item: sm[0],
+        };
+        if (sm[1]) {
+          newItem.extra = sm[1];
+        }
+
+        data.push(newItem);
+      }
     }
   }
 }

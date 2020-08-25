@@ -11,14 +11,20 @@
 ################################################################################
 
 # Variables required on shell:
-# - NODE_HOME
+# - NODE_HOME or NVM_BIN
 
-if [ -z "${NODE_HOME}" ]; then
-  echo "[ERROR] NODE_HOME environment variable is required to start Zowe Metrics Server."
+NODE_BIN=
+if [ ! -z "${NODE_HOME}" ]; then
+  NODE_BIN=${NODE_HOME}/bin/node
+elif [ ! -z "${NVM_BIN}" ]; then
+  NODE_BIN=${NVM_BIN}/node
+fi
+
+if [ -z "${NODE_BIN}" ]; then
+  echo "[ERROR] NODE_HOME or NVM_BIN environment variable is required to start Zowe Metrics Server."
   exit 1
 fi
 
-NODE_BIN=${NODE_HOME}/bin/node
 SCRIPT_PWD=$(cd "$(dirname "$0")" && pwd)
 ZMS_ROOT_DIR=$(cd "$SCRIPT_PWD" && cd .. && pwd)
 # start service
