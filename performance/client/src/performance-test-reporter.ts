@@ -148,8 +148,8 @@ export default class PerformanceTestReporter extends BaseReporter {
       const totalTimeElapse = (lastTimestamp - firstTimestamp) / 1000;
       debug('cpu elapse in seconds: (', lastTimestamp, '-', firstTimestamp, ') / 1000 =', totalTimeElapse);
       if (totalTimeElapse > 0) {
-        const totalCpuTime = (lastCpuTime - firstCpuTime) / 1000;
-        debug('cpu time in seconds: (', lastCpuTime, '-', firstCpuTime, ') / 1000 =', totalCpuTime);
+        const totalCpuTime = lastCpuTime - firstCpuTime;
+        debug('cpu time in seconds: ', lastCpuTime, '-', firstCpuTime, '=', totalCpuTime);
         const cpuPercentage = (totalCpuTime * 100) / totalTimeElapse;
         debug('cpu %:', cpuPercentage);
 
