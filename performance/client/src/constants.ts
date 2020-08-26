@@ -25,7 +25,7 @@ export const DEFAULT_CLIENT_METRICS: ClientMetrics[] = [
 ];
 
 // default test timeout is set to 1 day
-export const DEFAULT_PERFORMANCE_TEST_TIMEOUT = 86400;
+export const DEFAULT_PERFORMANCE_TEST_TIMEOUT = 86400 * 1000;
 
 // default Zowe metrics server port
 export const DEFAULT_ZMS_PORT = 19000;
@@ -41,5 +41,5 @@ export const DEFAULT_ZMS_METRICS: string[] = [
   "real\\{source=\"rmf.dds\",item=\"IZUSVR1\".+\\}",
 ];
 
-export const DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL = 5;
-export const DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL = 5;
+export const DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL = 10;
+export const DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL = 10;

@@ -9,7 +9,6 @@
  */
 
 import * as fs from "fs";
-import { schedule, ScheduledTask } from "node-cron";
 import { MetricsCollectorOptions, MetricsCollector } from "../types";
 
 import Debug from 'debug';
@@ -17,7 +16,7 @@ const debug = Debug('zowe-performance-test:base-metrics-collector');
 
 export default class BaseMetricsCollector implements MetricsCollector {
   protected options: MetricsCollectorOptions;
-  protected _cronTask: ScheduledTask; 
+  protected _timer: NodeJS.Timeout;
 
   constructor(options: MetricsCollectorOptions) {
     this.options = options;
@@ -25,20 +24,25 @@ export default class BaseMetricsCollector implements MetricsCollector {
   }
 
   async prepare(): Promise<any> {
-    this._cronTask = schedule(`*/${this.options.interval} * * * * *`, async () => {
-      await this.poll();
-    }, {
-      scheduled: false
-    });
+    // dummy prepare method
   }
 
   async start(): Promise<any> {
-    this._cronTask.start();
+    // start right away
+    setTimeout(async () => {
+      await this.poll();
+    }, 0);
+
+    // define scheduler
+    this._timer = setInterval(async() => {
+      await this.poll();
+    }, this.options.interval * 1000);
+
     fs.writeFileSync(this.options.cacheFile, "---\n", { flag: "w" });
   }
 
   async destroy(): Promise<any> {
-    this._cronTask.destroy();
+    clearInterval(this._timer);
   }
 
   async poll(): Promise<any> {
