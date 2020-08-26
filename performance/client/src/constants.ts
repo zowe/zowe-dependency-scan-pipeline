@@ -33,9 +33,12 @@ export const DEFAULT_ZMS_PORT = 19000;
 export const DEFAULT_ZMS_ENDPOINT = "/metrics";
 
 export const DEFAULT_ZMS_METRICS: string[] = [
-  "CPUPR", "REAL",
-  "CPU\\{process=\"ZWE.*\"\\}", "REAL\\{process=\"ZWE.*\"\\}",
-  "CPU\\{process=\"IZUSVR1\"\\}", "REAL\\{process=\"IZUSVR1\"\\}",
+  "cpupr\\{source=\"rmf.dds\"\\}",
+  "real\\{source=\"sdsf.sys\"\\}",
+  "cpu\\{source=\"rmf.dds\",item=\"ZWE.*\".+\\}",
+  "real\\{source=\"rmf.dds\",item=\"ZWE.*\".+\\}",
+  "cpu\\{source=\"rmf.dds\",item=\"IZUSVR1\".+\\}",
+  "real\\{source=\"rmf.dds\",item=\"IZUSVR1\".+\\}",
 ];
 
 export const DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL = 5;
