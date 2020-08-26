@@ -29,6 +29,6 @@
   "scripts": {
     "build": "tsc",
     "test": "tsc && jest --runInBand",
-    "lint": "eslint ."
+    "lint": "eslint . --ext .ts,.js"
   }
 }

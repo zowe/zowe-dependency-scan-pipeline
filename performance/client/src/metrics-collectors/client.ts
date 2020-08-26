@@ -47,7 +47,7 @@ export default class ClientMetricsCollector extends BaseMetricsCollector {
 
     if (this.collectCpu) {
       const cpuUsage = process.cpuUsage() as {[key: string]: any};
-      Object.keys(cpuUsage).map(m => {
+      Object.keys(cpuUsage).forEach(m => {
         if (this.options.metrics.includes("cpu." + m as ClientMetrics)) {
           debug(`- cpu.${m} = ${cpuUsage[m]}`);
 
@@ -60,7 +60,7 @@ export default class ClientMetricsCollector extends BaseMetricsCollector {
 
     if (this.collectMemory) {
       const memoryUsage = process.memoryUsage() as {[key: string]: any};
-      Object.keys(memoryUsage).map(m => {
+      Object.keys(memoryUsage).forEach(m => {
         if (this.options.metrics.includes("memory." + m as ClientMetrics)) {
           debug(`- memory.${m} = ${memoryUsage[m]}`);
 
@@ -73,7 +73,7 @@ export default class ClientMetricsCollector extends BaseMetricsCollector {
 
     if (this.collectResource) {
       const resourceUsage = process.resourceUsage() as {[key: string]: any};
-      Object.keys(resourceUsage).map(m => {
+      Object.keys(resourceUsage).forEach(m => {
         if (this.options.metrics.includes("resource." + m as ClientMetrics)) {
           debug(`- resource.${m} = ${resourceUsage[m]}`);
 

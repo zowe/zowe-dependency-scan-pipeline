@@ -123,7 +123,7 @@ Transfer/sec:    142.91KB
   */
 
   const lines = stdout.split("\n");
-  lines.map(line => {
+  lines.forEach(line => {
     line = line.trim();
     let m;
 

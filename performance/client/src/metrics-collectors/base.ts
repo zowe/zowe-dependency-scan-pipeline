@@ -42,5 +42,6 @@ export default class BaseMetricsCollector implements MetricsCollector {
   }
 
   async poll(): Promise<any> {
+    // dummy poll statements
   }
 }

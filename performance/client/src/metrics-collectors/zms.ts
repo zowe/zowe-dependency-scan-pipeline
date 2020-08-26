@@ -57,7 +57,7 @@ export default class ZMSMetricsCollector extends BaseMetricsCollector {
       const ts = new Date().getTime();
       const content: string[] = [];
 
-      body.split("\n").map(line => {
+      body.split("\n").forEach(line => {
         line = line.trim();
         if (!line) {
           return;
