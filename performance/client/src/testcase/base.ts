@@ -23,7 +23,7 @@ import {
   DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL,
   DEFAULT_CLIENT_METRICS,
   DEFAULT_ZMS_METRICS,
-
+  DEFAULT_ZMS_CPUTIME_METRICS,
 } from "../constants";
 import { sleep } from "../utils";
 import ZMSMetricsCollector from "../metrics-collectors/zms";
@@ -59,11 +59,12 @@ export default class BaseTestCase implements PerformanceTestCase {
     Object.assign(
       smco,
       {
-        interval:  DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL,
-        cacheFile: PERFORMANCE_TEST_METRICS_ZMS_FILE,
-        metrics:   DEFAULT_ZMS_METRICS,
-        zmsHost:   process.env.ZMS_HOST || null,
-        zmsPort:   process.env.ZMS_PORT || null,
+        interval       : DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL,
+        cacheFile      : PERFORMANCE_TEST_METRICS_ZMS_FILE,
+        metrics        : DEFAULT_ZMS_METRICS,
+        cputimeMetrics : DEFAULT_ZMS_CPUTIME_METRICS,
+        zmsHost        : process.env.ZMS_HOST || null,
+        zmsPort        : process.env.ZMS_PORT || null,
       },
       this.serverMetricsCollectorOptions,
     );
@@ -99,7 +100,7 @@ export default class BaseTestCase implements PerformanceTestCase {
       "serverMetricsCollector", "clientMetricsCollector"
     ];
 
-    Object.entries(this).map(e => {
+    Object.entries(this).forEach(e => {
       if (ignoredParameters.indexOf(e[0]) === -1) {
         p[e[0]]=e[1];
       }

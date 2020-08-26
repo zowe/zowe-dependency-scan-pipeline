@@ -12,7 +12,13 @@ import * as fs from "fs";
 import got from "got";
 import BaseMetricsCollector from "./base";
 import { ZMSMetricsCollectorOptions } from "../types";
-import { DEFAULT_ZMS_METRICS, DEFAULT_ZMS_ENDPOINT, DEFAULT_ZMS_PORT } from "../constants";
+import {
+  DEFAULT_ZMS_METRICS,
+  DEFAULT_ZMS_CPUTIME_METRICS,
+  DEFAULT_ZMS_ENDPOINT,
+  DEFAULT_ZMS_PORT,
+  DEFAULT_SERVER_METRICS_COLLECTOR_COOLDOWN_TIME,
+} from "../constants";
 import PerformanceTestException from "../exceptions/performance-test-exception";
 
 import Debug from 'debug';
@@ -25,8 +31,16 @@ export default class ZMSMetricsCollector extends BaseMetricsCollector {
   constructor(options: ZMSMetricsCollectorOptions) {
     super(options);
 
+    if (!this.options.cooldown) {
+      this.options.cooldown = DEFAULT_SERVER_METRICS_COLLECTOR_COOLDOWN_TIME;
+    }
+
     if (!this.options.metrics) {
       this.options.metrics = DEFAULT_ZMS_METRICS;
+    }
+
+    if (!this.options.cputimeMetrics) {
+      this.options.cputimeMetrics = DEFAULT_ZMS_CPUTIME_METRICS;
     }
 
     if (!this.options.zmsHost) {

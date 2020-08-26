@@ -68,7 +68,7 @@ export default class WrkTestCase extends BaseTestCase {
   async run(): Promise<any> {
     const fullUrl = `https://${this.targetHost}:${this.targetPort}${this.endpoint}`;
     const headersWithOption: string[] = [];
-    this.headers.map(header => {
+    this.headers.forEach(header => {
       headersWithOption.push("--header");
       headersWithOption.push(header);
     });

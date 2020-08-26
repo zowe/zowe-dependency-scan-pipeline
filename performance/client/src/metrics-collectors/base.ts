@@ -12,6 +12,7 @@ import * as fs from "fs";
 import { MetricsCollectorOptions, MetricsCollector } from "../types";
 
 import Debug from 'debug';
+import { sleep } from "../utils";
 const debug = Debug('zowe-performance-test:base-metrics-collector');
 
 export default class BaseMetricsCollector implements MetricsCollector {
@@ -43,6 +44,11 @@ export default class BaseMetricsCollector implements MetricsCollector {
 
   async destroy(): Promise<any> {
     clearInterval(this._timer);
+
+    // wait for metrics cool down
+    this.options.cooldown && await sleep(this.options.cooldown);
+    // poll metrics again
+    await this.poll();
   }
 
   async poll(): Promise<any> {

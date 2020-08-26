@@ -16,7 +16,7 @@ class IdleTest extends BaseTestCase {
 
   // example: 15 minutes
   duration = 15 * 60;
-  // duration = 15 ;
+  // duration = 30 ;
 };
 
 // init test case

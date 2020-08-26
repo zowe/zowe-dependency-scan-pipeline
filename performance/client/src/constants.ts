@@ -41,5 +41,20 @@ export const DEFAULT_ZMS_METRICS: string[] = [
   "real\\{source=\"rmf.dds\",item=\"IZUSVR1\".+\\}",
 ];
 
+// these metrics will be used to calculate total CPU Time and %
+// test result showing in report may contain these entries:
+// - total_time_elapse_from_server_metrics
+// - total_cpu_time_from_server_metrics
+// - total_cpu_percentage_from_server_metrics
+export const DEFAULT_ZMS_CPUTIME_METRICS: string[] = [
+  "cpu\\{source=\"rmf.dds\",item=\"ZWE.*\".+\\}",
+];
+
 export const DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL = 10;
 export const DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL = 10;
+
+// these cool down time can help on collect more accurate CPU time caused
+// by the tests because of the delay on collecting metrics.
+export const DEFAULT_SERVER_METRICS_COLLECTOR_COOLDOWN_TIME = 20;
+export const DEFAULT_CLIENT_METRICS_COLLECTOR_COOLDOWN_TIME = 20;
+

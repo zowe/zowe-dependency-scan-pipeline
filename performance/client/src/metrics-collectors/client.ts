@@ -11,7 +11,7 @@
 import * as fs from "fs";
 import BaseMetricsCollector from "./base";
 import { ClientMetricsCollectorOptions, ClientMetrics } from "../types";
-import { DEFAULT_CLIENT_METRICS } from "../constants";
+import { DEFAULT_CLIENT_METRICS, DEFAULT_CLIENT_METRICS_COLLECTOR_COOLDOWN_TIME } from "../constants";
 
 import Debug from 'debug';
 const debug = Debug('zowe-performance-test:client-metrics');
@@ -26,6 +26,9 @@ export default class ClientMetricsCollector extends BaseMetricsCollector {
   constructor(options: ClientMetricsCollectorOptions) {
     super(options);
 
+    if (!this.options.cooldown) {
+      this.options.cooldown = DEFAULT_CLIENT_METRICS_COLLECTOR_COOLDOWN_TIME;
+    }
     if (!this.options.metrics) {
       this.options.metrics = DEFAULT_CLIENT_METRICS;
     }

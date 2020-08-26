@@ -43,10 +43,14 @@ export interface MetricsCollector {
 export interface MetricsCollectorOptions {
   // what's the interval to collecting metrics, in seconds
   interval?: number;
+  // after test finished, wait for this cooldown time and collect metrics again
+  cooldown?: number;
   // file to store metrics
   cacheFile?: string;
   // metrics should be collected
   metrics?: string[];
+  // metrics will be used to calculate CPU time and %
+  cputimeMetrics?: string[];
 }
 
 // References:

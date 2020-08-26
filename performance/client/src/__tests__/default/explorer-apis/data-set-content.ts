@@ -17,7 +17,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
 
   // example: 15 minutes
   duration = 15 * 60;
-  // duration = 15 ;
+  // duration = 30 ;
 
   // endpoint we want to test
   endpoint = '/api/v1/datasets/ZOWEAD3.PERF.TEST(PURGEJOB)/content';
