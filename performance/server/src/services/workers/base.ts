@@ -8,7 +8,6 @@
  * Copyright IBM Corporation 2020
  */
 
-import { schedule, ScheduledTask } from "node-cron";
 import { ZMSWorkerOptions, PartialZMSWorkerOptions } from "../../types";
 import { DEFAULT_WORKER_OPTIONS } from "../../constants";
 import logger from "../logger";
@@ -16,7 +15,7 @@ import logger from "../logger";
 export default class ZMSBaseWorker {
   protected name: string;
   protected options: ZMSWorkerOptions;
-  protected _cronTask: ScheduledTask; 
+  protected _timer: NodeJS.Timeout;
 
   constructor(name: string, options?: PartialZMSWorkerOptions) {
     this.name = name;
@@ -25,19 +24,23 @@ export default class ZMSBaseWorker {
   }
 
   async prepare(): Promise<void> {
-    this._cronTask = schedule(`*/${this.options.interval} * * * * *`, async () => {
-      await this.poll();
-    }, {
-      scheduled: false
-    });
+    // dummy prepare method
   }
 
   async start(): Promise<void> {
-    this._cronTask.start();
+    // start right away
+    setTimeout(async () => {
+      await this.poll();
+    }, 0);
+
+    // define scheduler
+    this._timer = setInterval(async() => {
+      await this.poll();
+    }, this.options.interval * 1000);
   }
 
   async destroy(): Promise<void> {
-    this._cronTask.destroy();
+    clearInterval(this._timer);
   }
 
   async poll(): Promise<void> {
