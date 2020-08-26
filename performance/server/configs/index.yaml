@@ -9,6 +9,7 @@ server:
     cert: sslcert/server.cert
 metrics:
   - name: sdsf.sys
+    # estimated overhead 0.7%
     worker: shell
     options:
       interval: 10
@@ -16,6 +17,7 @@ metrics:
       command: metrics/sysagg.rexx
       outputFormat: json
   - name: sdsf.da
+    # estimated overhead 0.8%
     worker: shell
     options:
       interval: 10
@@ -24,6 +26,7 @@ metrics:
       # command: metrics/dummy.sh
       outputFormat: json
   - name: rmf.dds
+    # estimated overhead 0.4%
     worker: rmf.dds
     options:
       interval: 10
