@@ -21,7 +21,7 @@
     {
       "datasource": null,
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 6,
         "x": 0,
         "y": 0
@@ -43,6 +43,10 @@
                 {
                   "color": "green",
                   "value": null
+                },
+                {
+                  "color": "#EAB839",
+                  "value": 60
                 },
                 {
                   "color": "red",
@@ -86,7 +90,7 @@
       "datasource": null,
       "description": "",
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 6,
         "x": 6,
         "y": 0
@@ -141,12 +145,177 @@
       "type": "stat"
     },
     {
+      "cacheTimeout": null,
       "datasource": null,
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 6,
         "x": 12,
         "y": 0
+      },
+      "id": 6,
+      "links": [],
+      "options": {
+        "displayMode": "lcd",
+        "fieldOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "defaults": {
+            "mappings": [
+              {
+                "id": 0,
+                "op": "=",
+                "text": "N/A",
+                "type": 1,
+                "value": "null"
+              }
+            ],
+            "nullValueMode": "connected",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "#EAB839",
+                  "value": 60
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "percent"
+          },
+          "overrides": [],
+          "values": false
+        },
+        "orientation": "horizontal",
+        "showUnfilled": true
+      },
+      "pluginVersion": "6.6.2",
+      "targets": [
+        {
+          "expr": "csapct{source=\"sdsf.sys\"}",
+          "legendFormat": "Common Storage Area (CSA) %",
+          "refId": "A"
+        },
+        {
+          "expr": "sqapct{source=\"sdsf.sys\"}",
+          "legendFormat": "System Queue Area (SQA) %",
+          "refId": "B"
+        },
+        {
+          "expr": "ecsapct{source=\"sdsf.sys\"}",
+          "legendFormat": "Extended Common Area (ECSA) %",
+          "refId": "C"
+        },
+        {
+          "expr": "esqapct{source=\"sdsf.sys\"}",
+          "legendFormat": "\tExtended System Queue Area (ESQA) %",
+          "refId": "D"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Central Storage",
+      "type": "bargauge"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": null,
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 37,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "options": {},
+      "pluginVersion": "6.6.2",
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false,
+        "ymax": null,
+        "ymin": null
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "expr": "real{source=\"sdsf.sys\"}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": "",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Real Storage",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "avg"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 3,
+        "w": 6,
+        "x": 18,
+        "y": 3
       },
       "id": 4,
       "interval": "5s",
@@ -197,92 +366,6 @@
       "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorPostfix": false,
-      "colorPrefix": false,
-      "colorValue": true,
-      "colors": [
-        "#73BF69",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": null,
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
-      },
-      "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 18,
-        "y": 0
-      },
-      "id": 6,
-      "interval": null,
-      "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
-      "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "options": {},
-      "pluginVersion": "6.6.2",
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "ymax": null,
-        "ymin": null
-      },
-      "tableColumn": "",
-      "targets": [
-        {
-          "expr": "real{source=\"sdsf.sys\"}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Real Storage",
-      "type": "singlestat",
-      "valueFontSize": "150%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
-    },
-    {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
@@ -294,7 +377,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 5
+        "y": 6
       },
       "hiddenSeries": false,
       "id": 8,
@@ -381,7 +464,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 5
+        "y": 6
       },
       "hiddenSeries": false,
       "id": 28,
@@ -468,7 +551,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 13
+        "y": 14
       },
       "hiddenSeries": false,
       "id": 20,
@@ -555,7 +638,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 13
+        "y": 14
       },
       "hiddenSeries": false,
       "id": 18,
@@ -642,7 +725,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 22
       },
       "hiddenSeries": false,
       "id": 24,
@@ -729,7 +812,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 22
       },
       "hiddenSeries": false,
       "id": 22,
@@ -816,7 +899,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 29
+        "y": 30
       },
       "hiddenSeries": false,
       "id": 14,
@@ -903,7 +986,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 29
+        "y": 30
       },
       "hiddenSeries": false,
       "id": 30,
@@ -990,7 +1073,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 37
+        "y": 38
       },
       "hiddenSeries": false,
       "id": 10,
@@ -1028,7 +1111,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "z/OSMF -  CPU %",
+      "title": "z/OSMF -  CPU % (SDSF.DA)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1077,10 +1160,10 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 37
+        "y": 38
       },
       "hiddenSeries": false,
-      "id": 12,
+      "id": 35,
       "legend": {
         "avg": false,
         "current": false,
@@ -1106,8 +1189,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "real{source=\"sdsf.da\",process=~\"IZU.+\"}",
-          "legendFormat": "{{process}}",
+          "expr": "cpupr{source=\"rmf.dds\",item=~\"IZU.*\"}",
+          "legendFormat": "{{item}}",
           "refId": "A"
         }
       ],
@@ -1115,7 +1198,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "z/OSMF - Memory",
+      "title": "z/OSMF -  CPU % (RMF)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1164,7 +1247,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 45
+        "y": 46
       },
       "hiddenSeries": false,
       "id": 32,
@@ -1257,7 +1340,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 45
+        "y": 46
       },
       "hiddenSeries": false,
       "id": 34,
@@ -1372,5 +1455,5 @@
   "timezone": "",
   "title": "Zowe Metrics",
   "uid": "c0cs3GlZz",
-  "version": 5
+  "version": 8
 }
