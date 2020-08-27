@@ -128,13 +128,22 @@ export default class PerformanceTestReporter extends BaseReporter {
       const re = new RegExp(res);
 
       const cpuTimeSum: {[key: string]: number} = {};
+      const cpuTimeEntries: {[key: string]: string[]} = {};
       for (const serverMetric of serverMetrics) {
         if (serverMetric.name.match(re)) {
           const k = `${serverMetric.timestamp}`;
           if (!cpuTimeSum[k]) {
             cpuTimeSum[k] = 0;
           }
-          cpuTimeSum[k] += serverMetric.value;
+          if (!cpuTimeEntries[k]) {
+            cpuTimeEntries[k] = [];
+          }
+
+          // to avoid adding duplicated entries to total
+          if (cpuTimeEntries[k].indexOf(serverMetric.name) == -1) {
+            cpuTimeSum[k] += serverMetric.value;
+            cpuTimeEntries[k].push(serverMetric.name);
+          }
         }
       }
       debug('cpu time metrics sum:', cpuTimeSum);

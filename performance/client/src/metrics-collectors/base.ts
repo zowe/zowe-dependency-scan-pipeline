@@ -31,11 +31,13 @@ export default class BaseMetricsCollector implements MetricsCollector {
   async start(): Promise<any> {
     // start right away
     setTimeout(async () => {
+      debug("start first poll at", new Date());
       await this.poll();
     }, 0);
 
     // define scheduler
     this._timer = setInterval(async() => {
+      debug("start scheduled poll at", new Date());
       await this.poll();
     }, this.options.interval * 1000);
 
@@ -45,10 +47,14 @@ export default class BaseMetricsCollector implements MetricsCollector {
   async destroy(): Promise<any> {
     clearInterval(this._timer);
 
-    // wait for metrics cool down
-    this.options.cooldown && await sleep(this.options.cooldown);
-    // poll metrics again
-    await this.poll();
+    if (this.options.cooldown && this.options.cooldown > 0) {
+      // wait for metrics cool down
+      debug("wait for cool down", this.options.cooldown);
+      this.options.cooldown && await sleep(this.options.cooldown * 1000);
+      // poll metrics again
+      debug("start last poll after cool down at", new Date());
+      await this.poll();
+    }
   }
 
   async poll(): Promise<any> {

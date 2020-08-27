@@ -21,6 +21,7 @@ import {
   PERFORMANCE_TEST_METRICS_CLIENT_FILE,
   DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL,
   DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL,
+  DEFAULT_TEST_COOLDOWN,
   DEFAULT_CLIENT_METRICS,
   DEFAULT_ZMS_METRICS,
   DEFAULT_ZMS_CPUTIME_METRICS,
@@ -48,6 +49,9 @@ export default class BaseTestCase implements PerformanceTestCase {
 
   // how long this test should last in seconds
   public duration = 1;
+
+  // how long this test should wait before starting nex
+  public cooldown: number = DEFAULT_TEST_COOLDOWN;
 
   constructor(options?: {[key: string]: any}) {
     Object.assign(this, options);
@@ -118,6 +122,10 @@ export default class BaseTestCase implements PerformanceTestCase {
 
   async after(): Promise<any> {
     debug(`test "${this.name}" ends at ${new Date().toISOString()}`);
+    if (this.cooldown) {
+      debug(`wait for ${this.cooldown} seconds cool down before next test`);
+      await sleep(this.cooldown * 1000);
+    }
   }
 
   async run(): Promise<any> {
@@ -179,6 +187,6 @@ export default class BaseTestCase implements PerformanceTestCase {
 
       const rc = await this.run();
       undefinedOrZero(rc);
-    }, this.testTimeout);
+    });
   }
 };

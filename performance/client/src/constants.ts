@@ -55,6 +55,10 @@ export const DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL = 10;
 
 // these cool down time can help on collect more accurate CPU time caused
 // by the tests because of the delay on collecting metrics.
-export const DEFAULT_SERVER_METRICS_COLLECTOR_COOLDOWN_TIME = 20;
-export const DEFAULT_CLIENT_METRICS_COLLECTOR_COOLDOWN_TIME = 20;
+// this should be longer than the ZMS polling interval to get new data.
+export const DEFAULT_SERVER_METRICS_COLLECTOR_COOLDOWN_TIME = 10;
+// no cool down needed for client metrics collector
+export const DEFAULT_CLIENT_METRICS_COLLECTOR_COOLDOWN_TIME = 0;
 
+// default cool down time between 2 tests
+export const DEFAULT_TEST_COOLDOWN = 40;

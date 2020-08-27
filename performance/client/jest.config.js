@@ -11,6 +11,10 @@
 module.exports = {
   rootDir: "./dist",
   testEnvironment: "node",
+  // default timeout for a test, in ms
+  testTimeout: 86400000,
+  // what consider as slow
+  slowTestThreshold: 3600,
   reporters: [
     "default",
 

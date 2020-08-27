@@ -82,7 +82,7 @@ export default class ZMSMetricsCollector extends BaseMetricsCollector {
           const t = kv[2] || ts;
 
           if (kv[0].match(re)) {
-            debug(`- ${kv[0]} = ${kv[1]}`);
+            debug(`- [${t}] ${kv[0]} = ${kv[1]}`);
 
             content.push(`- timestamp: ${t}`);
             content.push(`  name: ${kv[0]}`);

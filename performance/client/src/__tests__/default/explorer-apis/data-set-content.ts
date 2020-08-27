@@ -20,7 +20,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // duration = 30 ;
 
   // endpoint we want to test
-  endpoint = '/api/v1/datasets/ZOWEAD3.PERF.TEST(PURGEJOB)/content';
+  endpoint = '/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content';
 
   // example to overwrite default collector options
   // serverMetricsCollectorOptions = {
