@@ -16,15 +16,15 @@ metrics:
       # command base dir is "src/collectors"
       command: metrics/sysagg.rexx
       outputFormat: json
-  - name: sdsf.da
-    # estimated overhead 0.8%
-    worker: shell
-    options:
-      interval: 10
-      # command base dir is "src/collectors"
-      command: metrics/da.rexx
-      # command: metrics/dummy.sh
-      outputFormat: json
+  # - name: sdsf.da
+  #   # estimated overhead 0.8%
+  #   worker: shell
+  #   options:
+  #     interval: 10
+  #     # command base dir is "src/collectors"
+  #     command: metrics/da.rexx
+  #     # command: metrics/dummy.sh
+  #     outputFormat: json
   - name: rmf.dds
     # estimated overhead 0.4%
     worker: rmf.dds
@@ -37,14 +37,15 @@ metrics:
       # metrics:
       #   cpu:
       #     - PROCESSOR.8D49E0
-logstash:
-  server:
-  port:
-  max_lines: 2000
-  program: node
-logs:
-  - name: zosmf-logs
-    source: /var/zosmf/data/logs/IZUG0.log
-    script: push-zosmf-log.js
-    max_lines: 1000
-    offset: 514171
+## TODO: collecting logs and push to logstash
+# logstash:
+#   server:
+#   port:
+#   max_lines: 2000
+#   program: node
+# logs:
+#   - name: zosmf-logs
+#     source: /var/zosmf/data/logs/IZUG0.log
+#     script: push-zosmf-log.js
+#     max_lines: 1000
+#     offset: 514171
