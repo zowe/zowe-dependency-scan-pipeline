@@ -61,4 +61,5 @@ export const DEFAULT_SERVER_METRICS_COLLECTOR_COOLDOWN_TIME = 10;
 export const DEFAULT_CLIENT_METRICS_COLLECTOR_COOLDOWN_TIME = 0;
 
 // default cool down time between 2 tests
+// this number should be long enough for any api calls on the server to cool down
 export const DEFAULT_TEST_COOLDOWN = 40;

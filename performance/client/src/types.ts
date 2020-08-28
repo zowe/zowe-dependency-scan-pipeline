@@ -106,6 +106,7 @@ export type PerformanceTestCaseReport = {
   path: string;
   environments: {[key: string]: any};
   parameters: {[key: string]: any};
+  zoweVersions?: {[key: string]: any};
   result?: {[key: string]: any};
   clientMetrics?: PerformanceMetric[];
   serverMetrics?: PerformanceMetric[];

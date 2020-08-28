@@ -26,7 +26,7 @@ import {
   DEFAULT_ZMS_METRICS,
   DEFAULT_ZMS_CPUTIME_METRICS,
 } from "../constants";
-import { sleep } from "../utils";
+import { sleep, getZoweVersions } from "../utils";
 import ZMSMetricsCollector from "../metrics-collectors/zms";
 import ClientMetricsCollector from "../metrics-collectors/client";
 
@@ -47,6 +47,13 @@ export default class BaseTestCase implements PerformanceTestCase {
   // client side metrics collector options
   public clientMetricsCollectorOptions: {[key: string]: any};
 
+  // target server to test
+  public targetHost: string;
+  // target port to test
+  public targetPort: string;
+  // whether the target host/port is Zowe instance and port is Gateway port
+  public fetchZoweVersions = false;
+
   // how long this test should last in seconds
   public duration = 1;
 
@@ -55,6 +62,14 @@ export default class BaseTestCase implements PerformanceTestCase {
 
   constructor(options?: {[key: string]: any}) {
     Object.assign(this, options);
+
+    if (!this.targetHost && process.env.TARGET_HOST) {
+      this.targetHost = process.env.TARGET_HOST;
+    }
+  
+    if (!this.targetPort && process.env.TARGET_PORT) {
+      this.targetPort = process.env.TARGET_PORT;
+    }
   }
 
   protected _initMetricsCollector(): void {
@@ -146,12 +161,25 @@ export default class BaseTestCase implements PerformanceTestCase {
       }
     };
 
-    beforeAll(() => {
+    beforeAll(async () => {
+      let targetZoweVersions: {[key: string]: any} = null;
+      if (this.fetchZoweVersions) {
+        debug("Fetching Zowe version ...");
+        // get Zowe version
+        targetZoweVersions = await getZoweVersions(this.targetHost, parseInt(this.targetPort, 10));
+        debug("Zowe version: ", targetZoweVersions, ". Waiting for cool down before starting the test ...");
+        // cool down after api call
+        await sleep(DEFAULT_TEST_COOLDOWN * 1000);
+      }
+
       // write text context to file
       // FIXME: write file because there is no reliable way to pass test variables
       //        to reporter
       // REF: https://github.com/facebook/jest/issues/7421
-      fs.writeFileSync(PERFORMANCE_TEST_CONTEXT_FILE, JSON.stringify(this._getParameters()));
+      fs.writeFileSync(PERFORMANCE_TEST_CONTEXT_FILE, JSON.stringify({
+        parameters: this._getParameters(),
+        zoweVersions: targetZoweVersions,
+      }));
 
       // delete these file if exists
       if (fs.existsSync(PERFORMANCE_TEST_RESULT_FILE)) {

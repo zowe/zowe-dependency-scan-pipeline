@@ -15,6 +15,10 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // name/purpose of the test
   name = "Test explorer api endpoint /datasets/{ds}/content";
 
+  // fetch Zowe instance version information
+  // this can be turned on if TARGET_PORT is Zowe APIML Gateway port
+  fetchZoweVersions = true;
+
   // example: 15 minutes
   duration = 15 * 60;
   // duration = 30 ;

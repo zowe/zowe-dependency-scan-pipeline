@@ -21,7 +21,7 @@ Visit `http://localhost:3000` to access Grafana. Default user name and password 
 
 - From Grafana UI, click on `Configuration` - `Data Source` section.
 - Choose `Add data source` and select `Prometheus`.
-- Input `http://prometheus:9090` as URL and save.
+- Input `http://prometheus:9090` as URL, input `10s` as `Scrape interval` and save.
 - For the new data source, we can import default Prometheus dashboard by selecting the `Dashboard` tab, choosing `Prometheus 2.0 Stats` and clicking on `Import`.
 
 ## Import Zowe Metrics Dashboard

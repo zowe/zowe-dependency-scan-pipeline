@@ -9,6 +9,7 @@
  */
 
 import PerformanceTestException from "../exceptions/performance-test-exception";
+import got from "got";
 
 /**
  * Sleep for certain time
@@ -40,4 +41,31 @@ export const getBasicAuthorizationHeader = (user?: string, password?: string): s
   } else {
     throw new PerformanceTestException("Authentication is required for this test");
   }
+};
+
+/**
+ * Fetch Zowe instance version from APIML Gateway
+ * 
+ * Note: some versions of Zowe instance doesn't have ZOWE_MANIFEST environment
+ *       variable defined. This variable should be pointed to Zowe runtime
+ *       directory manifest.json file. It's mandatory to retrieve Zowe version
+ *       other than just APIML version.
+ *
+ *       ZOWE_MANIFEST entry can be added to instance.env like this:
+ *
+ *       ZOWE_MANIFEST="${ROOT_DIR}/manifest.json"
+ *
+ * @param apimlGatewayHost
+ * @param apimlGatewayPort
+ */
+export const getZoweVersions = async (apimlGatewayHost: string, apimlGatewayPort: number): Promise<any> => {
+  const url = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v1/gateway/version`;
+
+  const { body } =  await got(url, {
+    https: {
+      rejectUnauthorized: false
+    }
+  });
+
+  return JSON.parse(body);
 };
