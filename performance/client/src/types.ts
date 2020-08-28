@@ -31,13 +31,13 @@ export interface PerformanceTestParameters {
 
 export interface MetricsCollector {
   // this will be triggered before test starts
-  prepare(): Promise<any>;
+  prepare(): Promise<void>;
   // this will triggered when the test is started
-  start(): Promise<any>;
+  start(): Promise<void>;
   // this will be triggered after test ends
-  destroy(): Promise<any>;
+  destroy(): Promise<void>;
   // what should do for each poll
-  poll(): Promise<any>;
+  poll(): Promise<void>;
 }
 
 export interface MetricsCollectorOptions {
@@ -94,7 +94,7 @@ export type PerformanceMetric = {
   timestamp: number;
   name: string;
   // this should usually be a number, but in case there are exceptions
-  value: any;
+  value: unknown;
 };
 
 export type PerformanceTestCaseReport = {
@@ -104,10 +104,10 @@ export type PerformanceTestCaseReport = {
     end?: number;
   };
   path: string;
-  environments: {[key: string]: any};
-  parameters: {[key: string]: any};
-  zoweVersions?: {[key: string]: any};
-  result?: {[key: string]: any};
+  environments: {[key: string]: unknown};
+  parameters: {[key: string]: unknown};
+  zoweVersions?: unknown;
+  result?: {[key: string]: unknown};
   clientMetrics?: PerformanceMetric[];
   serverMetrics?: PerformanceMetric[];
 };

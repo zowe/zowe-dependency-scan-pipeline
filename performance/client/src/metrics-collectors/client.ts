@@ -44,12 +44,12 @@ export default class ClientMetricsCollector extends BaseMetricsCollector {
     }
   }
  
-  async poll(): Promise<any> {
+  async poll(): Promise<void> {
     const ts = new Date().getTime();
     const content: string[] = [];
 
     if (this.collectCpu) {
-      const cpuUsage = process.cpuUsage() as {[key: string]: any};
+      const cpuUsage: {[key: string]: number} = { ...process.cpuUsage() };
       Object.keys(cpuUsage).forEach(m => {
         if (this.options.metrics.includes("cpu." + m as ClientMetrics)) {
           debug(`- cpu.${m} = ${cpuUsage[m]}`);
@@ -62,7 +62,7 @@ export default class ClientMetricsCollector extends BaseMetricsCollector {
     }
 
     if (this.collectMemory) {
-      const memoryUsage = process.memoryUsage() as {[key: string]: any};
+      const memoryUsage: {[key: string]: number} = { ...process.memoryUsage() };
       Object.keys(memoryUsage).forEach(m => {
         if (this.options.metrics.includes("memory." + m as ClientMetrics)) {
           debug(`- memory.${m} = ${memoryUsage[m]}`);
@@ -75,7 +75,7 @@ export default class ClientMetricsCollector extends BaseMetricsCollector {
     }
 
     if (this.collectResource) {
-      const resourceUsage = process.resourceUsage() as {[key: string]: any};
+      const resourceUsage: {[key: string]: number} = { ...process.resourceUsage() };
       Object.keys(resourceUsage).forEach(m => {
         if (this.options.metrics.includes("resource." + m as ClientMetrics)) {
           debug(`- resource.${m} = ${resourceUsage[m]}`);
@@ -89,4 +89,4 @@ export default class ClientMetricsCollector extends BaseMetricsCollector {
 
     fs.writeFileSync(this.options.cacheFile, content.join("\n") + "\n", { flag: "a" });
   }
-};
+}

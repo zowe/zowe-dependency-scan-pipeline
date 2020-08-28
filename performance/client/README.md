@@ -74,7 +74,7 @@ class MyTest extends BaseTestCase {
   // my custom property
   myTestOption: string = "value";
 
-  async before(): Promise<any> {
+  async before(): Promise<void> {
     // call parent
     await super.before();
 
@@ -82,7 +82,7 @@ class MyTest extends BaseTestCase {
     await howToPrepareMyTest(this.myTestOption);
   }
 
-  async after(): Promise<any> {
+  async after(): Promise<void> {
     // call parent
     await super.after();
 
@@ -90,7 +90,7 @@ class MyTest extends BaseTestCase {
     await howToCleanup(this.myTestOption);
   }
 
-  async run(): Promise<any> {
+  async run(): Promise<void> {
     // I simply do nothing, just collecting metrics
     await sleep(this.duration * 1000);
   }
@@ -160,7 +160,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // optional. we can add customized headers
   headers: string[] = ["X-Special-Header: value"];
 
-  async before(): Promise<any> {
+  async before(): Promise<void> {
     await super.before();
 
     // this test requires authentication header

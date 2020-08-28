@@ -41,11 +41,11 @@ export default class BaseTestCase implements PerformanceTestCase {
   // server side metrics collector
   protected serverMetricsCollector: MetricsCollector;
   // server side metrics collector options
-  public serverMetricsCollectorOptions: {[key: string]: any};
+  public serverMetricsCollectorOptions: {[key: string]: unknown};
   // client side metrics collector
   protected clientMetricsCollector: ClientMetricsCollector;
   // client side metrics collector options
-  public clientMetricsCollectorOptions: {[key: string]: any};
+  public clientMetricsCollectorOptions: {[key: string]: unknown};
 
   // target server to test
   public targetHost: string;
@@ -60,7 +60,7 @@ export default class BaseTestCase implements PerformanceTestCase {
   // how long this test should wait before starting nex
   public cooldown: number = DEFAULT_TEST_COOLDOWN;
 
-  constructor(options?: {[key: string]: any}) {
+  constructor(options?: {[key: string]: unknown}) {
     Object.assign(this, options);
 
     if (!this.targetHost && process.env.TARGET_HOST) {
@@ -74,7 +74,7 @@ export default class BaseTestCase implements PerformanceTestCase {
 
   protected _initMetricsCollector(): void {
     // init server metrics collector
-    const smco: {[key: string]: any} = Object.create({});
+    const smco: {[key: string]: unknown} = Object.create({});
     Object.assign(
       smco,
       {
@@ -97,7 +97,7 @@ export default class BaseTestCase implements PerformanceTestCase {
     }
 
     // init client metrics collector
-    const cmco: {[key: string]: any} = Object.create({});
+    const cmco: {[key: string]: unknown} = Object.create({});
     Object.assign(
       cmco,
       {
@@ -113,8 +113,8 @@ export default class BaseTestCase implements PerformanceTestCase {
     }
   }
 
-  protected _getParameters(): {[key: string]: any} {
-    const p: {[key: string]: any} = Object.create({});
+  protected _getParameters(): {[key: string]: unknown} {
+    const p: {[key: string]: unknown} = Object.create({});
     const ignoredParameters = [
       "serverMetricsCollector", "clientMetricsCollector"
     ];
@@ -128,14 +128,14 @@ export default class BaseTestCase implements PerformanceTestCase {
     return p;
   }
 
-  async before(): Promise<any> {
+  async before(): Promise<void> {
     debug(
       `test "${this.name}" starts at ${new Date().toISOString()} with parameter`,
       this._getParameters()
     );
   }
 
-  async after(): Promise<any> {
+  async after(): Promise<void> {
     debug(`test "${this.name}" ends at ${new Date().toISOString()}`);
     if (this.cooldown) {
       debug(`wait for ${this.cooldown} seconds cool down before next test`);
@@ -143,7 +143,7 @@ export default class BaseTestCase implements PerformanceTestCase {
     }
   }
 
-  async run(): Promise<any> {
+  async run(): Promise<void> {
     await sleep(this.duration * 1000);
   }
 
@@ -153,7 +153,7 @@ export default class BaseTestCase implements PerformanceTestCase {
   init(): void {
     this._initMetricsCollector();
 
-    const undefinedOrZero = (rc: any): void => {
+    const undefinedOrZero = (rc: unknown): void => {
       if (rc !== undefined) {
         expect(rc).toBe(0);
       } else {
@@ -162,7 +162,7 @@ export default class BaseTestCase implements PerformanceTestCase {
     };
 
     beforeAll(async () => {
-      let targetZoweVersions: {[key: string]: any} = null;
+      let targetZoweVersions: unknown = null;
       if (this.fetchZoweVersions) {
         debug("Fetching Zowe version ...");
         // get Zowe version

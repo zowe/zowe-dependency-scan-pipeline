@@ -51,7 +51,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // we can add customized headers
   // headers: string[] = ["X-Special-Header: value"];
 
-  async before(): Promise<any> {
+  async before(): Promise<void> {
     await super.before();
 
     // this test requires authentication header

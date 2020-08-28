@@ -56,7 +56,7 @@ export default class ZMSMetricsCollector extends BaseMetricsCollector {
     this.url = `https://${this.options.zmsHost}:${this.options.zmsPort}${this.options.zmsEndpoint}`;
   }
 
-  async poll(): Promise<any> {
+  async poll(): Promise<void> {
     debug('zms request starts');
     try {
       const { body } =  await got(this.url, {

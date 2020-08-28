@@ -59,8 +59,11 @@ export default class PerformanceTestReporter extends BaseReporter {
     fs.mkdirSync(this.options.reportPath, { recursive: true });
   }
 
+  // eslint-disable-next-line
   onRunStart(
+    // eslint-disable-next-line
     _results?: AggregatedResult,
+    // eslint-disable-next-line
     options?: ReporterOnStartOptions,
   ): void {
     // debug('onRunStart(_results):', _results);
@@ -77,7 +80,8 @@ export default class PerformanceTestReporter extends BaseReporter {
   onTestResult(
     _test?: Test,
     _testResult?: TestResult,
-    _results?: AggregatedResult,
+    // eslint-disable-next-line
+   _results?: AggregatedResult,
   ): void {
     // debug('onTestResult(_test):', _test);
     // debug('onTestResult(_testResult):', _testResult);
@@ -195,8 +199,11 @@ export default class PerformanceTestReporter extends BaseReporter {
   //   debug('onTestStart(_test):', _test);
   // }
 
+  // eslint-disable-next-line
   onRunComplete(
+    // eslint-disable-next-line
     _contexts?: Set<Context>,
+    // eslint-disable-next-line
     _aggregatedResults?: AggregatedResult,
   ): Promise<void> | void {
     // debug('onRunComplete(_contexts):', _contexts);

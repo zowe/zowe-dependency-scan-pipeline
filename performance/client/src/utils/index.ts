@@ -58,7 +58,7 @@ export const getBasicAuthorizationHeader = (user?: string, password?: string): s
  * @param apimlGatewayHost
  * @param apimlGatewayPort
  */
-export const getZoweVersions = async (apimlGatewayHost: string, apimlGatewayPort: number): Promise<any> => {
+export const getZoweVersions = async (apimlGatewayHost: string, apimlGatewayPort: number): Promise<unknown> => {
   const url = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v1/gateway/version`;
 
   const { body } =  await got(url, {

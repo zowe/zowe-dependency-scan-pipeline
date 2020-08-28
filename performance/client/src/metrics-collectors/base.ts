@@ -24,11 +24,11 @@ export default class BaseMetricsCollector implements MetricsCollector {
     debug('metrics collector options:', this.options);
   }
 
-  async prepare(): Promise<any> {
+  async prepare(): Promise<void> {
     // dummy prepare method
   }
 
-  async start(): Promise<any> {
+  async start(): Promise<void> {
     // start right away
     setTimeout(async () => {
       debug("start first poll at", new Date());
@@ -44,7 +44,7 @@ export default class BaseMetricsCollector implements MetricsCollector {
     fs.writeFileSync(this.options.cacheFile, "---\n", { flag: "w" });
   }
 
-  async destroy(): Promise<any> {
+  async destroy(): Promise<void> {
     clearInterval(this._timer);
 
     if (this.options.cooldown && this.options.cooldown > 0) {
@@ -57,7 +57,7 @@ export default class BaseMetricsCollector implements MetricsCollector {
     }
   }
 
-  async poll(): Promise<any> {
+  async poll(): Promise<void> {
     // dummy poll statements
   }
 }

@@ -33,7 +33,7 @@ export default class WrkTestCase extends BaseTestCase {
 
   public WRK_DOCKER_IMAGE = "williamyeh/wrk";
 
-  constructor(options?: {[key: string]: any}) {
+  constructor(options?: {[key: string]: unknown}) {
     super(options);
 
     // these parameters are mandatory for WRK tests
@@ -45,7 +45,7 @@ export default class WrkTestCase extends BaseTestCase {
     }
   }
 
-  async before(): Promise<any> {
+  async before(): Promise<void> {
     await super.before();
 
     // make sure image is already pulled to local before we start test
@@ -53,7 +53,7 @@ export default class WrkTestCase extends BaseTestCase {
     debug(`Docker image ${this.WRK_DOCKER_IMAGE} is prepared.`)
   }
 
-  async run(): Promise<any> {
+  async run(): Promise<void> {
     const fullUrl = `https://${this.targetHost}:${this.targetPort}${this.endpoint}`;
     const headersWithOption: string[] = [];
     this.headers.forEach(header => {
