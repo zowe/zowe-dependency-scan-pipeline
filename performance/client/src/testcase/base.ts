@@ -169,7 +169,7 @@ export default class BaseTestCase implements PerformanceTestCase {
         targetZoweVersions = await getZoweVersions(this.targetHost, parseInt(this.targetPort, 10));
         debug("Zowe version: ", targetZoweVersions, ". Waiting for cool down before starting the test ...");
         // cool down after api call
-        await sleep(DEFAULT_TEST_COOLDOWN * 1000);
+        await sleep(this.cooldown * 1000);
       }
 
       // write text context to file

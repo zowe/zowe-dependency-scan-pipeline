@@ -8,6 +8,13 @@ server:
     key: sslcert/server.key
     cert: sslcert/server.cert
 metrics:
+  # - name: dummy
+  #   worker: shell
+  #   options:
+  #     interval: 10
+  #     # command base dir is "src/collectors"
+  #     command: metrics/dummy.sh
+  #     outputFormat: json
   - name: sdsf.sys
     # estimated overhead 0.7%
     worker: shell
@@ -23,7 +30,6 @@ metrics:
   #     interval: 10
   #     # command base dir is "src/collectors"
   #     command: metrics/da.rexx
-  #     # command: metrics/dummy.sh
   #     outputFormat: json
   - name: rmf.dds
     # estimated overhead 0.4%
