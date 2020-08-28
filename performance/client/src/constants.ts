@@ -43,6 +43,8 @@ export const DEFAULT_ZMS_METRICS: string[] = [
 
 // these metrics will be used to calculate total CPU Time and %
 // test result showing in report may contain these entries:
+// - first_timestamp_from_server_metrics
+// - last_timestamp_from_server_metrics
 // - total_time_elapse_from_server_metrics
 // - total_cpu_time_from_server_metrics
 // - total_cpu_percentage_from_server_metrics

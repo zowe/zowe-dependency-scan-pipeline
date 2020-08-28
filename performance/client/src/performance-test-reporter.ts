@@ -107,7 +107,7 @@ export default class PerformanceTestReporter extends BaseReporter {
       {};
 
     // this context file should be written/prepared by test beforeAll step
-    const { testParameters, zoweVersions } = JSON.parse(fs.readFileSync(PERFORMANCE_TEST_CONTEXT_FILE).toString());
+    const { parameters: testParameters, zoweVersions } = JSON.parse(fs.readFileSync(PERFORMANCE_TEST_CONTEXT_FILE).toString());
 
     // read client metrics
     const clientMetrics = fs.existsSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE) ? 
@@ -163,6 +163,8 @@ export default class PerformanceTestReporter extends BaseReporter {
         debug('cpu %:', cpuPercentage);
 
         // record to result
+        testResult['first_timestamp_from_server_metrics'] = firstTimestamp;
+        testResult['last_timestamp_from_server_metrics'] = lastTimestamp;
         testResult['total_time_elapse_from_server_metrics'] = totalTimeElapse;
         testResult['total_cpu_time_from_server_metrics'] = totalCpuTime;
         testResult['total_cpu_percentage_from_server_metrics'] = cpuPercentage;

@@ -13,7 +13,7 @@ import { getBasicAuthorizationHeader } from "../../../utils";
 
 class ExplorerApiDatasetContentTest extends WrkTestCase {
   // name/purpose of the test
-  name = "Test explorer api endpoint /datasets/{ds}/content";
+  name = "Test explorer data sets api endpoint /datasets/{ds}/content";
 
   // fetch Zowe instance version information
   // this can be turned on if TARGET_PORT is Zowe APIML Gateway port
@@ -37,7 +37,11 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   //     "my-special-metric-a", "my-special-metric-b",
   //     // example to collect CPU time for processes matching "MY*"
   //     // this is regular expression, please be aware of the special escape characters
-  //     "CPU\\{process=\"MY.*\"\\}",
+  //     "cpu\\{source=\"rmf.dds\",item=\"MY.*\".+\\}",
+  //   ],
+  //   // also customize what metrics will be used for cpu time calculation
+  //   cputimeMetrics: [
+  //     "cpu\\{source=\"rmf.dds\",item=\"MY.*\".+\\}",
   //   ],
   // };
 
