@@ -40,7 +40,7 @@ scrape_configs:
 
   - job_name: 'zowe-metrics-server'
 
-    scrape_interval: 5s
+    scrape_interval: 10s
     scrape_timeout: 5s
 
     scheme: https
@@ -49,3 +49,5 @@ scrape_configs:
 
     static_configs:
       - targets: ['<server-host>:19000']
+      # - targets: ['vm30101.svl.ibm.com:19000']
+      # - targets: ['zzow01.zowe.marist.cloud:19000']

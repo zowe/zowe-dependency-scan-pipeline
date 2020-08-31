@@ -7,7 +7,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * Copyright IBM Corporation 2018, 2019
+ * Copyright IBM Corporation 2020
  */
 
 def PROJECT_ROOT_PATH = 'performance/server'
@@ -15,69 +15,43 @@ def PROJECT_ROOT_PATH = 'performance/server'
 node('ibm-jenkins-slave-nvm') {
   def lib = library("jenkins-library").org.zowe.jenkins_shared_library
 
-  def pipeline = lib.pipelines.generic.GenericPipeline.new(this)
+  def pipeline = lib.pipelines.nodejs.NodeJSPipeline.new(this)
 
   pipeline.admins.add("jackjia")
 
   pipeline.setup(
-    packageName: 'org.zowe.metrics-server',
-    extraInit: {
-      dir(PROJECT_ROOT_PATH) {
-        // get current version, which is required by uploading artifacts
-        def npm = lib.npm.Registry.new(this)
-        def packageInfo = npm.getPackageInfo()
-        pipeline.setVersion(packageInfo['version'])
-      }
-    }
+    packageName    : 'org.zowe.metrics-server',
+    baseDirectory  : PROJECT_ROOT_PATH,
+    nodeJsVersion  : 'v10.18.1',
+    initWithColor  : true,
+    auditWithColor : true,
+    lintWithColor  : true
   )
 
-  // we have a custom build command
-  pipeline.build(
-    operation: {
-      ansiColor('xterm') {
-        dir(PROJECT_ROOT_PATH) {
-          sh "npm install && npm run build"
-        }
-      }
-    }
-  )
-
-  pipeline.createStage(
-    name          : "Lint",
-    isSkippable   : true,
-    stage         : {
-      ansiColor('xterm') {
-        dir(PROJECT_ROOT_PATH) {
-          sh "npm run lint"
-        }
-      }
-    },
-    timeout: [time: 2, unit: 'MINUTES']
-  )
+  pipeline.build(displayAnsiColor: true)
 
   pipeline.test(
     name          : 'Unit',
     operation     : {
-      ansiColor('xterm') {
-        dir(PROJECT_ROOT_PATH) {
-          sh 'npm run test'
-        }
-      }
+      echo "under construction"
     },
-    allowMissingJunit: true
+    allowMissingJunit : true,
+    displayAnsiColor  : true
   )
 
   // we have pax packaging step
   pipeline.packaging(
     name             : 'zowe-metrics-server',
-    localWorkspace   : "${PROJECT_ROOT_PATH}/.pax",
-    keepTempFolder   : false
+    displayTimestamp : true
   )
 
   // define we need publish stage
   pipeline.publish(
+    operation: {
+      echo "Default npm publish will be skipped."
+    },
     artifacts: [
-      "${PROJECT_ROOT_PATH}/.pax/zowe-metrics-server.pax"
+      ".pax/zowe-metrics-server.pax"
     ]
   )
 

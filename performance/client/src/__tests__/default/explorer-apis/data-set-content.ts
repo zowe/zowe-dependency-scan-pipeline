@@ -13,14 +13,18 @@ import { getBasicAuthorizationHeader } from "../../../utils";
 
 class ExplorerApiDatasetContentTest extends WrkTestCase {
   // name/purpose of the test
-  name = "Test explorer api endpoint /datasets/{ds}/content";
+  name = "Test explorer data sets api endpoint /datasets/{ds}/content";
+
+  // fetch Zowe instance version information
+  // this can be turned on if TARGET_PORT is Zowe APIML Gateway port
+  fetchZoweVersions = true;
 
   // example: 15 minutes
   duration = 15 * 60;
-  // duration = 15 ;
+  // duration = 30 ;
 
   // endpoint we want to test
-  endpoint = '/api/v1/datasets/ZOWEAD3.PERF.TEST(PURGEJOB)/content';
+  endpoint = '/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content';
 
   // example to overwrite default collector options
   // serverMetricsCollectorOptions = {
@@ -33,7 +37,11 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   //     "my-special-metric-a", "my-special-metric-b",
   //     // example to collect CPU time for processes matching "MY*"
   //     // this is regular expression, please be aware of the special escape characters
-  //     "CPU\\{process=\"MY.*\"\\}",
+  //     "cpu\\{source=\"rmf.dds\",item=\"MY.*\".+\\}",
+  //   ],
+  //   // also customize what metrics will be used for cpu time calculation
+  //   cputimeMetrics: [
+  //     "cpu\\{source=\"rmf.dds\",item=\"MY.*\".+\\}",
   //   ],
   // };
 
@@ -43,7 +51,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // we can add customized headers
   // headers: string[] = ["X-Special-Header: value"];
 
-  async before(): Promise<any> {
+  async before(): Promise<void> {
     await super.before();
 
     // this test requires authentication header

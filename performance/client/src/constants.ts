@@ -25,7 +25,7 @@ export const DEFAULT_CLIENT_METRICS: ClientMetrics[] = [
 ];
 
 // default test timeout is set to 1 day
-export const DEFAULT_PERFORMANCE_TEST_TIMEOUT = 86400;
+export const DEFAULT_PERFORMANCE_TEST_TIMEOUT = 86400 * 1000;
 
 // default Zowe metrics server port
 export const DEFAULT_ZMS_PORT = 19000;
@@ -33,10 +33,35 @@ export const DEFAULT_ZMS_PORT = 19000;
 export const DEFAULT_ZMS_ENDPOINT = "/metrics";
 
 export const DEFAULT_ZMS_METRICS: string[] = [
-  "CPUPR", "REAL",
-  "CPU\\{process=\"ZWE.*\"\\}", "REAL\\{process=\"ZWE.*\"\\}",
-  "CPU\\{process=\"IZUSVR1\"\\}", "REAL\\{process=\"IZUSVR1\"\\}",
+  "cpupr\\{source=\"rmf.dds\"\\}",
+  "real\\{source=\"sdsf.sys\"\\}",
+  "cpu\\{source=\"rmf.dds\",item=\"ZWE.*\".+\\}",
+  "real\\{source=\"rmf.dds\",item=\"ZWE.*\".+\\}",
+  "cpu\\{source=\"rmf.dds\",item=\"IZUSVR1\".+\\}",
+  "real\\{source=\"rmf.dds\",item=\"IZUSVR1\".+\\}",
 ];
 
-export const DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL = 5;
-export const DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL = 5;
+// these metrics will be used to calculate total CPU Time and %
+// test result showing in report may contain these entries:
+// - first_timestamp_from_server_metrics
+// - last_timestamp_from_server_metrics
+// - total_time_elapse_from_server_metrics
+// - total_cpu_time_from_server_metrics
+// - total_cpu_percentage_from_server_metrics
+export const DEFAULT_ZMS_CPUTIME_METRICS: string[] = [
+  "cpu\\{source=\"rmf.dds\",item=\"ZWE.*\".+\\}",
+];
+
+export const DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL = 10;
+export const DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL = 10;
+
+// these cool down time can help on collect more accurate CPU time caused
+// by the tests because of the delay on collecting metrics.
+// this should be longer than the ZMS polling interval to get new data.
+export const DEFAULT_SERVER_METRICS_COLLECTOR_COOLDOWN_TIME = 10;
+// no cool down needed for client metrics collector
+export const DEFAULT_CLIENT_METRICS_COLLECTOR_COOLDOWN_TIME = 0;
+
+// default cool down time between 2 tests
+// this number should be long enough for any api calls on the server to cool down
+export const DEFAULT_TEST_COOLDOWN = 40;

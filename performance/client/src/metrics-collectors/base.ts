@@ -9,38 +9,55 @@
  */
 
 import * as fs from "fs";
-import { schedule, ScheduledTask } from "node-cron";
 import { MetricsCollectorOptions, MetricsCollector } from "../types";
 
 import Debug from 'debug';
+import { sleep } from "../utils";
 const debug = Debug('zowe-performance-test:base-metrics-collector');
 
 export default class BaseMetricsCollector implements MetricsCollector {
   protected options: MetricsCollectorOptions;
-  protected _cronTask: ScheduledTask; 
+  protected _timer: NodeJS.Timeout;
 
   constructor(options: MetricsCollectorOptions) {
     this.options = options;
     debug('metrics collector options:', this.options);
   }
 
-  async prepare(): Promise<any> {
-    this._cronTask = schedule(`*/${this.options.interval} * * * * *`, async () => {
-      await this.poll();
-    }, {
-      scheduled: false
-    });
+  async prepare(): Promise<void> {
+    // dummy prepare method
   }
 
-  async start(): Promise<any> {
-    this._cronTask.start();
+  async start(): Promise<void> {
+    // start right away
+    setTimeout(async () => {
+      debug("start first poll at", new Date());
+      await this.poll();
+    }, 0);
+
+    // define scheduler
+    this._timer = setInterval(async() => {
+      debug("start scheduled poll at", new Date());
+      await this.poll();
+    }, this.options.interval * 1000);
+
     fs.writeFileSync(this.options.cacheFile, "---\n", { flag: "w" });
   }
 
-  async destroy(): Promise<any> {
-    this._cronTask.destroy();
+  async destroy(): Promise<void> {
+    clearInterval(this._timer);
+
+    if (this.options.cooldown && this.options.cooldown > 0) {
+      // wait for metrics cool down
+      debug("wait for cool down", this.options.cooldown);
+      this.options.cooldown && await sleep(this.options.cooldown * 1000);
+      // poll metrics again
+      debug("start last poll after cool down at", new Date());
+      await this.poll();
+    }
   }
 
-  async poll(): Promise<any> {
+  async poll(): Promise<void> {
+    // dummy poll statements
   }
 }

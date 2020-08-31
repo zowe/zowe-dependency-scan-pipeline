@@ -22,10 +22,6 @@ const debug = Debug('zowe-performance-test:wrk-testcase');
 const execPromisified = promisify(execFile);
 
 export default class WrkTestCase extends BaseTestCase {
-  // target server to test
-  public targetHost: string;
-  // target port to test
-  public targetPort: string;
   // which endpoint to test
   public endpoint: string;
   // how many concurrent connections we can send to the target server
@@ -37,27 +33,19 @@ export default class WrkTestCase extends BaseTestCase {
 
   public WRK_DOCKER_IMAGE = "williamyeh/wrk";
 
-  constructor(options?: {[key: string]: any}) {
+  constructor(options?: {[key: string]: unknown}) {
     super(options);
-  
+
+    // these parameters are mandatory for WRK tests
     if (!this.targetHost) {
-      if (process.env.TARGET_HOST) {
-        this.targetHost = process.env.TARGET_HOST;
-      } else {
-        throw new PerformanceTestException("Target test server host is missing");
-      }
+      throw new PerformanceTestException("Target test server host is missing");
     }
-  
     if (!this.targetPort) {
-      if (process.env.TARGET_PORT) {
-        this.targetPort = process.env.TARGET_PORT;
-      } else {
-        throw new PerformanceTestException("Target test server port is missing");
-      }
+      throw new PerformanceTestException("Target test server port is missing");
     }
   }
 
-  async before(): Promise<any> {
+  async before(): Promise<void> {
     await super.before();
 
     // make sure image is already pulled to local before we start test
@@ -65,10 +53,10 @@ export default class WrkTestCase extends BaseTestCase {
     debug(`Docker image ${this.WRK_DOCKER_IMAGE} is prepared.`)
   }
 
-  async run(): Promise<any> {
+  async run(): Promise<void> {
     const fullUrl = `https://${this.targetHost}:${this.targetPort}${this.endpoint}`;
     const headersWithOption: string[] = [];
-    this.headers.map(header => {
+    this.headers.forEach(header => {
       headersWithOption.push("--header");
       headersWithOption.push(header);
     });

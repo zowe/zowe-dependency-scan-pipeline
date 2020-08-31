@@ -73,8 +73,8 @@ const convertTransferUnit = (tu: string): number => {
  * Parse WRK test result
  * @param stdout       stdout of wrk
  */
-export const parseWrkStdout = (stdout: string): {[key: string]: any} => {
-  const result: {[key: string]: any} = {};
+export const parseWrkStdout = (stdout: string): {[key: string]: unknown} => {
+  const result: {[key: string]: unknown} = {};
 
   /* stdout examples:
 
@@ -123,7 +123,7 @@ Transfer/sec:    142.91KB
   */
 
   const lines = stdout.split("\n");
-  lines.map(line => {
+  lines.forEach(line => {
     line = line.trim();
     let m;
 
@@ -151,7 +151,7 @@ Transfer/sec:    142.91KB
       if (!result["latency_distribution"]) {
         result["latency_distribution"] = {};
       }
-      result["latency_distribution"][m[1]] = convertTimeUnit(m[2]);
+      Object.defineProperty(result["latency_distribution"], m[1], { value: convertTimeUnit(m[2]) });
     } else if (m = line.match(/^([0-9]+) requests in ([0-9\.]+[a-zA-Z]*), ([0-9\.]+[a-zA-Z]*) read$/)) {
       result["total_requests"] = parseInt(m[1], 10);
       result["total_time"] = convertTimeUnit(m[2]);
@@ -163,7 +163,7 @@ Transfer/sec:    142.91KB
     } else if (m = line.match(/^Transfer\/sec:\s+([0-9\.]+[a-zA-Z]*)$/)) {
       result["bytes_per_second"] = convertTransferUnit(m[1]);
     } else {
-      debug('Unrecognized WRK response line: ', line);
+      debug('Unrecognized or redundant WRK response line: ', line);
     }
   });
 

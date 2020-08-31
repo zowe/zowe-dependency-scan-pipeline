@@ -35,6 +35,17 @@ The environment variables are:
 
 The test report will be saved in `reports` folder by default. This can be customized in `jest.config.js`.
 
+### What Happens When Running a Test
+
+The process of running a test can be illustrated with these steps:
+
+- Start the test case
+- If the test case has `fetchZoweVersions` enabled, it will try to fetch Zowe instance version.
+- If the test case has `fetchZoweVersions` enabled, after retrieved Zowe version, it will try to cool down with time defined as `<TestCase>.cooldown` (default value is `DEFAULT_TEST_COOLDOWN`).
+- Execute the actions defined for this test case, and also polling both server and client side metrics.
+- After reaches the duration of the test case, it will wait for another cool down time defined by `<TestCase>.serverMetricsCollectorOptions.cooldown` (default value is `DEFAULT_SERVER_METRICS_COLLECTOR_COOLDOWN_TIME`) or `<TestCase>.clientMetricsCollectorOptions.cooldown` (default value is `DEFAULT_CLIENT_METRICS_COLLECTOR_COOLDOWN_TIME`) before collecting last metrics.
+- Wait for another `<TestCase>.cooldown` (default value is `DEFAULT_TEST_COOLDOWN`) seconds before starting next test.
+
 ## Write Test Cases
 
 Currently we support 2 type of test cases: `BaseTestCase` and `WrkTestCase`. They are defined in `src/testcase` folder. `WrkTestCase` is inherited from `BaseTestCase`.
@@ -53,13 +64,17 @@ class MyTest extends BaseTestCase {
   // name/purpose of the test
   name = "I have a special purpose for this test";
 
+  // fetch Zowe instance version information
+  // this can be turned on if TARGET_PORT is Zowe APIML Gateway port
+  fetchZoweVersions = true;
+
   // test will last 10 minutes
   duration = 600;
 
   // my custom property
   myTestOption: string = "value";
 
-  async before(): Promise<any> {
+  async before(): Promise<void> {
     // call parent
     await super.before();
 
@@ -67,7 +82,7 @@ class MyTest extends BaseTestCase {
     await howToPrepareMyTest(this.myTestOption);
   }
 
-  async after(): Promise<any> {
+  async after(): Promise<void> {
     // call parent
     await super.after();
 
@@ -75,7 +90,7 @@ class MyTest extends BaseTestCase {
     await howToCleanup(this.myTestOption);
   }
 
-  async run(): Promise<any> {
+  async run(): Promise<void> {
     // I simply do nothing, just collecting metrics
     await sleep(this.duration * 1000);
   }
@@ -97,7 +112,11 @@ import { DEFAULT_CLIENT_METRICS } from "../../../constants";
 
 class ExplorerApiDatasetContentTest extends WrkTestCase {
   // name/purpose of the test
-  name = "Test explorer api endpoint /datasets/{ds}/content";
+  name = "Test explorer data sets api endpoint /datasets/{ds}/content";
+
+  // fetch Zowe instance version information
+  // this can be turned on if TARGET_PORT is Zowe APIML Gateway port
+  fetchZoweVersions = true;
 
   // example: 15 minutes
   duration = 15 * 60;
@@ -117,7 +136,11 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
       "my-special-metric-a", "my-special-metric-b",
       // example to collect CPU time for processes matching "MY*"
       // this is regular expression, please be aware of the special escape characters
-      "CPU\\{process=\"MY.*\"\\}",
+      "cpu\\{source=\"rmf.dds\",item=\"MY.*\".+\\}",
+    ],
+    // also customize what metrics will be used for cpu time calculation
+    cputimeMetrics: [
+      "cpu\\{source=\"rmf.dds\",item=\"MY.*\".+\\}",
     ],
   };
 
@@ -137,7 +160,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // optional. we can add customized headers
   headers: string[] = ["X-Special-Header: value"];
 
-  async before(): Promise<any> {
+  async before(): Promise<void> {
     await super.before();
 
     // this test requires authentication header

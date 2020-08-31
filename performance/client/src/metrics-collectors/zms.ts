@@ -12,7 +12,13 @@ import * as fs from "fs";
 import got from "got";
 import BaseMetricsCollector from "./base";
 import { ZMSMetricsCollectorOptions } from "../types";
-import { DEFAULT_ZMS_METRICS, DEFAULT_ZMS_ENDPOINT, DEFAULT_ZMS_PORT } from "../constants";
+import {
+  DEFAULT_ZMS_METRICS,
+  DEFAULT_ZMS_CPUTIME_METRICS,
+  DEFAULT_ZMS_ENDPOINT,
+  DEFAULT_ZMS_PORT,
+  DEFAULT_SERVER_METRICS_COLLECTOR_COOLDOWN_TIME,
+} from "../constants";
 import PerformanceTestException from "../exceptions/performance-test-exception";
 
 import Debug from 'debug';
@@ -25,8 +31,16 @@ export default class ZMSMetricsCollector extends BaseMetricsCollector {
   constructor(options: ZMSMetricsCollectorOptions) {
     super(options);
 
+    if (!this.options.cooldown) {
+      this.options.cooldown = DEFAULT_SERVER_METRICS_COLLECTOR_COOLDOWN_TIME;
+    }
+
     if (!this.options.metrics) {
       this.options.metrics = DEFAULT_ZMS_METRICS;
+    }
+
+    if (!this.options.cputimeMetrics) {
+      this.options.cputimeMetrics = DEFAULT_ZMS_CPUTIME_METRICS;
     }
 
     if (!this.options.zmsHost) {
@@ -42,7 +56,7 @@ export default class ZMSMetricsCollector extends BaseMetricsCollector {
     this.url = `https://${this.options.zmsHost}:${this.options.zmsPort}${this.options.zmsEndpoint}`;
   }
 
-  async poll(): Promise<any> {
+  async poll(): Promise<void> {
     debug('zms request starts');
     try {
       const { body } =  await got(this.url, {
@@ -57,7 +71,7 @@ export default class ZMSMetricsCollector extends BaseMetricsCollector {
       const ts = new Date().getTime();
       const content: string[] = [];
 
-      body.split("\n").map(line => {
+      body.split("\n").forEach(line => {
         line = line.trim();
         if (!line) {
           return;
@@ -68,7 +82,7 @@ export default class ZMSMetricsCollector extends BaseMetricsCollector {
           const t = kv[2] || ts;
 
           if (kv[0].match(re)) {
-            debug(`- ${kv[0]} = ${kv[1]}`);
+            debug(`- [${t}] ${kv[0]} = ${kv[1]}`);
 
             content.push(`- timestamp: ${t}`);
             content.push(`  name: ${kv[0]}`);

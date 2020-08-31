@@ -15,26 +15,27 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 1,
   "links": [],
   "panels": [
     {
       "datasource": null,
       "gridPos": {
-        "h": 5,
-        "w": 7,
+        "h": 6,
+        "w": 9,
         "x": 0,
         "y": 0
       },
-      "id": 2,
+      "id": 26,
       "options": {
-        "colorMode": "value",
         "fieldOptions": {
           "calcs": [
             "last"
           ],
           "defaults": {
             "mappings": [],
+            "max": 100,
+            "min": 0,
             "thresholds": {
               "mode": "absolute",
               "steps": [
@@ -44,7 +45,7 @@
                 },
                 {
                   "color": "#EAB839",
-                  "value": 40
+                  "value": 60
                 },
                 {
                   "color": "red",
@@ -52,35 +53,46 @@
                 }
               ]
             },
+            "title": "",
             "unit": "percent"
           },
           "overrides": [],
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "orientation": "horizontal",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
       },
       "pluginVersion": "6.6.2",
       "targets": [
         {
-          "expr": "sum(CPUPR{process!=\"\"})",
-          "format": "time_series",
+          "expr": "cpupr{source=\"rmf.dds\",item=\"\"}",
+          "legendFormat": "CPU %",
+          "refId": "C"
+        },
+        {
+          "expr": "auxpct{source=\"sdsf.sys\"}",
+          "legendFormat": "Auxiliary %",
           "refId": "A"
+        },
+        {
+          "expr": "spoolpct{source=\"sdsf.sys\"}",
+          "legendFormat": "Spool %",
+          "refId": "B"
         }
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Overall CPU %",
-      "type": "stat"
+      "title": "Overall",
+      "type": "gauge"
     },
     {
       "datasource": null,
       "description": "",
       "gridPos": {
-        "h": 5,
-        "w": 6,
-        "x": 7,
+        "h": 6,
+        "w": 5,
+        "x": 9,
         "y": 0
       },
       "id": 16,
@@ -92,6 +104,7 @@
           ],
           "defaults": {
             "mappings": [],
+            "max": 5,
             "thresholds": {
               "mode": "absolute",
               "steps": [
@@ -117,39 +130,49 @@
         },
         "graphMode": "area",
         "justifyMode": "auto",
-        "orientation": "auto"
+        "orientation": "horizontal"
       },
       "pluginVersion": "6.6.2",
       "targets": [
         {
-          "expr": "sum(CPUPR{process=~\"ZWE.*\"})",
+          "expr": "sum(cpupr{source=\"rmf.dds\",item=~\"ZWE.*\"})",
           "legendFormat": "",
           "refId": "A"
         }
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Zowe CPU %",
+      "title": "Total Zowe CPU %",
       "type": "stat"
     },
     {
+      "cacheTimeout": null,
       "datasource": null,
       "gridPos": {
-        "h": 5,
+        "h": 6,
         "w": 6,
-        "x": 13,
+        "x": 14,
         "y": 0
       },
-      "id": 4,
-      "interval": "5s",
+      "id": 6,
+      "links": [],
       "options": {
-        "colorMode": "value",
+        "displayMode": "lcd",
         "fieldOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "defaults": {
-            "mappings": [],
+            "mappings": [
+              {
+                "id": 0,
+                "op": "=",
+                "text": "N/A",
+                "type": 1,
+                "value": "null"
+              }
+            ],
+            "nullValueMode": "connected",
             "thresholds": {
               "mode": "absolute",
               "steps": [
@@ -159,43 +182,56 @@
                 },
                 {
                   "color": "#EAB839",
-                  "value": 1000
+                  "value": 60
                 },
                 {
                   "color": "red",
-                  "value": 2000
+                  "value": 80
                 }
               ]
             },
-            "title": ""
+            "unit": "percent"
           },
           "overrides": [],
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "orientation": "horizontal",
+        "showUnfilled": true
       },
       "pluginVersion": "6.6.2",
       "targets": [
         {
-          "expr": "SIO",
+          "expr": "csapct{source=\"sdsf.sys\"}",
+          "legendFormat": "Common Storage Area (CSA) %",
           "refId": "A"
+        },
+        {
+          "expr": "sqapct{source=\"sdsf.sys\"}",
+          "legendFormat": "System Queue Area (SQA) %",
+          "refId": "B"
+        },
+        {
+          "expr": "ecsapct{source=\"sdsf.sys\"}",
+          "legendFormat": "Extended Common Area (ECSA) %",
+          "refId": "C"
+        },
+        {
+          "expr": "esqapct{source=\"sdsf.sys\"}",
+          "legendFormat": "\tExtended System Queue Area (ESQA) %",
+          "refId": "D"
         }
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Start IO Rate (EXCPs / sec)",
-      "type": "stat"
+      "title": "Central Storage %",
+      "type": "bargauge"
     },
     {
       "cacheTimeout": null,
       "colorBackground": false,
-      "colorPostfix": false,
-      "colorPrefix": false,
-      "colorValue": true,
+      "colorValue": false,
       "colors": [
-        "#73BF69",
+        "#299c46",
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
@@ -209,12 +245,12 @@
         "thresholdMarkers": true
       },
       "gridPos": {
-        "h": 5,
-        "w": 5,
-        "x": 19,
+        "h": 3,
+        "w": 4,
+        "x": 20,
         "y": 0
       },
-      "id": 6,
+      "id": 37,
       "interval": null,
       "links": [],
       "mappingType": 1,
@@ -255,16 +291,16 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "REAL{process=\"\"}",
+          "expr": "real{source=\"sdsf.sys\"}",
           "refId": "A"
         }
       ],
       "thresholds": "",
       "timeFrom": null,
       "timeShift": null,
-      "title": "Real Storage",
+      "title": "Real Storage (frames)",
       "type": "singlestat",
-      "valueFontSize": "150%",
+      "valueFontSize": "80%",
       "valueMaps": [
         {
           "op": "=",
@@ -272,7 +308,63 @@
           "value": "null"
         }
       ],
-      "valueName": "current"
+      "valueName": "avg"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 3
+      },
+      "id": 4,
+      "interval": "5s",
+      "options": {
+        "colorMode": "value",
+        "fieldOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "#EAB839",
+                  "value": 1000
+                },
+                {
+                  "color": "red",
+                  "value": 2000
+                }
+              ]
+            },
+            "title": ""
+          },
+          "overrides": [],
+          "values": false
+        },
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto"
+      },
+      "pluginVersion": "6.6.2",
+      "targets": [
+        {
+          "expr": "sio{source=\"sdsf.sys\"}",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Start IO Rate (EXCPs / sec)",
+      "type": "stat"
     },
     {
       "aliasColors": {},
@@ -283,13 +375,13 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 8,
+        "h": 7,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 6
       },
       "hiddenSeries": false,
-      "id": 8,
+      "id": 28,
       "legend": {
         "avg": false,
         "current": false,
@@ -315,8 +407,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "CPUPR{process=~\"ZWE.+\"}",
-          "legendFormat": "{{process}}",
+          "expr": "cpupr{source=\"rmf.dds\",item=~\"ZWE.*\"}",
+          "legendFormat": "{{item}}",
           "refId": "A"
         }
       ],
@@ -324,10 +416,10 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Zowe Address Spaces - CPU %",
+      "title": "Zowe CPU %",
       "tooltip": {
         "shared": true,
-        "sort": 0,
+        "sort": 2,
         "value_type": "individual"
       },
       "type": "graph",
@@ -371,12 +463,12 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 12,
         "x": 0,
         "y": 13
       },
       "hiddenSeries": false,
-      "id": 14,
+      "id": 18,
       "legend": {
         "avg": false,
         "current": false,
@@ -402,8 +494,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "REAL{process=~\"ZWE.*\"}",
-          "legendFormat": "{{process}}",
+          "expr": "cpu{source=\"rmf.dds\",item=~\"ZWE.*\"}",
+          "legendFormat": "{{item}}",
           "refId": "A"
         }
       ],
@@ -411,10 +503,10 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Zowe Address Spaces - Memory",
+      "title": "Zowe CPU Time",
       "tooltip": {
         "shared": true,
-        "sort": 0,
+        "sort": 2,
         "value_type": "individual"
       },
       "type": "graph",
@@ -458,12 +550,12 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 11,
-        "x": 0,
-        "y": 21
+        "w": 12,
+        "x": 12,
+        "y": 13
       },
       "hiddenSeries": false,
-      "id": 10,
+      "id": 22,
       "legend": {
         "avg": false,
         "current": false,
@@ -489,8 +581,182 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "CPUPR{process=~\"IZU.*\"}",
-          "legendFormat": "{{process}}",
+          "expr": "delta(cpu{source=\"rmf.dds\",item=~\"ZWE.*\"}[30s])",
+          "legendFormat": "{{item}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Zowe CPU Time Delta",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 21
+      },
+      "hiddenSeries": false,
+      "id": 30,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "real{source=\"rmf.dds\",item=~\"ZWE.*\"}",
+          "legendFormat": "{{item}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Zowe Auxiliary Storage",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "hiddenSeries": false,
+      "id": 35,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "cpupr{source=\"rmf.dds\",item=~\"IZU.*\"}",
+          "legendFormat": "{{item}}",
           "refId": "A"
         }
       ],
@@ -538,6 +804,7 @@
     {
       "aliasColors": {},
       "bars": false,
+      "cacheTimeout": null,
       "dashLength": 10,
       "dashes": false,
       "datasource": null,
@@ -545,28 +812,37 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 13,
-        "x": 11,
-        "y": 21
+        "w": 24,
+        "x": 0,
+        "y": 29
       },
       "hiddenSeries": false,
-      "id": 12,
+      "id": 34,
       "legend": {
+        "alignAsTable": false,
         "avg": false,
         "current": false,
         "max": false,
         "min": false,
+        "rightSide": false,
         "show": true,
         "total": false,
         "values": false
       },
       "lines": true,
       "linewidth": 1,
+      "links": [],
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "dataLinks": [
+          {
+            "title": "",
+            "url": ""
+          }
+        ]
       },
       "percentage": false,
+      "pluginVersion": "6.6.2",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -576,8 +852,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "REAL{process=~\"IZU.+\"}",
-          "legendFormat": "{{process}}",
+          "expr": "cpupr{source=\"rmf.dds\",item!=\"\"}",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "{{item}}",
           "refId": "A"
         }
       ],
@@ -585,10 +863,10 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "z/OSMF - Memory",
+      "title": "CPU %",
       "tooltip": {
         "shared": true,
-        "sort": 0,
+        "sort": 2,
         "value_type": "individual"
       },
       "type": "graph",
@@ -651,5 +929,5 @@
   "timezone": "",
   "title": "Zowe Metrics",
   "uid": "c0cs3GlZz",
-  "version": 5
+  "version": 3
 }
