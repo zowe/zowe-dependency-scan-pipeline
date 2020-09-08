@@ -54,11 +54,6 @@ node('ibm-jenkins-slave-dind') {
 
   // we have extra parameters for integration test
   pipeline.addBuildParameters(
-    booleanParam(
-      name: 'STARTED_BY_AUTOMATION',
-      description: 'If this task is started with pipeline automation. Set to true if you want to skip the Continue prompt question.',
-      defaultValue: false
-    ),
     // >>>>>>>> parameters of where and what to test
     choice(
       name: 'TEST_SERVER',
@@ -167,7 +162,7 @@ node('ibm-jenkins-slave-dind') {
           "TEST_AUTH_PASSWORD=${SSH_PASSWORD}".toString(),
         ]
         withEnv(testEnvVars) {
-          pipeline.nvmShell("npm run test")
+          pipeline.nvmShell("npm run test ${TEST_SCOPE}")
 
           sh "ls -la reports"
         }
