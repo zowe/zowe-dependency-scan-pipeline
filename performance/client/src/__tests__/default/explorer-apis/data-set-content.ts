@@ -26,6 +26,18 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // endpoint we want to test
   endpoint = '/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content';
 
+  // enable debug mode?
+  // Enabling debug mode will log every request/response sent to or received from
+  // the target server. If this is true, these properties will be automatically
+  // reset to these values to avoid excessive logs:
+  // - duration: 2
+  // - concurrency: 1
+  // Enabling debug mode will also show the log in test report as `consoleLog`.
+  // debug = true;
+
+  // overwrite cooldown time for debugging purpose
+  // cooldown = 0;
+
   // example to overwrite default collector options
   // serverMetricsCollectorOptions = {
   //   // interval 0 will disable server side metrics collecting
@@ -49,7 +61,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // clientMetricsCollectorOptions = {};
 
   // we can add customized headers
-  // headers: string[] = ["X-Special-Header: value"];
+  // headers = ["X-Special-Header: value"];
 
   async before(): Promise<void> {
     await super.before();
@@ -57,7 +69,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
     // this test requires authentication header
     this.headers.push(getBasicAuthorizationHeader());
   }
-};
+}
 
 // init test case
 new ExplorerApiDatasetContentTest().init();

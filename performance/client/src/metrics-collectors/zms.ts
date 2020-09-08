@@ -96,4 +96,4 @@ export default class ZMSMetricsCollector extends BaseMetricsCollector {
       debug('zms request ends with error', e);
     }
   }
-};
+}

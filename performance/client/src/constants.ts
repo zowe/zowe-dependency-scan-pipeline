@@ -8,17 +8,29 @@
  * Copyright IBM Corporation 2020
  */
 
-import { PerformanceTestReporterOptions, ClientMetrics } from "./types";
+import * as path from "path";
+import {
+  PerformanceTestReporterOptions,
+  ClientMetrics,
+  HttpRequestMethod,
+} from "./types";
+
+export const PERFORMANCE_TEST_ROOT_DIR = path.resolve(__dirname, "..");
+export const PERFORMANCE_TEST_TMP_DIR = path.resolve(PERFORMANCE_TEST_ROOT_DIR, ".tmp");
+export const PERFORMANCE_TEST_WRK_LUA_SCRIPTS_DIR = path.resolve(PERFORMANCE_TEST_ROOT_DIR, "src", "wrk-lua-scripts");
+export const PERFORMANCE_TEST_WRK_LUA_SCRIPTS_NON_GET_REQUEST = path.resolve(PERFORMANCE_TEST_WRK_LUA_SCRIPTS_DIR, "non-get-request.lua");
 
 export const DEFAULT_PERFORMANCE_TEST_REPORTS_OPTIONS: PerformanceTestReporterOptions = {
   format: 'json',
   reportPath: 'reports',
 };
 
-export const PERFORMANCE_TEST_RESULT_FILE = ".test-result.json";
-export const PERFORMANCE_TEST_CONTEXT_FILE = ".test-context.json";
-export const PERFORMANCE_TEST_METRICS_ZMS_FILE = ".test-metrics-zms.yaml";
-export const PERFORMANCE_TEST_METRICS_CLIENT_FILE = ".test-metrics-client.yaml";
+export const PERFORMANCE_TEST_RESULT_FILE = path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-result.json");
+export const PERFORMANCE_TEST_CONTEXT_FILE = path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-context.json");
+export const PERFORMANCE_TEST_METRICS_ZMS_FILE = path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-metrics-zms.yaml");
+export const PERFORMANCE_TEST_METRICS_CLIENT_FILE = path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-metrics-client.yaml");
+export const PERFORMANCE_TEST_WRK_LUA_SCRIPT = path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-wrk-script.lua");
+export const PERFORMANCE_TEST_DEBUG_CONSOLE_LOG= path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-console-debug.log");
 
 export const DEFAULT_CLIENT_METRICS: ClientMetrics[] = [
   "cpu.system", "cpu.user"
@@ -26,6 +38,11 @@ export const DEFAULT_CLIENT_METRICS: ClientMetrics[] = [
 
 // default test timeout is set to 1 day
 export const DEFAULT_PERFORMANCE_TEST_TIMEOUT = 86400 * 1000;
+
+// default test concurrency if enable debug mode
+export const DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY = 1;
+// default test duration if enable debug mode
+export const DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION = 2;
 
 // default Zowe metrics server port
 export const DEFAULT_ZMS_PORT = 19000;
@@ -65,3 +82,5 @@ export const DEFAULT_CLIENT_METRICS_COLLECTOR_COOLDOWN_TIME = 0;
 // default cool down time between 2 tests
 // this number should be long enough for any api calls on the server to cool down
 export const DEFAULT_TEST_COOLDOWN = 40;
+
+export const DEFAULT_HTTP_REQUEST_METHOD: HttpRequestMethod = "GET";

@@ -23,6 +23,7 @@ import {
   PERFORMANCE_TEST_CONTEXT_FILE,
   PERFORMANCE_TEST_METRICS_CLIENT_FILE,
   PERFORMANCE_TEST_METRICS_ZMS_FILE,
+  PERFORMANCE_TEST_DEBUG_CONSOLE_LOG,
 } from "./constants";
 import type {
   PerformanceTestReporterOptions,
@@ -122,6 +123,11 @@ export default class PerformanceTestReporter extends BaseReporter {
     const serverMetrics = fs.existsSync(PERFORMANCE_TEST_METRICS_ZMS_FILE) ? 
       load(fs.readFileSync(PERFORMANCE_TEST_METRICS_ZMS_FILE).toString()) :
       null;
+    
+    // read debug console log
+    const consoleLog = fs.existsSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG) ? 
+      fs.readFileSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG).toString() :
+      null;
 
     // calculate Zowe CPU time and %
     const cputimeMetrics = testParameters && testParameters.serverMetricsCollectorOptions && testParameters.serverMetricsCollectorOptions.cputimeMetrics;
@@ -189,6 +195,7 @@ export default class PerformanceTestReporter extends BaseReporter {
       zoweVersions: zoweVersions,
       clientMetrics,
       serverMetrics,
+      consoleLog,
       result: testResult,
     };
     debug('onTestResult(testCaseReport):', testCaseReport);

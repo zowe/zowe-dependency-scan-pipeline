@@ -110,6 +110,7 @@ export type PerformanceTestCaseReport = {
   result?: {[key: string]: unknown};
   clientMetrics?: PerformanceMetric[];
   serverMetrics?: PerformanceMetric[];
+  consoleLog?: string;
 };
 
 export type PerformanceTestReport = {
@@ -119,3 +120,5 @@ export type PerformanceTestReport = {
   };
   tests?: PerformanceTestCaseReport[];
 };
+
+export type HttpRequestMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS" | "HEAD";

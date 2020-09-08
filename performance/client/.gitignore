@@ -8,7 +8,8 @@
 dist/
 
 # temporary folder
-.tmp/
+.tmp/*
+!.keep
 
 # test report folder
 reports/

@@ -9,4 +9,4 @@
  */
 
 export default class PerformanceTestException extends Error {
-};
+}
