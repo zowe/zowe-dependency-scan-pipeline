@@ -149,6 +149,7 @@ node('ibm-jenkins-slave-dind') {
                "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}\n" +
                "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
                "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+               "exit 0\n" +
                "EOF"
 
             // transfer to the server
@@ -165,6 +166,7 @@ node('ibm-jenkins-slave-dind') {
                "pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax\n" +
                "echo \"ls -la \$(pwd):\"\n" +
                "ls -la\n" +
+               "exit 0\n" +
                "EOF"
 
             // start ZMS
