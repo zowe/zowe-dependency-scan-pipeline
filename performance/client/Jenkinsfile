@@ -19,14 +19,20 @@ node('ibm-jenkins-slave-dind') {
     'marist': [
       ssh_hostport     : 'ssh-marist-server-zzow01-hostport',
       ssh_userpass     : 'ssh-marist-server-zzow01',
+      tmp_dir          : '/ZOWE/tmp',
+      zms_dir          : '/ZOWE/tmp/zms',
     ],
     'marist-2': [
       ssh_hostport     : 'ssh-marist-server-zzow02-hostport',
       ssh_userpass     : 'ssh-marist-server-zzow02'
+      tmp_dir          : '/ZOWE/tmp',
+      zms_dir          : '/ZOWE/tmp/zms',
     ],
     'marist-3': [
       ssh_hostport     : 'ssh-marist-server-zzow03-hostport',
       ssh_userpass     : 'ssh-marist-server-zzow03'
+      tmp_dir          : '/ZOWE/tmp',
+      zms_dir          : '/ZOWE/tmp/zms',
     ],
     // 'river': [
     //   ssh_hostport     : 'ssh-river-original-hostport',
@@ -35,6 +41,8 @@ node('ibm-jenkins-slave-dind') {
     'river-3': [
       ssh_hostport     : 'ssh-river-c3-hostport',
       ssh_userpass     : 'ssh-zdt-test-image-guest'
+      tmp_dir          : '/zaas1/tmp',
+      zms_dir          : '/zaas1/zms',
     ]
   ];
 
@@ -99,32 +107,6 @@ node('ibm-jenkins-slave-dind') {
 
   pipeline.build(displayAnsiColor: true)
 
-  pipeline.createStage(
-    name          : "Prepare ZMS",
-    isSkippable   : true,
-    stage         : {
-      // download ZMS
-      pipeline.artifactory.download(
-        specContent : """
-{
-  "files": [{
-    "pattern": "${params.ZMS_ARTIFACTORY_PATTERN}",
-    "target": ".tmp/zms/",
-    "flat": "true",
-    "build": "${params.ZMS_ARTIFACTORY_BUILD}"
-  }]
-}
-""",
-        expected    : 1
-      )
-
-      // transfer to the server
-
-      // start ZMS
-    },
-    timeout: [time: 20, unit: 'MINUTES']
-  )
-
   pipeline.test(
     name          : 'Test',
     operation     : {
@@ -140,6 +122,41 @@ node('ibm-jenkins-slave-dind') {
           usernameVariable: "SSH_USER"
         )
       ]) {
+        // prepare remote folders
+        echo "Preparing remote folders ..."
+        sh "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}"
+        sh "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}"
+
+        // download ZMS
+        echo "Downloading ZMS ..."
+        pipeline.artifactory.download(
+          specContent : "{\n" +
+                        "  \"files\": [{\n" +
+                        "    \"pattern\": \"${params.ZMS_ARTIFACTORY_PATTERN}\",\n" +
+                        "    \"target\": \".tmp/zms.pax\",\n" +
+                        "    \"flat\": \"true\",\n" +
+                        "    \"build\": \"${params.ZMS_ARTIFACTORY_BUILD}\"\n" +
+                        "  }]\n" +
+                        "}",
+          expected    : 1
+        )
+
+        // transfer to the server
+        def remote = [:]
+        remote.name = 'test'
+        remote.host = SSH_HOST
+        remote.port = SSH_PORT
+        remote.user = SSH_USER
+        remote.password = SSH_PASSWORD
+        remote.allowAnyHosts = true
+        echo "Uploading ZMS to ..."
+        sshPut remote: remote, from: '.tmp/zms.pax', into: TEST_SERVERS[params.TEST_SERVER]['tmp_dir']
+
+        // extract ZMS
+        sshCommand remote: remote, command: "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax && ls -la"
+
+        // start ZMS
+
         def testEnvVars = [
           "DEBUG=${params.PERFORMANCE_TEST_DEBUG_INFORMATION}".toString(),
           "ZMS_HOST=${SSH_PORT}".toString(),
