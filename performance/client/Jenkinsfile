@@ -117,10 +117,13 @@ node('ibm-jenkins-slave-dind') {
           usernameVariable: "SSH_USER"
         )
       ]) {
-        // prepare remote folders
-        echo "Preparing remote folders ..."
-        sh "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}"
-        sh "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}"
+        def remote = [:]
+        remote.name = 'test'
+        remote.host = SSH_HOST
+        remote.port = SSH_PORT
+        remote.user = SSH_USER
+        remote.password = SSH_PASSWORD
+        remote.allowAnyHosts = true
 
         // download ZMS
         echo "Downloading ZMS ..."
@@ -136,19 +139,17 @@ node('ibm-jenkins-slave-dind') {
           expected    : 1
         )
 
+        // prepare remote folders
+        echo "Preparing remote folders ..."
+        sshCommand remote: remote, command: "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}"
+        sshCommand remote: remote, command: "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}"
+
         // transfer to the server
-        def remote = [:]
-        remote.name = 'test'
-        remote.host = SSH_HOST
-        remote.port = SSH_PORT
-        remote.user = SSH_USER
-        remote.password = SSH_PASSWORD
-        remote.allowAnyHosts = true
-        echo "Uploading ZMS to ..."
+        echo "Uploading ZMS to ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']} ..."
         sshPut remote: remote, from: '.tmp/zms.pax', into: TEST_SERVERS[params.TEST_SERVER]['tmp_dir']
 
         // extract ZMS
-        sshCommand remote: remote, command: "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax && ls -la"
+        sshCommand remote: remote, command: "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax && echo \"ls -la \$(pwd):\" && ls -la"
 
         // start ZMS
 
