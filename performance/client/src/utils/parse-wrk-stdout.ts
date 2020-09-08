@@ -162,8 +162,12 @@ Transfer/sec:    142.91KB
       result["requests_per_second"] = parseFloat(m[1]);
     } else if (m = line.match(/^Transfer\/sec:\s+([0-9\.]+[a-zA-Z]*)$/)) {
       result["bytes_per_second"] = convertTransferUnit(m[1]);
-    } else {
-      debug('Unrecognized or redundant WRK response line: ', line);
+    } else if (line.match(/\[debug\]/) ||
+      line === 'Thread Stats   Avg      Stdev     Max   +/- Stdev' ||
+      line === 'Latency Distribution') {
+      // skip some known lines we can ignore
+    } else if (line != '') {
+      debug('Unrecognized or redundant WRK response line:', line);
     }
   });
 

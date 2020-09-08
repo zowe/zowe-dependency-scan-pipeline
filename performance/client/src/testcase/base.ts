@@ -26,7 +26,8 @@ import {
   DEFAULT_ZMS_METRICS,
   DEFAULT_ZMS_CPUTIME_METRICS,
 } from "../constants";
-import { sleep, getZoweVersions } from "../utils";
+import { sleep } from "../utils";
+import { getZoweVersions } from "../utils/zowe";
 import ZMSMetricsCollector from "../metrics-collectors/zms";
 import ClientMetricsCollector from "../metrics-collectors/client";
 
@@ -128,6 +129,10 @@ export default class BaseTestCase implements PerformanceTestCase {
     return p;
   }
 
+  protected _init(): void {
+    this._initMetricsCollector();
+  }
+
   async before(): Promise<void> {
     debug(
       `test "${this.name}" starts at ${new Date().toISOString()} with parameter`,
@@ -151,7 +156,7 @@ export default class BaseTestCase implements PerformanceTestCase {
    * Convert information defined for this class to a format jest can understand
    */
   init(): void {
-    this._initMetricsCollector();
+    this._init();
 
     const undefinedOrZero = (rc: unknown): void => {
       if (rc !== undefined) {
@@ -217,4 +222,4 @@ export default class BaseTestCase implements PerformanceTestCase {
       undefinedOrZero(rc);
     });
   }
-};
+}
