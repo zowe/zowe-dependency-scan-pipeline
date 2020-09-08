@@ -1,5 +1,5 @@
 {
-  "name": "@zowe/performance-test",
+  "name": "zowe-performance-test",
   "version": "0.0.1",
   "description": "Performance test for Zowe",
   "main": "index.js",
