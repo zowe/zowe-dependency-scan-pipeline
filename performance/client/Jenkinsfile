@@ -103,7 +103,7 @@ node('ibm-jenkins-slave-dind') {
   pipeline.build(displayAnsiColor: true)
 
   pipeline.test(
-    name          : 'Test',
+    name          : 'Performance',
     operation     : {
       withCredentials([
         usernamePassword(
@@ -167,10 +167,9 @@ node('ibm-jenkins-slave-dind') {
             withEnv(testEnvVars) {
               pipeline.nvmShell("npm run test ${TEST_SCOPE}")
 
-              sh "ls -la reports"
             } // end of withEnv
-          } catch (e) {
-            throw e
+          } catch (ex) {
+            error "Test failed with error: ${ex}"
           } finally {
             // shutdown ZMS
           }
@@ -183,6 +182,16 @@ node('ibm-jenkins-slave-dind') {
 
   // define we need publish stage
   pipeline.publish(
+    shouldExecute: {
+      sh "ls -la reports"
+      def reports = findFiles(glob: 'reports/*.yml')
+      if (files.length > 0) {
+        echo "No reports found"
+        return false
+      } else {
+        return true
+      }
+    },
     operation: {
       echo "Default npm publish will be skipped."
     },
