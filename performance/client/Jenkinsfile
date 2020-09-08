@@ -118,7 +118,7 @@ node('ibm-jenkins-slave-dind') {
         )
       ]) {
         def remote = [:]
-        remote.name = 'test'
+        remote.name = params.TEST_SERVER
         remote.host = SSH_HOST
         remote.port = SSH_PORT
         remote.user = SSH_USER
@@ -143,15 +143,29 @@ node('ibm-jenkins-slave-dind') {
           try {
             // prepare remote folders
             echo "Preparing remote folders ..."
-            sshCommand remote: remote, command: "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}"
-            sshCommand remote: remote, command: "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}"
+            // sshCommand remote: remote, command: "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}"
+            // sshCommand remote: remote, command: "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}"
+            sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
+               "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}\n" +
+               "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+               "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+               "EOF"
 
             // transfer to the server
             echo "Uploading ZMS to ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']} ..."
-            sshPut remote: remote, from: '.tmp/zms.pax', into: TEST_SERVERS[params.TEST_SERVER]['tmp_dir']
+            // sshPut remote: remote, from: '.tmp/zms.pax', into: TEST_SERVERS[params.TEST_SERVER]['tmp_dir']
+            sh "SSHPASS=${remote.password} sshpass -e sftp -o BatchMode=no -o StrictHostKeyChecking=no -P ${remote.port} -b - ${remote.user}@${remote.host} << EOF\n" +
+               "put .tmp/zms.pax ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}\n" +
+               "EOF"
 
             // extract ZMS
-            sshCommand remote: remote, command: "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax && echo \"ls -la \$(pwd):\" && ls -la"
+            // sshCommand remote: remote, command: "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax && echo \"ls -la \$(pwd):\" && ls -la"
+            sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
+               "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+               "pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax\n" +
+               "echo \"ls -la \$(pwd):\"\n" +
+               "ls -la\n" +
+               "EOF"
 
             // start ZMS
 
@@ -182,6 +196,7 @@ node('ibm-jenkins-slave-dind') {
 
   // define we need publish stage
   pipeline.publish(
+    name: "Test Report",
     shouldExecute: {
       sh "ls -la reports"
       def reports = findFiles(glob: 'reports/*.yml')
