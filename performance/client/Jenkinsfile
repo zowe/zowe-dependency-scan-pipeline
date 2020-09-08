@@ -24,13 +24,13 @@ node('ibm-jenkins-slave-dind') {
     ],
     'marist-2': [
       ssh_hostport     : 'ssh-marist-server-zzow02-hostport',
-      ssh_userpass     : 'ssh-marist-server-zzow02'
+      ssh_userpass     : 'ssh-marist-server-zzow02',
       tmp_dir          : '/ZOWE/tmp',
       zms_dir          : '/ZOWE/tmp/zms',
     ],
     'marist-3': [
       ssh_hostport     : 'ssh-marist-server-zzow03-hostport',
-      ssh_userpass     : 'ssh-marist-server-zzow03'
+      ssh_userpass     : 'ssh-marist-server-zzow03',
       tmp_dir          : '/ZOWE/tmp',
       zms_dir          : '/ZOWE/tmp/zms',
     ],
@@ -40,7 +40,7 @@ node('ibm-jenkins-slave-dind') {
     // ],
     'river-3': [
       ssh_hostport     : 'ssh-river-c3-hostport',
-      ssh_userpass     : 'ssh-zdt-test-image-guest'
+      ssh_userpass     : 'ssh-zdt-test-image-guest',
       tmp_dir          : '/zaas1/tmp',
       zms_dir          : '/zaas1/zms',
     ]
