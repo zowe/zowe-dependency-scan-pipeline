@@ -150,7 +150,7 @@ node('ibm-jenkins-slave-dind') {
           "TEST_AUTH_PASSWORD=${SSH_PASSWORD}".toString(),
         ]
         withEnv(testEnvVars) {
-          nvmShell("npm run test")
+          pipeline.nvmShell("npm run test")
 
           sh "ls -la reports"
         }
