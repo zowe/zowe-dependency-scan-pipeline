@@ -139,35 +139,43 @@ node('ibm-jenkins-slave-dind') {
           expected    : 1
         )
 
-        // prepare remote folders
-        echo "Preparing remote folders ..."
-        sshCommand remote: remote, command: "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}"
-        sshCommand remote: remote, command: "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}"
+        lock("performance-test-${params.TEST_SERVER}") {
+          try {
+            // prepare remote folders
+            echo "Preparing remote folders ..."
+            sshCommand remote: remote, command: "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}"
+            sshCommand remote: remote, command: "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}"
 
-        // transfer to the server
-        echo "Uploading ZMS to ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']} ..."
-        sshPut remote: remote, from: '.tmp/zms.pax', into: TEST_SERVERS[params.TEST_SERVER]['tmp_dir']
+            // transfer to the server
+            echo "Uploading ZMS to ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']} ..."
+            sshPut remote: remote, from: '.tmp/zms.pax', into: TEST_SERVERS[params.TEST_SERVER]['tmp_dir']
 
-        // extract ZMS
-        sshCommand remote: remote, command: "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax && echo \"ls -la \$(pwd):\" && ls -la"
+            // extract ZMS
+            sshCommand remote: remote, command: "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax && echo \"ls -la \$(pwd):\" && ls -la"
 
-        // start ZMS
+            // start ZMS
 
-        def testEnvVars = [
-          "DEBUG=${params.PERFORMANCE_TEST_DEBUG_INFORMATION}".toString(),
-          "ZMS_HOST=${SSH_PORT}".toString(),
-          "ZMS_PORT=19000",
-          "TARGET_HOST=${SSH_PORT}".toString(),
-          "TARGET_PORT=7554",
-          "TEST_AUTH_USER=${SSH_USER}".toString(),
-          "TEST_AUTH_PASSWORD=${SSH_PASSWORD}".toString(),
-        ]
-        withEnv(testEnvVars) {
-          pipeline.nvmShell("npm run test ${TEST_SCOPE}")
+            def testEnvVars = [
+              "DEBUG=${params.PERFORMANCE_TEST_DEBUG_INFORMATION}".toString(),
+              "ZMS_HOST=${SSH_PORT}".toString(),
+              "ZMS_PORT=19000",
+              "TARGET_HOST=${SSH_PORT}".toString(),
+              "TARGET_PORT=7554",
+              "TEST_AUTH_USER=${SSH_USER}".toString(),
+              "TEST_AUTH_PASSWORD=${SSH_PASSWORD}".toString(),
+            ]
+            withEnv(testEnvVars) {
+              pipeline.nvmShell("npm run test ${TEST_SCOPE}")
 
-          sh "ls -la reports"
-        }
-      }
+              sh "ls -la reports"
+            } // end of withEnv
+          } catch (e) {
+            throw e
+          } finally {
+            // shutdown ZMS
+          }
+        } // end of lock
+      } // end of withCredentials
     },
     allowMissingJunit : true,
     displayAnsiColor  : true
@@ -183,9 +191,5 @@ node('ibm-jenkins-slave-dind') {
     ]
   )
 
-  pipeline.end(
-    always: {
-      // shutdown ZMS
-    }
-  )
+  pipeline.end()
 }
