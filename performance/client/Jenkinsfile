@@ -21,28 +21,24 @@ node('ibm-jenkins-slave-dind') {
       ssh_userpass     : 'ssh-marist-server-zzow01',
       tmp_dir          : '/ZOWE/tmp',
       zms_dir          : '/ZOWE/tmp/zms',
+      // ZMS requires node v10+
+      node_home        : '/ZOWE/node/node-v12.16.1-os390-s390x',
     ],
     'marist-2': [
       ssh_hostport     : 'ssh-marist-server-zzow02-hostport',
       ssh_userpass     : 'ssh-marist-server-zzow02',
       tmp_dir          : '/ZOWE/tmp',
       zms_dir          : '/ZOWE/tmp/zms',
+      // ZMS requires node v10+
+      node_home        : '/ZOWE/node/node-v12.16.1-os390-s390x',
     ],
     'marist-3': [
       ssh_hostport     : 'ssh-marist-server-zzow03-hostport',
       ssh_userpass     : 'ssh-marist-server-zzow03',
       tmp_dir          : '/ZOWE/tmp',
       zms_dir          : '/ZOWE/tmp/zms',
-    ],
-    // 'river': [
-    //   ssh_hostport     : 'ssh-river-original-hostport',
-    //   ssh_userpass     : 'ssh-zdt-test-image-guest'
-    // ],
-    'river-3': [
-      ssh_hostport     : 'ssh-river-c3-hostport',
-      ssh_userpass     : 'ssh-zdt-test-image-guest',
-      tmp_dir          : '/zaas1/tmp',
-      zms_dir          : '/zaas1/zms',
+      // ZMS requires node v10+
+      node_home        : '/ZOWE/node/node-v12.16.1-os390-s390x',
     ]
   ];
 
@@ -170,6 +166,13 @@ node('ibm-jenkins-slave-dind') {
                "EOF"
 
             // start ZMS
+            sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
+               "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+               "[ -f ~/.profile ] && . ~/.profile\n" +
+               "export NODE_HOME=${TEST_SERVERS[params.TEST_SERVER]['node_home']}\n" +
+               "nohup ./bin/start.sh &\n" +
+               "exit 0\n" +
+               "EOF"
 
             def testEnvVars = [
               "DEBUG=${params.PERFORMANCE_TEST_DEBUG_INFORMATION}".toString(),
@@ -188,19 +191,27 @@ node('ibm-jenkins-slave-dind') {
             error "Test failed with error: ${ex}"
           } finally {
             // shutdown ZMS
+            sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
+               "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+               "[ -f nohup.out ] && echo \"Output of ZMS:\" && cat nohup.out\n" +
+               "ZWS_PID=\$(ps -elf | grep zms | grep -v grep | awk '{print \$2;}')\n" +
+               "[ -n \"\$ZWS_PID\" ] && echo \"Found ZMS PID: \${ZWS_PID}, send kill signal\" && kill -9 \$ZWS_PID\n" +
+               "exit 0\n" +
+               "EOF"
           }
         } // end of lock
       } // end of withCredentials
     },
     allowMissingJunit : true,
-    displayAnsiColor  : true
+    displayAnsiColor  : true,
+    timeout           : [time: 4, unit: 'HOURS']
   )
 
   // define we need publish stage
   pipeline.publish(
     name: "Test Report",
     shouldExecute: {
-      sh "ls -la reports"
+      sh "ls -la"
       def reports = findFiles(glob: 'reports/*.yml')
       if (files.length > 0) {
         echo "No reports found"
