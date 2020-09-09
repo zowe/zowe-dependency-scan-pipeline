@@ -19,8 +19,8 @@ class IdleTest extends BaseTestCase {
   fetchZoweVersions = true;
 
   // example: 15 minutes
-  // duration = 15 * 60;
-  duration = 30 ;
+  duration = 15 * 60;
+  // duration = 30 ;
 }
 
 // init test case
