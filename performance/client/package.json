@@ -27,7 +27,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "test": "jest --runInBand",
+    "test": "jest --colors --runInBand",
     "lint": "eslint . --ext .ts,.js"
   }
 }

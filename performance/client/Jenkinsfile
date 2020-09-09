@@ -57,30 +57,26 @@ node('ibm-jenkins-slave-dind') {
     choice(
       name: 'TEST_SERVER',
       choices: TEST_SERVERS.keySet().collect(),
-      description: 'Choose which server to run test',
-      trim: true
+      description: 'Choose which server to run test'
     ),
     string(
       name: 'TEST_PORT',
       description: 'Service port to be tested. By default, this will be Zowe APIML Gateway port.',
       defaultValue: '7554',
-      trim: true,
-      required: true
+      trim: true
     ),
     string(
       name: 'TEST_SCOPE',
       description: 'Test cases to be executed',
       defaultValue: 'dist/__tests__/default/idle/',
-      trim: true,
-      required: true
+      trim: true
     ),
     // >>>>>>>> parameters of artifactory
     string(
       name: 'ZMS_ARTIFACTORY_PATTERN',
       description: 'Zowe metrics server artifactory download pattern',
       defaultValue: 'libs-snapshot-local/org/zowe/metrics-server/*.pax',
-      trim: true,
-      required: true
+      trim: true
     ),
     string(
       name: 'ZMS_ARTIFACTORY_BUILD',
