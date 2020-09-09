@@ -237,7 +237,12 @@ node('ibm-jenkins-slave-dind') {
         if (reports.length <= 0) {
           echo "No reports found"
           return false
+        } else if (reports.length > 1) {
+          echo "More than 1 report found"
+          return false
         } else {
+          // rename
+          sh "mv ${files[0].toString()} reports/report.yaml"
           return true
         }
       }
@@ -246,7 +251,7 @@ node('ibm-jenkins-slave-dind') {
       echo "Default npm publish will be skipped."
     },
     artifacts: [
-      "reports/*.yaml"
+      "reports/report.yaml"
     ]
   )
 
