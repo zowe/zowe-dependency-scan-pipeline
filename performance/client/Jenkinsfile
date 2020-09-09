@@ -110,7 +110,7 @@ node('ibm-jenkins-slave-dind') {
     displayAnsiColor: true,
     operation: {
       // upgrade npm
-      nvmShell("npm install -g npm && npm install && npm run build")
+      pipeline.nvmShell("npm install -g npm && npm install && npm run build")
     }
   )
 
