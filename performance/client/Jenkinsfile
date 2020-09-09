@@ -188,6 +188,7 @@ node('ibm-jenkins-slave-dind') {
 
             // start test
             def testEnvVars = [
+              "FORCE_COLOR=true",
               "DEBUG=${params.PERFORMANCE_TEST_DEBUG_INFORMATION}".toString(),
               "ZMS_HOST=${SSH_HOST}".toString(),
               "ZMS_PORT=${DEFAULT_ZMS_PORT}".toString(),
