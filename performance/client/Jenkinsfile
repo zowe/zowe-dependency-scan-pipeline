@@ -84,6 +84,12 @@ node('ibm-jenkins-slave-dind') {
       defaultValue: 'Zowe Performance - Metrics Server :: master',
       trim: true
     ),
+    string(
+      name: 'REPORT_NAME',
+      description: 'Report name published to Artifactory',
+      defaultValue: 'report',
+      trim: true
+    ),
     // >>>>>>>> parametters for test cases
     string(
       name: 'PERFORMANCE_TEST_DEBUG_INFORMATION',
@@ -239,7 +245,7 @@ node('ibm-jenkins-slave-dind') {
           return false
         } else {
           // rename
-          sh "mv ${reports[0].toString()} reports/report.yaml"
+          sh "mv ${reports[0].toString()} reports/${params.REPORT_NAME}.yaml"
           return true
         }
       }
@@ -248,7 +254,7 @@ node('ibm-jenkins-slave-dind') {
       echo "Default npm publish will be skipped."
     },
     artifacts: [
-      "reports/report.yaml"
+      "reports/${params.REPORT_NAME}.yaml"
     ]
   )
 
