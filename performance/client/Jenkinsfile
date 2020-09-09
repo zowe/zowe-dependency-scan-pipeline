@@ -106,7 +106,13 @@ node('ibm-jenkins-slave-dind') {
     lintWithColor  : true
   )
 
-  pipeline.build(displayAnsiColor: true)
+  pipeline.build(
+    displayAnsiColor: true,
+    operation: {
+      // upgrade npm
+      nvmShell("npm install -g npm && npm install && npm run build")
+    }
+  )
 
   pipeline.test(
     name          : 'Performance',
@@ -236,7 +242,7 @@ node('ibm-jenkins-slave-dind') {
     shouldExecute: {
       sh "ls -la ${PROJECT_BASE_DIR}/reports"
       def reports = findFiles(glob: "${PROJECT_BASE_DIR}/reports/*.yaml")
-      if (reports.length > 0) {
+      if (reports.length <= 0) {
         echo "No reports found"
         return false
       } else {
