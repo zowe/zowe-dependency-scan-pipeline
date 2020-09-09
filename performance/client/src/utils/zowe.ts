@@ -10,9 +10,6 @@
 
 import got from "got";
 
-import Debug from 'debug';
-const debug = Debug('zowe-performance-test:zowe-utils');
-
 /**
  * Fetch Zowe instance version from APIML Gateway
  * 
@@ -30,14 +27,12 @@ const debug = Debug('zowe-performance-test:zowe-utils');
  */
 export const getZoweVersions = async (apimlGatewayHost: string, apimlGatewayPort: number): Promise<unknown> => {
   const url = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v1/gateway/version`;
-  debug(`Get Zowe versions from url ${url}`);
 
   const { body } =  await got(url, {
     https: {
       rejectUnauthorized: false
     }
   });
-  debug(`Zowe versions url response: ${body}`);
 
   return JSON.parse(body);
 };

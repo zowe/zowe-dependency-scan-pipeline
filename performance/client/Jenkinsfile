@@ -129,12 +129,6 @@ node('ibm-jenkins-slave-dind') {
           usernameVariable: "SSH_USER"
         )
       ]) {
-        // debug check Zowe version:
-        echo "Zowe version by gateway:"
-        sh 'curl -k -v https://zzow01.zowe.marist.cloud:7554/api/v1/gateway/version'
-        echo "Environments:"
-        sh "env"
-
         def remote = [:]
         remote.name = params.TEST_SERVER
         remote.host = SSH_HOST
@@ -201,9 +195,9 @@ node('ibm-jenkins-slave-dind') {
             // start test
             def testEnvVars = [
               "DEBUG=${params.PERFORMANCE_TEST_DEBUG_INFORMATION}".toString(),
-              "ZMS_HOST=${SSH_PORT}".toString(),
+              "ZMS_HOST=${SSH_HOST}".toString(),
               "ZMS_PORT=${DEFAULT_ZMS_PORT}".toString(),
-              "TARGET_HOST=${SSH_PORT}".toString(),
+              "TARGET_HOST=${SSH_HOST}".toString(),
               "TARGET_PORT=${params.TEST_PORT}".toString(),
               "TEST_AUTH_USER=${SSH_USER}".toString(),
               "TEST_AUTH_PASSWORD=${SSH_PASSWORD}".toString(),

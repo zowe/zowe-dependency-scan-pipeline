@@ -21,6 +21,28 @@ export const sleep = (ms: number): Promise<void> => {
 };
 
 /**
+ * Return safe environment variables which doesn't include unnecessary variables
+ * and potential passwords.
+ */
+export const getSafeEnvironmentVariables = (): {[key: string]: string} {
+  const envVars: {[key: string]: string} = Object.create({});
+
+  for (const k of Object.keys(process.env)) {
+    // ignore some environment variables
+    if (k.startsWith('npm_') ||
+      k.startsWith('JENKINS_') || k.startsWith('HUDSON_') ||
+      k.startsWith('TEST_AUTH_') || k.startsWith('SSH_USER') ||
+      k.toLowerCase().indexOf('password') >= 0 ||
+      k.toLowerCase().indexOf('passwd') >= 0) {
+      continue;
+    }
+    envVars[k] = process.env[k];
+  }
+
+  return envVars;
+};
+
+/**
  * Prepare Basic Authorization Header
  *
  * @param user        username

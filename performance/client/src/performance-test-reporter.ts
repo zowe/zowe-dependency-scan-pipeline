@@ -30,6 +30,7 @@ import type {
   PerformanceTestCaseReport,
   PerformanceTestReport,
 } from "./types";
+import { getSafeEnvironmentVariables } from "./utils";
 
 import Debug from 'debug';
 const debug = Debug('zowe-performance-test:test-reporter');
@@ -97,14 +98,7 @@ export default class PerformanceTestReporter extends BaseReporter {
       throw new PerformanceTestException(`Cannot find test result for test ${_testResult.testFilePath}`);
     }
 
-    const testEnv: {[key: string]: string} = Object.create({});
-    for (const k of Object.keys(process.env)) {
-      // ignore some environment variables
-      if (k.startsWith('npm_') || k.startsWith('TEST_AUTH_')) {
-        continue;
-      }
-      testEnv[k] = process.env[k];
-    }
+    const testEnv: {[key: string]: string} = getSafeEnvironmentVariables();
 
     // this test result file should be written/prepared by test run step
     const testResult = fs.existsSync(PERFORMANCE_TEST_RESULT_FILE) ? 
