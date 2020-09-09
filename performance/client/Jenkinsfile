@@ -106,13 +106,7 @@ node('ibm-jenkins-slave-dind') {
     lintWithColor  : true
   )
 
-  pipeline.build(
-    displayAnsiColor: true,
-    operation: {
-      // upgrade npm
-      pipeline.nvmShell("npm install -g npm && npm install && npm run build")
-    }
-  )
+  pipeline.build(displayAnsiColor: true)
 
   pipeline.test(
     name          : 'Performance',

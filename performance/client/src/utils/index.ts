@@ -24,7 +24,7 @@ export const sleep = (ms: number): Promise<void> => {
  * Return safe environment variables which doesn't include unnecessary variables
  * and potential passwords.
  */
-export const getSafeEnvironmentVariables = (): {[key: string]: string} {
+export const getSafeEnvironmentVariables = (): {[key: string]: string} => {
   const envVars: {[key: string]: string} = Object.create({});
 
   for (const k of Object.keys(process.env)) {
