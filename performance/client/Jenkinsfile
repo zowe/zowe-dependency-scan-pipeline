@@ -254,7 +254,7 @@ node('ibm-jenkins-slave-dind') {
       echo "Default npm publish will be skipped."
     },
     artifacts: [
-      "reports/${params.REPORT_NAME}.yaml"
+      "reports/*.yaml"
     ]
   )
 
