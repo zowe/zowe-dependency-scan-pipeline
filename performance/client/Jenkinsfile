@@ -12,7 +12,8 @@
 
 
 node('ibm-jenkins-slave-dind') {
-  def PROJECT_ROOT_DIR = "performance/client";
+  def PROJECT_BASE_DIR = "performance/client"
+  def DEFAULT_ZMS_PORT = 19000
 
   // Test server configurations:
   // - credential id for ssh server hostname and port
@@ -60,6 +61,13 @@ node('ibm-jenkins-slave-dind') {
       trim: true
     ),
     string(
+      name: 'TEST_PORT',
+      description: 'Service port to be tested. By default, this will be Zowe APIML Gateway port.',
+      defaultValue: '7554',
+      trim: true,
+      required: true
+    ),
+    string(
       name: 'TEST_SCOPE',
       description: 'Test cases to be executed',
       defaultValue: 'dist/__tests__/default/idle/',
@@ -91,7 +99,7 @@ node('ibm-jenkins-slave-dind') {
 
   pipeline.setup(
     packageName    : 'org.zowe.performance-test-reports',
-    baseDirectory  : 'performance/client',
+    baseDirectory  : PROJECT_BASE_DIR,
     nodeJsVersion  : 'v12.18.3',
     initWithColor  : true,
     auditWithColor : true,
@@ -115,6 +123,10 @@ node('ibm-jenkins-slave-dind') {
           usernameVariable: "SSH_USER"
         )
       ]) {
+        // debug check Zowe version:
+        echo "Zowe version by gateway:"
+        sh 'curl -k -v https://zzow01.zowe.marist.cloud:7554/api/v1/gateway/version'
+
         def remote = [:]
         remote.name = params.TEST_SERVER
         remote.host = SSH_HOST
@@ -182,9 +194,9 @@ node('ibm-jenkins-slave-dind') {
             def testEnvVars = [
               "DEBUG=${params.PERFORMANCE_TEST_DEBUG_INFORMATION}".toString(),
               "ZMS_HOST=${SSH_PORT}".toString(),
-              "ZMS_PORT=19000",
+              "ZMS_PORT=${DEFAULT_ZMS_PORT}".toString(),
               "TARGET_HOST=${SSH_PORT}".toString(),
-              "TARGET_PORT=7554",
+              "TARGET_PORT=${params.TEST_PORT}".toString(),
               "TEST_AUTH_USER=${SSH_USER}".toString(),
               "TEST_AUTH_PASSWORD=${SSH_PASSWORD}".toString(),
             ]
@@ -222,8 +234,8 @@ node('ibm-jenkins-slave-dind') {
   pipeline.publish(
     name: "Test Report",
     shouldExecute: {
-      sh "ls -la ${PROJECT_ROOT_DIR}/reports"
-      def reports = findFiles(glob: "${PROJECT_ROOT_DIR}/reports/*.yaml")
+      sh "ls -la ${PROJECT_BASE_DIR}/reports"
+      def reports = findFiles(glob: "${PROJECT_BASE_DIR}/reports/*.yaml")
       if (reports.length > 0) {
         echo "No reports found"
         return false
@@ -235,7 +247,7 @@ node('ibm-jenkins-slave-dind') {
       echo "Default npm publish will be skipped."
     },
     artifacts: [
-      "${PROJECT_ROOT_DIR}/reports/*.yaml"
+      "${PROJECT_BASE_DIR}/reports/*.yaml"
     ]
   )
 
