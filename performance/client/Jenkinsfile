@@ -12,6 +12,8 @@
 
 
 node('ibm-jenkins-slave-dind') {
+  def PROJECT_ROOT_DIR = "performance/client";
+
   // Test server configurations:
   // - credential id for ssh server hostname and port
   // - credential id for ssh username and password
@@ -160,7 +162,7 @@ node('ibm-jenkins-slave-dind') {
             sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
                "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
                "pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax\n" +
-               "echo \"ls -la \$(pwd):\"\n" +
+               "echo \"ls -la \\\$(pwd):\"\n" +
                "ls -la\n" +
                "exit 0\n" +
                "EOF"
@@ -170,10 +172,13 @@ node('ibm-jenkins-slave-dind') {
                "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
                "[ -f ~/.profile ] && . ~/.profile\n" +
                "export NODE_HOME=${TEST_SERVERS[params.TEST_SERVER]['node_home']}\n" +
+               "export _BPXK_AUTOCVT=ON\n" +
+               "export _CEE_RUNOPTS=\"FILETAG(AUTOCVT,AUTOTAG) POSIX(ON)\"\n" +
                "nohup ./bin/start.sh &\n" +
                "exit 0\n" +
                "EOF"
 
+            // start test
             def testEnvVars = [
               "DEBUG=${params.PERFORMANCE_TEST_DEBUG_INFORMATION}".toString(),
               "ZMS_HOST=${SSH_PORT}".toString(),
@@ -183,14 +188,21 @@ node('ibm-jenkins-slave-dind') {
               "TEST_AUTH_USER=${SSH_USER}".toString(),
               "TEST_AUTH_PASSWORD=${SSH_PASSWORD}".toString(),
             ]
+            echo "Environment variables: ${testEnvVars}"
             withEnv(testEnvVars) {
-              pipeline.nvmShell("npm run test ${TEST_SCOPE}")
-
+              ansiColor('xterm') {
+                pipeline.nvmShell("npm run test ${TEST_SCOPE}")
+              }
             } // end of withEnv
           } catch (ex) {
             error "Test failed with error: ${ex}"
           } finally {
+            // show what's in .tmp for debugging purpose
+            echo "Content of .tmp:"
+            sh 'ls -la .tmp'
+
             // shutdown ZMS
+            echo "Shutting down ZMS:"
             sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
                "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
                "[ -f nohup.out ] && echo \"Output of ZMS:\" && cat nohup.out\n" +
@@ -203,7 +215,6 @@ node('ibm-jenkins-slave-dind') {
       } // end of withCredentials
     },
     allowMissingJunit : true,
-    displayAnsiColor  : true,
     timeout           : [time: 4, unit: 'HOURS']
   )
 
@@ -211,9 +222,9 @@ node('ibm-jenkins-slave-dind') {
   pipeline.publish(
     name: "Test Report",
     shouldExecute: {
-      sh "ls -la"
-      def reports = findFiles(glob: 'reports/*.yml')
-      if (files.length > 0) {
+      sh "ls -la ${PROJECT_ROOT_DIR}/reports"
+      def reports = findFiles(glob: "${PROJECT_ROOT_DIR}/reports/*.yaml")
+      if (reports.length > 0) {
         echo "No reports found"
         return false
       } else {
@@ -224,7 +235,7 @@ node('ibm-jenkins-slave-dind') {
       echo "Default npm publish will be skipped."
     },
     artifacts: [
-      "reports/*.yml"
+      "${PROJECT_ROOT_DIR}/reports/*.yaml"
     ]
   )
 

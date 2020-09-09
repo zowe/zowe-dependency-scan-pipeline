@@ -112,7 +112,9 @@ export default class PerformanceTestReporter extends BaseReporter {
       {};
 
     // this context file should be written/prepared by test beforeAll step
-    const { parameters: testParameters, zoweVersions } = JSON.parse(fs.readFileSync(PERFORMANCE_TEST_CONTEXT_FILE).toString());
+    const { parameters: testParameters, zoweVersions } = fs.existsSync(PERFORMANCE_TEST_CONTEXT_FILE) ? 
+      JSON.parse(fs.readFileSync(PERFORMANCE_TEST_CONTEXT_FILE).toString()) :
+      { parameters: null, zoweVersions: null };
 
     // read client metrics
     const clientMetrics = fs.existsSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE) ? 
