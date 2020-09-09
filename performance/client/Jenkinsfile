@@ -239,7 +239,7 @@ node('ibm-jenkins-slave-dind') {
           return false
         } else {
           // rename
-          sh "mv ${files[0].toString()} reports/report.yaml"
+          sh "mv ${reports[0].toString()} reports/report.yaml"
           return true
         }
       }
