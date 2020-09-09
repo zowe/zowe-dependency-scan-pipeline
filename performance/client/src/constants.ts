@@ -69,6 +69,26 @@ export const DEFAULT_ZMS_CPUTIME_METRICS: string[] = [
   "cpu\\{source=\"rmf.dds\",item=\"ZWE.*\".+\\}",
 ];
 
+export const SDSF_ONLY_ZMS_METRICS: string[] = [
+  "cpupr\\{source=\"sdsf.da\"\\}",
+  "real\\{source=\"sdsf.sys\"\\}",
+  "cpu\\{source=\"sdsf.da\",process=\"ZWE.*\".+\\}",
+  "real\\{source=\"sdsf.da\",process=\"ZWE.*\".+\\}",
+  "cpu\\{source=\"sdsf.da\",process=\"IZUSVR1\".+\\}",
+  "real\\{source=\"sdsf.da\",process=\"IZUSVR1\".+\\}",
+];
+
+// these metrics will be used to calculate total CPU Time and %
+// test result showing in report may contain these entries:
+// - first_timestamp_from_server_metrics
+// - last_timestamp_from_server_metrics
+// - total_time_elapse_from_server_metrics
+// - total_cpu_time_from_server_metrics
+// - total_cpu_percentage_from_server_metrics
+export const SDSF_ONLY_ZMS_CPUTIME_METRICS: string[] = [
+  "cpu\\{source=\"sdsf.da\",process=\"ZWE.*\".+\\}",
+];
+
 export const DEFAULT_SERVER_METRICS_COLLECTOR_INTERVAL = 10;
 export const DEFAULT_CLIENT_METRICS_COLLECTOR_INTERVAL = 10;
 
