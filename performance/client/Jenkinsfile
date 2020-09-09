@@ -132,6 +132,8 @@ node('ibm-jenkins-slave-dind') {
         // debug check Zowe version:
         echo "Zowe version by gateway:"
         sh 'curl -k -v https://zzow01.zowe.marist.cloud:7554/api/v1/gateway/version'
+        echo "Environments:"
+        sh "env"
 
         def remote = [:]
         remote.name = params.TEST_SERVER
@@ -240,20 +242,23 @@ node('ibm-jenkins-slave-dind') {
   pipeline.publish(
     name: "Test Report",
     shouldExecute: {
-      sh "ls -la ${PROJECT_BASE_DIR}/reports"
-      def reports = findFiles(glob: "${PROJECT_BASE_DIR}/reports/*.yaml")
-      if (reports.length <= 0) {
-        echo "No reports found"
-        return false
-      } else {
-        return true
+      // FIXME: shouldExecute closure doesn't take global baseDirectory
+      dir(PROJECT_BASE_DIR) {
+        sh "ls -la reports"
+        def reports = findFiles(glob: "reports/*.yaml")
+        if (reports.length <= 0) {
+          echo "No reports found"
+          return false
+        } else {
+          return true
+        }
       }
     },
     operation: {
       echo "Default npm publish will be skipped."
     },
     artifacts: [
-      "${PROJECT_BASE_DIR}/reports/*.yaml"
+      "reports/*.yaml"
     ]
   )
 
