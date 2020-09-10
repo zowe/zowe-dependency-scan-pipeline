@@ -1,0 +1,49 @@
+#!groovy
+
+/**
+ * This program and the accompanying materials are made available under the terms of the
+ * Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-v20.html
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Copyright IBM Corporation 2020
+ */
+
+// this pipeline will start weekly to send 
+node('ibm-jenkins-slave-nvm') {
+  def lib = library("jenkins-library").org.zowe.jenkins_shared_library
+  def pipeline = lib.pipelines.generic.GenericPipeline.new(this)
+
+  pipeline.admins.add("jackjia")
+
+  // usually nightly build will end before 3am
+  pipeline.addBuildOption(pipelineTriggers([cron("TZ=America/New_York\nH 3 * * *")]))
+
+  pipeline.setup()
+
+  pipeline.createStage(
+    name: "Performance Test",
+    isSkippable: false,
+    stage: {
+      def testParameters = [
+        string(name: 'TEST_SERVER', value: 'marist'),
+        string(name: 'TEST_PORT', value: '7554'),
+        string(name: 'TEST_SCOPE', value: 'dist/__tests__/sdsf-only/idle/'),
+        string(name: 'REPORT_NAME', value: 'scheduled'),
+        string(name: 'PERFORMANCE_TEST_DEBUG_INFORMATION', value: 'zowe-performance-test:*'),
+        booleanParam(name: 'Skip Stage: Lint', value: true),
+        booleanParam(name: 'Skip Stage: Audit', value: true),
+      ]
+      def test_result = build(
+        job: '/Zowe Performance - Test/master',
+        parameters: testParameters,
+        propagate: false
+      )
+      echo "Test result: ${test_result.result}"
+    },
+    timeout: [time: 4, unit: 'HOURS']
+  )
+
+  pipeline.end()
+}
