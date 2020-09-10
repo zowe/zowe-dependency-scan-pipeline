@@ -24,7 +24,7 @@ node ('ibm-jenkins-slave-dind') {
         usernamePasswordCredential : lib.Constants.DEFAULT_DOCKER_REGISTRY_CREDENTIAL,
         // prefix should be synced with credential
         image                      : "${lib.Constants.DEFAULT_DOCKER_IMAGE_PREFIX}/zowe-performance-test-client".toString(),
-/      ],
+      ],
       disableArtifactory: true,
       disablePax:  true,
       extraInit: {
