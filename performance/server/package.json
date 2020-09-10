@@ -12,8 +12,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint . --ext .ts,.js",
     "prestart": "npm run build",
-    "start": "node dist/app.js",
-    "a": "npm run build && LOG_LEVEL=debug node dist/a.js"
+    "start": "node dist/app.js"
   },
   "dependencies": {
     "@types/cors": "^2.8.7",
