@@ -1,6 +1,6 @@
 {
   "name": "zowe-performance-test",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Performance test for Zowe",
   "main": "index.js",
   "license": "EPL-2.0",
@@ -27,6 +27,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "pretest": "npm run build",
     "test": "jest --colors --runInBand",
     "lint": "eslint . --ext .ts,.js"
   }
