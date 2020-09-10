@@ -44,6 +44,9 @@ export const DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY = 1;
 // default test duration if enable debug mode
 export const DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION = 2;
 
+// default target port is Zowe APIML Gateway default port
+export const DEFAULT_TARGET_PORT = 7554;
+
 // default Zowe metrics server port
 export const DEFAULT_ZMS_PORT = 19000;
 // default Zowe metrics server endpoint

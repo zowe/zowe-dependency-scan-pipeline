@@ -25,6 +25,7 @@ import {
   DEFAULT_CLIENT_METRICS,
   DEFAULT_ZMS_METRICS,
   DEFAULT_ZMS_CPUTIME_METRICS,
+  DEFAULT_TARGET_PORT,
 } from "../constants";
 import { sleep } from "../utils";
 import { getZoweVersions } from "../utils/zowe";
@@ -51,7 +52,7 @@ export default class BaseTestCase implements PerformanceTestCase {
   // target server to test
   public targetHost: string;
   // target port to test
-  public targetPort: string;
+  public targetPort: number;
   // whether the target host/port is Zowe instance and port is Gateway port
   public fetchZoweVersions = false;
 
@@ -69,7 +70,10 @@ export default class BaseTestCase implements PerformanceTestCase {
     }
   
     if (!this.targetPort && process.env.TARGET_PORT) {
-      this.targetPort = process.env.TARGET_PORT;
+      this.targetPort = parseInt(process.env.TARGET_PORT, 10);
+    }
+    if (!this.targetPort) {
+      this.targetPort = DEFAULT_TARGET_PORT;
     }
   }
 
@@ -171,7 +175,7 @@ export default class BaseTestCase implements PerformanceTestCase {
       if (this.fetchZoweVersions) {
         debug("Fetching Zowe version ...");
         // get Zowe version
-        targetZoweVersions = await getZoweVersions(this.targetHost, parseInt(this.targetPort, 10));
+        targetZoweVersions = await getZoweVersions(this.targetHost, this.targetPort);
         debug("Zowe version: ", targetZoweVersions, ". Waiting for cool down before starting the test ...");
         // cool down after api call
         await sleep(this.cooldown * 1000);

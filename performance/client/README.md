@@ -7,6 +7,74 @@ Perform performance test on the target server.
 - Node.js [v12.x LTS](https://nodejs.org/docs/latest-v12.x/api/index.html) or above
 - [Jest](https://jestjs.io/)
 
+## Environment Variables Used By Test
+
+- **DEBUG**: Optional.If you specify a value like `zowe-performance-test:*`, the test will expose all debugging information. You can limit it to one set of debugging information like assigning a value like `zowe-performance-test:wrk-testcase`.
+- **ZMS_HOST** and **ZMS_PORT**: Optional. If you want to collect server side metrics, you need to specify where is the Zowe Metrics Server started. Usually it should has same value as your target test server. **ZMS_PORT** is optional and has default value `19000`, which is the default port of Zowe Metrics Server.
+- **TARGET_HOST** and **TARGET_PORT**: This is required for `WrkTestCase`. It's the test server and port you want to test. **TARGET_PORT** is optional, and has default value `7554`, which is the default Zowe API Mediation Layer Gateway port.
+- **TEST_AUTH_USER** and **TEST_AUTH_PASSWORD**: Many `WrkTestCase` will require authentication. These are the username and password to call the API you want to test.
+
+## Run Test Cases with Docker
+
+We temporarily published performance test client docker image as `jackjiaibm/zowe-performance-test-client`.
+
+```
+docker run -it --rm \
+  -e DEBUG=zowe-performance-test:* \
+  -e ZMS_HOST=<your-zms-host> \
+  -e ZMS_PORT=<your-zms-port> \
+  -e TARGET_HOST=<your-target-test-host> \
+  -e TARGET_PORT=<your-target-test-port> \
+  -e TEST_AUTH_USER=<your-user> \
+  -e TEST_AUTH_PASSWORD=<your-password> \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v $(pwd):/app/reports \
+  jackjiaibm/zowe-performance-test-client \
+  -- <test-to-run>
+```
+
+The `-v /var/run/docker.sock:/var/run/docker.sock` option in the command is to allow usage of docker inside the container. This is required to run WRK API tests. The test report will be exposed in your current directory with `-v $(pwd):/app/reports` command option.
+
+`<test-to-run>` is to specific a small set of test cases to run. These tests usually are located in `dist/__tests__/` folder. For example, `dist/__tests__/default/idle/`.
+
+Here is an example to run default test cases:
+
+```
+docker run -it --rm \
+  -e ZMS_HOST=<your-zms-host> \
+  -e TARGET_HOST=<your-target-test-host> \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v $(pwd):/app/reports \
+  jackjiaibm/zowe-performance-test-client \
+  -- dist/__tests__/default/idle/
+```
+
+You can have you customized test cases and run them with this docker image. For example, you have these sub-directories:
+
+```
+- my-new-tests
+- reports
+```
+
+You can run your tests like this:
+
+```
+docker run -it --rm \
+  -e ZMS_HOST=<your-zms-host> \
+  -e TARGET_HOST=<your-target-test-host> \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v $(pwd)/reports:/app/reports \
+  -v $(pwd)/my-new-tests:/app/src/__tests/my-new-tests \
+  jackjiaibm/zowe-performance-test-client \
+  -- dist/__tests__/my-new-tests/
+```
+
+Please note:
+
+- The source code is mounted with option `-v $(pwd)/my-new-tests:/app/src/__tests/my-new-tests`, and it will be compiled before starting the test.
+- The test is started with `dist/__tests__/my-new-tests/` option. That's where the compiled version of your test.
+- Please be careful about the related folder structure in `src` folder.
+
 ## Run Test Cases On Your Local
 
 ### Prepare NPM Packages
@@ -18,20 +86,13 @@ Run `npm install` to install dependencies.
 ```
 DEBUG=zowe-performance-test:* \
 ZMS_HOST=<your-zms-host> \
-ZMS_PORT=19000 \
+ZMS_PORT=<your-zms-port> \
 TARGET_HOST=<your-target-test-host> \
 TARGET_PORT=<your-target-test-port> \
 TEST_AUTH_USER=<username> \
 TEST_AUTH_PASSWORD=<username> \
-npm run test
+npm test <test-to-run>
 ```
-
-The environment variables are:
-
-- **DEBUG**: Optional. If you specify a value like `zowe-performance-test:*`, the test will expose all debugging information. You can limit it to one set of debugging information like assigning a value like `zowe-performance-test:wrk-testcase`.
-- **ZMS_HOST** and **ZMS_PORT**: Optional. If you want to collect server side metrics, you need to specify where is the Zowe Metrics Server started. Usually it should has same value as your target test server. **ZMS_PORT** is optional and has default value `19000`, which is the default port of Zowe Metrics Server.
-- **TARGET_HOST** and **TARGET_PORT**: This is required for `WrkTestCase`. It's the test server and port you want to test. Usually **TARGET_PORT** is the Zowe API Mediation Layer Gateway port.
-- **TEST_AUTH_USER** and **TEST_AUTH_PASSWORD**: Many `WrkTestCase` will require authentication. These are the username and password to call the API you want to test.
 
 The test report will be saved in `reports` folder by default. This can be customized in `jest.config.js`.
 
