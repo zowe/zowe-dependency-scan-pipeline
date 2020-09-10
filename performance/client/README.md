@@ -170,6 +170,7 @@ We can extend from `WrkTestCase` to define a customized API test. This is an exa
 import WrkTestCase from "../../../testcase/wrk";
 import { getBasicAuthorizationHeader } from "../../../utils";
 import { DEFAULT_CLIENT_METRICS } from "../../../constants";
+import { HttpRequestMethod } from "../../../types";
 
 class ExplorerApiDatasetContentTest extends WrkTestCase {
   // name/purpose of the test
@@ -184,6 +185,28 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
 
   // required. endpoint we want to test
   endpoint = '/api/v1/datasets/MYUSER.MYDS(MYMEMBER)/content';
+
+  // http method. Default value is GET.
+  // You can change to POST, PUT, DELETE, etc.
+  // method = "POST" as HttpRequestMethod;
+
+  // endpoint we want to test
+  endpoint = '/api/v1/gateway/auth/login';
+
+  // body of post request in string format
+  // body = JSON.stringify({
+  //   username: process.env.TEST_AUTH_USER,
+  //   password: process.env.TEST_AUTH_PASSWORD,
+  // });
+
+  // enable debug mode?
+  // Enabling debug mode will log every request/response sent to or received from
+  // the target server. If this is true, these properties will be automatically
+  // reset to these values to avoid excessive logs:
+  // - duration: 2
+  // - concurrency: 1
+  // Enabling debug mode will also show the log in test report as `consoleLog`.
+  debug = true;
 
   // optional. example to overwrite default collector options
   serverMetricsCollectorOptions = {
@@ -219,7 +242,11 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   };
 
   // optional. we can add customized headers
-  headers: string[] = ["X-Special-Header: value"];
+  headers: string[] = [
+    "X-Special-Header: value"
+    // useful if you are testing POST/PUT with json body
+    // "Content-Type: application/json",
+  ];
 
   async before(): Promise<void> {
     await super.before();
