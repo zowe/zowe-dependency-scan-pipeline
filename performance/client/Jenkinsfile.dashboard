@@ -24,7 +24,7 @@ node('ibm-jenkins-slave-nvm') {
     string(
       name: 'REPORT_NAME',
       description: 'Report name published to Artifactory',
-      defaultValue: 'report',
+      defaultValue: 'scheduled',
       trim: true
     )
   )
