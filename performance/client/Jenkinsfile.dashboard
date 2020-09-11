@@ -1,0 +1,54 @@
+#!groovy
+
+/**
+ * This program and the accompanying materials are made available under the terms of the
+ * Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-v20.html
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Copyright IBM Corporation 2020
+ */
+
+node('ibm-jenkins-slave-nvm') {
+  def ARTIFACTORY_PATH_OF_REPORTS = 'libs-snapshot-local/org/zowe/performance-test-reports'
+  def NUMBER_OF_REPORTS = 10
+
+  def lib = library("jenkins-library").org.zowe.jenkins_shared_library
+  def pipeline = lib.pipelines.generic.GenericPipeline.new(this)
+
+  pipeline.admins.add("jackjia")
+
+  // we have extra parameters for integration test
+  pipeline.addBuildParameters(
+    string(
+      name: 'REPORT_NAME',
+      description: 'Report name published to Artifactory',
+      defaultValue: 'report',
+      trim: true
+    )
+  )
+
+  pipeline.setup()
+
+  pipeline.createStage(
+    name: "Download Reports",
+    isSkippable: false,
+    stage: {
+      pipeline.artifactory.download(
+        specContent : "{\n" +
+                      "  \"files\": [{\n" +
+                      "    \"pattern\": \"${ARTIFACTORY_PATH_OF_REPORTS}/${params.REPORT_NAME}*.yaml\",\n" +
+                      "    \"target\": \"reports/\",\n" +
+                      "    \"flat\": \"true\",\n" +
+                      "    \"sortBy\": [\"created\"],\n" +
+                      "    \"sortOrder\": \"desc\",\n" +
+                      "    \"limit\": ${NUMBER_OF_REPORTS}\n" +
+                      "  }]\n" +
+                      "}",
+      )
+    }
+  )
+
+  pipeline.end()
+}
