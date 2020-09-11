@@ -35,18 +35,18 @@ node('ibm-jenkins-slave-nvm') {
     name: "Download Reports",
     isSkippable: false,
     stage: {
-      pipeline.artifactory.download(
-        specContent : "{\n" +
-                      "  \"files\": [{\n" +
-                      "    \"pattern\": \"${ARTIFACTORY_PATH_OF_REPORTS}/${params.REPORT_NAME}*.yaml\",\n" +
-                      "    \"target\": \"reports/\",\n" +
-                      "    \"flat\": \"true\",\n" +
-                      "    \"sortBy\": [\"created\"],\n" +
-                      "    \"sortOrder\": \"desc\",\n" +
-                      "    \"limit\": ${NUMBER_OF_REPORTS}\n" +
-                      "  }]\n" +
-                      "}",
-      )
+      def spec = "{\n" +
+                 "  \"files\": [{\n" +
+                 "    \"pattern\": \"${ARTIFACTORY_PATH_OF_REPORTS}/${params.REPORT_NAME}*.yaml\",\n" +
+                 "    \"target\": \"reports/\",\n" +
+                 "    \"flat\": \"true\",\n" +
+                 "    \"sortBy\": [\"created\"],\n" +
+                 "    \"sortOrder\": \"desc\",\n" +
+                 "    \"limit\": ${NUMBER_OF_REPORTS}\n" +
+                 "  }]\n" +
+                 "}"
+      echo "Downloading ${spec} ..."
+      pipeline.artifactory.download(specContent: spec)
     }
   )
 
