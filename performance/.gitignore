@@ -1,1 +1,5 @@
+# Jenkins @tmp folder
 **/*@tmp/
+
+# Mac
+.DS_Store
