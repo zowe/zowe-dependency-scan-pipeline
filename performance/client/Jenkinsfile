@@ -300,7 +300,9 @@ node('ibm-jenkins-slave-dind') {
           testIndex = testIndex + 1
           echo "Processing test ${test.name} ..."
           if (test["serverMetrics"] && test["serverMetrics"].size()) {
-            def csvFile = test.name.toLowerCase().replaceAll(/[^0-9a-zA-Z]/, "-") + ".csv"
+            def sanitizedTestName = test.name.toLowerCase().replaceAll(/[^0-9a-zA-Z]/, "-")
+            def csvFile = sanitizedTestName + ".csv"
+            def plotFile = "plot-" + sanitizedTestName + ".csv"
             echo "- Preparing CSV ${csvFile} ..."
 
             // prepare columns and row indexes (timestamp)
@@ -379,21 +381,22 @@ node('ibm-jenkins-slave-dind') {
             }
             writeFile file: "reports/${csvFile}", text: result.join("\n")
 
-
+            def plotCsvContent = []
             htmlReport += "<h2>${test.name}</h2>\n" +
               "<ul>\n"
-            if (test.result) {
-              if (test.result.total_time_elapse_from_server_metrics) {
-                htmlReport += "<li><strong>Test Duration<strong>: ${test.result.total_time_elapse_from_server_metrics}</li>\n"
-              }
-              if (test.result.total_cpu_time_from_server_metrics) {
-                htmlReport += "<li><strong>Total CPU Time<strong>: ${test.result.total_cpu_time_from_server_metrics}</li>\n"
-              }
-              if (test.result.total_cpu_percentage_from_server_metrics) {
-                htmlReport += "<li><strong>Average CPU %<strong>: ${test.result.total_cpu_percentage_from_server_metrics}%</li>\n"
-              }
+            if (test.result && test.result.total_cpu_percentage_from_server_metrics) {
+              htmlReport += "<li><strong>Test Duration<strong>: ${test.result.total_time_elapse_from_server_metrics}</li>\n"
+              htmlReport += "<li><strong>Total CPU Time<strong>: ${test.result.total_cpu_time_from_server_metrics}</li>\n"
+              htmlReport += "<li><strong>Average CPU %<strong>: ${test.result.total_cpu_percentage_from_server_metrics}%</li>\n"
+
+              plotCsvContent.push('"Average CPU %","Total CPU Time"')
+              plotCsvContent.push('${test.result.total_cpu_percentage_from_server_metrics},${test.result.total_cpu_time_from_server_metrics}')
             }
             htmlReport += "</ul>\n"
+
+            // write plot file
+            echo "- writing ${plotFile} ..."
+            writeFile file: "reports/${plotFile}", text: plotCsvContent.join("\n")
 
             // highcharts script to generate chart for this test
             htmlReport += "\n" +
@@ -405,6 +408,20 @@ node('ibm-jenkins-slave-dind') {
               "    title: { text: '${test.name}' },\n" +
               "    yAxis: { title: { text: 'CPU Time Delta' } }\n" +
               "  });\n"
+
+            // generate plot graph
+            plot csvFileName: 'plot-84918970-489a-4cec-ac00-b1181f145849.csv',
+              csvSeries: [[
+                displayTableFlag: false,
+                exclusionValues: '',
+                file: "reports/${plotFile}",
+                inclusionFlag: 'OFF',
+                url: ''
+              ]],
+              group: 'Performance Dashoard',
+              style: 'line',
+              title: test.name,
+              yaxis: 'CPU Time'
           }
         }
 
