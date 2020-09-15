@@ -422,29 +422,14 @@ node('ibm-jenkins-slave-dind') {
               plot csvFileName: 'plot-84918970-489a-4cec-ac00-b1181f145849.csv',
                 csvSeries: [[
                   displayTableFlag: true,
-                  exclusionValues: 'Average CPU %',
                   file: "reports/${plotFile}",
-                  inclusionFlag: 'INCLUDE_BY_STRING',
-                  url: ''
+                  inclusionFlag: 'OFF'
                 ]],
                 group: 'Performance Dashoard',
                 numBuilds: '10',
                 style: 'line',
-                title: "${test.name} - Average CPU %",
-                yaxis: 'Average CPU %'
-              plot csvFileName: 'plot-84918970-489a-4cec-ac00-b1181f145849.csv',
-                csvSeries: [[
-                  displayTableFlag: false,
-                  exclusionValues: 'Total CPU Time',
-                  file: "reports/${plotFile}",
-                  inclusionFlag: 'INCLUDE_BY_STRING',
-                  url: ''
-                ]],
-                group: 'Performance Dashoard',
-                numBuilds: '10',
-                style: 'line',
-                title: "${test.name} - Total CPU Time (s)",
-                yaxis: 'Total CPU Time (s)'
+                title: "${test.name}",
+                yaxis: 'Time (s)'
             }
           }
         }
