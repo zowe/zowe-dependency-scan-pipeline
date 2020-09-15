@@ -71,6 +71,11 @@ node('ibm-jenkins-slave-dind') {
       defaultValue: 'dist/__tests__/default/idle/',
       trim: true
     ),
+    booleanParam(
+      name: 'UPDATE_PLOTS',
+      description: 'If we should update dashboard plots.',
+      defaultValue: false
+    ),
     // >>>>>>>> parameters of artifactory
     string(
       name: 'ZMS_ARTIFACTORY_PATTERN',
@@ -391,15 +396,10 @@ node('ibm-jenkins-slave-dind') {
               htmlReport += "<li><strong>Total CPU Time<strong>: ${test.result.total_cpu_time_from_server_metrics}</li>\n"
               htmlReport += "<li><strong>Average CPU %<strong>: ${test.result.total_cpu_percentage_from_server_metrics}%</li>\n"
 
-              plotCsvContent.push('"Build","Average CPU %","Total CPU Time"')
-              plotCsvContent.push("${BUILD_NUMBER},${test.result.total_cpu_percentage_from_server_metrics},${test.result.total_cpu_time_from_server_metrics}")
+              plotCsvContent.push('"Build","Average CPU %","Total CPU Time","Duration"')
+              plotCsvContent.push("${BUILD_NUMBER},${test.result.total_cpu_percentage_from_server_metrics},${test.result.total_cpu_time_from_server_metrics},${test.result.total_time_elapse_from_server_metrics}")
             }
             htmlReport += "</ul>\n"
-
-            // write plot file
-            echo "- writing ${plotFile} ..."
-            echo plotCsvContent.join("\n")
-            writeFile file: "reports/${plotFile}", text: plotCsvContent.join("\n")
 
             // highcharts script to generate chart for this test
             htmlReport += "\n" +
@@ -412,33 +412,40 @@ node('ibm-jenkins-slave-dind') {
               "    yAxis: { title: { text: 'CPU Time Delta' } }\n" +
               "  });\n"
 
-            // generate plot graph
-            plot csvFileName: 'plot-84918970-489a-4cec-ac00-b1181f145849.csv',
-              csvSeries: [[
-                displayTableFlag: true,
-                exclusionValues: 'Average CPU %',
-                file: "reports/${plotFile}",
-                inclusionFlag: 'INCLUDE_BY_STRING',
-                url: ''
-              ]],
-              group: 'Performance Dashoard',
-              numBuilds: '10',
-              style: 'line',
-              title: "${test.name} - Average CPU %",
-              yaxis: 'Average CPU %'
-            plot csvFileName: 'plot-84918970-489a-4cec-ac00-b1181f145849.csv',
-              csvSeries: [[
-                displayTableFlag: true,
-                exclusionValues: 'Total CPU Time',
-                file: "reports/${plotFile}",
-                inclusionFlag: 'INCLUDE_BY_STRING',
-                url: ''
-              ]],
-              group: 'Performance Dashoard',
-              numBuilds: '10',
-              style: 'line',
-              title: "${test.name} - Total CPU Time",
-              yaxis: 'Total CPU Time'
+            if (params.UPDATE_PLOTS) {
+              // write plot file
+              echo "- writing ${plotFile} ..."
+              echo plotCsvContent.join("\n")
+              writeFile file: "reports/${plotFile}", text: plotCsvContent.join("\n")
+
+              // generate plot graph
+              plot csvFileName: 'plot-84918970-489a-4cec-ac00-b1181f145849.csv',
+                csvSeries: [[
+                  displayTableFlag: true,
+                  exclusionValues: 'Average CPU %',
+                  file: "reports/${plotFile}",
+                  inclusionFlag: 'INCLUDE_BY_STRING',
+                  url: ''
+                ]],
+                group: 'Performance Dashoard',
+                numBuilds: '10',
+                style: 'line',
+                title: "${test.name} - Average CPU %",
+                yaxis: 'Average CPU %'
+              plot csvFileName: 'plot-84918970-489a-4cec-ac00-b1181f145849.csv',
+                csvSeries: [[
+                  displayTableFlag: false,
+                  exclusionValues: 'Total CPU Time',
+                  file: "reports/${plotFile}",
+                  inclusionFlag: 'INCLUDE_BY_STRING',
+                  url: ''
+                ]],
+                group: 'Performance Dashoard',
+                numBuilds: '10',
+                style: 'line',
+                title: "${test.name} - Total CPU Time (s)",
+                yaxis: 'Total CPU Time (s)'
+            }
           }
         }
 

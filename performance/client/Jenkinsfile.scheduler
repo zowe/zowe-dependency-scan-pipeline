@@ -31,6 +31,7 @@ node('ibm-jenkins-slave-nvm') {
         string(name: 'TEST_PORT', value: '7554'),
         string(name: 'TEST_SCOPE', value: 'dist/__tests__/sdsf-only/idle/'),
         string(name: 'REPORT_NAME', value: 'scheduled'),
+        booleanParam(name: 'UPDATE_PLOTS', value: true),
         string(name: 'PERFORMANCE_TEST_DEBUG_INFORMATION', value: 'zowe-performance-test:*'),
         booleanParam(name: 'Skip Stage: Lint', value: true),
         booleanParam(name: 'Skip Stage: Audit', value: true),
