@@ -269,7 +269,7 @@ node('ibm-jenkins-slave-dind') {
 
 
   pipeline.createStage(
-    name: "Test Report",
+    name: "Chart Report",
     isSkippable: false,
     baseDirectory  : PROJECT_BASE_DIR,
     stage: {
@@ -390,8 +390,8 @@ node('ibm-jenkins-slave-dind') {
               htmlReport += "<li><strong>Total CPU Time<strong>: ${test.result.total_cpu_time_from_server_metrics}</li>\n"
               htmlReport += "<li><strong>Average CPU %<strong>: ${test.result.total_cpu_percentage_from_server_metrics}%</li>\n"
 
-              plotCsvContent.push('"Average CPU %","Total CPU Time"')
-              plotCsvContent.push('${test.result.total_cpu_percentage_from_server_metrics},${test.result.total_cpu_time_from_server_metrics}')
+              plotCsvContent.push('"Build","Average CPU %","Total CPU Time"')
+              plotCsvContent.push("${BUILD_NUMBER},${test.result.total_cpu_percentage_from_server_metrics},${test.result.total_cpu_time_from_server_metrics}")
             }
             htmlReport += "</ul>\n"
 
@@ -413,13 +413,14 @@ node('ibm-jenkins-slave-dind') {
             // generate plot graph
             plot csvFileName: 'plot-84918970-489a-4cec-ac00-b1181f145849.csv',
               csvSeries: [[
-                displayTableFlag: false,
-                exclusionValues: '',
+                displayTableFlag: true,
+                exclusionValues: 'Build',
                 file: "reports/${plotFile}",
-                inclusionFlag: 'OFF',
+                inclusionFlag: 'EXCLUDE_BY_STRING',
                 url: ''
               ]],
               group: 'Performance Dashoard',
+              numBuilds: '10',
               style: 'line',
               title: test.name,
               yaxis: 'CPU Time'
