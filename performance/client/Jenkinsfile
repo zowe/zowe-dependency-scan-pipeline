@@ -380,6 +380,7 @@ node('ibm-jenkins-slave-dind') {
             csvRows.each {
               result.add(it.join(","))
             }
+            echo result.join("\n")
             writeFile file: "reports/${csvFile}", text: result.join("\n")
 
             def plotCsvContent = []
@@ -397,6 +398,7 @@ node('ibm-jenkins-slave-dind') {
 
             // write plot file
             echo "- writing ${plotFile} ..."
+            echo plotCsvContent.join("\n")
             writeFile file: "reports/${plotFile}", text: plotCsvContent.join("\n")
 
             // highcharts script to generate chart for this test
