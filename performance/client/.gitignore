@@ -89,3 +89,6 @@ test/cli/zowe-cli-command-wrapper.sh
 # test temporary files
 .test-*.json
 .test-*.yaml
+
+# test report in csv format
+*.csv
