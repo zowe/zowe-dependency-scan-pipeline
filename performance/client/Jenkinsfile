@@ -271,6 +271,7 @@ node('ibm-jenkins-slave-dind') {
   pipeline.createStage(
     name: "Test Report",
     isSkippable: false,
+    baseDirectory  : PROJECT_BASE_DIR,
     stage: {
       echo "Content of reports/:"
       sh "ls -la reports/"
