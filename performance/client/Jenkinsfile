@@ -272,6 +272,8 @@ node('ibm-jenkins-slave-dind') {
     name: "Test Report",
     isSkippable: false,
     stage: {
+      echo "Content of reports/:"
+      sh "ls -la reports/"
       def reports = findFiles(glob: "reports/*.yaml")
       if (reports.length == 1) {
         reportFile = reports[0]
@@ -376,6 +378,22 @@ node('ibm-jenkins-slave-dind') {
               result.add(it.join(","))
             }
             writeFile file: "reports/${csvFile}", text: result.join("\n")
+
+
+            htmlReport += "<h2>${test.name}</h2>\n" +
+              "<ul>\n"
+            if (test.result) {
+              if (test.result.total_time_elapse_from_server_metrics) {
+                htmlReport += "<li><strong>Test Duration<strong>: ${test.result.total_time_elapse_from_server_metrics}</li>\n"
+              }
+              if (test.result.total_cpu_time_from_server_metrics) {
+                htmlReport += "<li><strong>Total CPU Time<strong>: ${test.result.total_cpu_time_from_server_metrics}</li>\n"
+              }
+              if (test.result.total_cpu_percentage_from_server_metrics) {
+                htmlReport += "<li><strong>Average CPU %<strong>: ${test.result.total_cpu_percentage_from_server_metrics}%</li>\n"
+              }
+            }
+            htmlReport += "</ul>\n"
 
             // highcharts script to generate chart for this test
             htmlReport += "\n" +
