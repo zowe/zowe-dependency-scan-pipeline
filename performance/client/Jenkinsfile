@@ -211,7 +211,7 @@ node('ibm-jenkins-slave-dind') {
             echo "Starting test ..."
             withEnv(testEnvVars) {
               ansiColor('xterm') {
-                pipeline.nvmShell("npm run test ${TEST_SCOPE}")
+                pipeline.nvmShell("npm run test ${params.TEST_SCOPE}")
               }
             } // end of withEnv
           } catch (ex) {
