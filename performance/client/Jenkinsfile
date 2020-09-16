@@ -423,7 +423,8 @@ node('ibm-jenkins-slave-dind') {
                 csvSeries: [[
                   displayTableFlag: true,
                   file: "reports/${plotFile}",
-                  inclusionFlag: 'OFF'
+                  inclusionFlag: 'INCLUDE_BY_STRING',
+                  exclusionValues: 'Average CPU %'
                 ]],
                 group: 'Performance Dashoard',
                 numBuilds: '10',
