@@ -184,10 +184,10 @@ node('ibm-jenkins-slave-dind') {
             // use SDSF metrics temporarily before RMF is configured
             // sshCommand remote: remote, command: "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax && echo \"ls -la \$(pwd):\" && ls -la"
             echo "Extracting ZMS ..."
+            //  "cp configs/sdsf-only.yaml configs/index.yaml\n" +
             sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
                "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
                "pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax\n" +
-               "cp configs/sdsf-only.yaml configs/index.yaml\n" +
                "echo \"ls -la \\\$(pwd):\"\n" +
                "ls -la\n" +
                "exit 0\n" +
