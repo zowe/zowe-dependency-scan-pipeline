@@ -37,14 +37,18 @@ metrics:
     options:
       interval: 10
       # --- optional to overwrite DEFAULT_RMF_DDS_OPTIONS
-      # RMF DDS username and password can also be passed with environment
-      # variables RMF_DDS_USERNAME and RMF_DDS_PASSWORD
       # rmfDdsOptions:
       #   protocol: http
       #   host: <your-host>
       #   port: 8803
       #   username:
       #   password:
+      # --- RMF DDS options can also be passed with environment variables
+      # - RMF_DDS_PROTOCOL
+      # - RMF_DDS_HOST
+      # - RMF_DDS_PORT
+      # - RMF_DDS_USERNAME
+      # - RMF_DDS_PASSWORD
       # --- optional to overwrite DEFAULT_RMF_DDS_METRICS
       # metrics:
       #   cpu:

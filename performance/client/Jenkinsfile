@@ -203,6 +203,7 @@ node('ibm-jenkins-slave-dind') {
                "export NODE_HOME=${TEST_SERVERS[params.TEST_SERVER]['node_home']}\n" +
                "export _BPXK_AUTOCVT=ON\n" +
                "export _CEE_RUNOPTS=\"FILETAG(AUTOCVT,AUTOTAG) POSIX(ON)\"\n" +
+               "export RMF_DDS_HOST=\"${remote.host}\"\n" +
                "export RMF_DDS_USERNAME=\"${RMF_DDS_USERNAME}\"\n" +
                "export RMF_DDS_PASSWORD=\"${RMF_DDS_PASSWORD}\"\n" +
                "nohup ./bin/start.sh &\n" +

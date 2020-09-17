@@ -10,7 +10,8 @@
 
 import got, { Options as GotOptions, Response as GotResponse } from "got";
 import { parseStringPromise } from "xml2js";
-import { 
+import {
+  HttpProtocol,
   RmfDdsOptions, PartialRmfDdsOptions,
   RmfResource, RmfMetric, RmfResourceMetrics,
   RmfPerformanceTiming, RmfPerformanceMessage, RmfPerformanceRow, RmfMetricPerformance,
@@ -29,13 +30,28 @@ export default class RmfDds {
   private _caches: {[key: string]: any} = {};
 
   constructor(options?: PartialRmfDdsOptions) {
+    const optionsFromEnv: PartialRmfDdsOptions = {};
+    if (process.env) {
+      if (process.env.RMF_DDS_USERNAME) {
+        optionsFromEnv.username = process.env.RMF_DDS_USERNAME;
+      }
+      if (process.env.RMF_DDS_PASSWORD) {
+        optionsFromEnv.password = process.env.RMF_DDS_PASSWORD;
+      }
+      if (process.env.RMF_DDS_PROTOCOL) {
+        optionsFromEnv.protocol = process.env.RMF_DDS_PROTOCOL as HttpProtocol;
+      }
+      if (process.env.RMF_DDS_HOST) {
+        optionsFromEnv.host = process.env.RMF_DDS_HOST;
+      }
+      if (process.env.RMF_DDS_PORT) {
+        optionsFromEnv.port = parseInt(process.env.RMF_DDS_PORT, 10);
+      }
+    }
     this.options = Object.assign(
       {},
       DEFAULT_RMF_DDS_OPTIONS,
-      {
-        username: process.env.RMF_DDS_USERNAME || undefined,
-        password: process.env.RMF_DDS_PASSWORD || undefined,
-      },
+      optionsFromEnv,
       options
     );
     logger.silly("initialized rmf-dds with options: %j", this.options);
