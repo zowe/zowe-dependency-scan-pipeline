@@ -243,7 +243,7 @@ node('ibm-jenkins-slave-dind') {
             echo "Shutting down ZMS ..."
             sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
                "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
-               "[ -f nohup.out ] && echo \"Output of ZMS:\" && cat nohup.out\n" +
+               "[ -f nohup.out ] && chtag -tc819 nohup.out && echo \"Output of ZMS:\" && cat nohup.out\n" +
                "ZWS_PID=\\\$(ps -elf | grep zms | grep -v grep | awk '{print \\\$2;}')\n" +
                "[ -n \"\\\$ZWS_PID\" ] && echo \"Found ZMS PID: \\\${ZWS_PID}, send kill signal\" && kill -9 \\\$ZWS_PID\n" +
                "exit 0\n" +
