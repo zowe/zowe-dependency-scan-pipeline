@@ -24,6 +24,7 @@ node('ibm-jenkins-slave-dind') {
       ssh_userpass     : 'ssh-marist-server-zzow01',
       tmp_dir          : '/ZOWE/tmp',
       zms_dir          : '/ZOWE/tmp/zms',
+      zms_credential   : 'ssh-marist-server-zzow01',
       // ZMS requires node v10+
       node_home        : '/ZOWE/node/node-v12.16.1-os390-s390x',
     ],
@@ -32,6 +33,7 @@ node('ibm-jenkins-slave-dind') {
       ssh_userpass     : 'ssh-marist-server-zzow02',
       tmp_dir          : '/ZOWE/tmp',
       zms_dir          : '/ZOWE/tmp/zms',
+      zms_credential   : 'ssh-marist-server-zzow02',
       // ZMS requires node v10+
       node_home        : '/ZOWE/node/node-v12.16.1-os390-s390x',
     ],
@@ -40,6 +42,7 @@ node('ibm-jenkins-slave-dind') {
       ssh_userpass     : 'ssh-marist-server-zzow03',
       tmp_dir          : '/ZOWE/tmp',
       zms_dir          : '/ZOWE/tmp/zms',
+      zms_credential   : 'ssh-marist-server-zzow03',
       // ZMS requires node v10+
       node_home        : '/ZOWE/node/node-v12.16.1-os390-s390x',
     ]
@@ -128,6 +131,11 @@ node('ibm-jenkins-slave-dind') {
           credentialsId: TEST_SERVERS[params.TEST_SERVER]['ssh_userpass'],
           passwordVariable: "SSH_PASSWORD",
           usernameVariable: "SSH_USER"
+        ),
+        usernamePassword(
+          credentialsId: TEST_SERVERS[params.TEST_SERVER]['zms_credential'],
+          passwordVariable: "RMF_DDS_PASSWORD",
+          usernameVariable: "RMF_DDS_USERNAME"
         )
       ]) {
         def remote = [:]
@@ -193,6 +201,8 @@ node('ibm-jenkins-slave-dind') {
                "export NODE_HOME=${TEST_SERVERS[params.TEST_SERVER]['node_home']}\n" +
                "export _BPXK_AUTOCVT=ON\n" +
                "export _CEE_RUNOPTS=\"FILETAG(AUTOCVT,AUTOTAG) POSIX(ON)\"\n" +
+               "export RMF_DDS_USERNAME=\"${RMF_DDS_USERNAME}\"\n" +
+               "export RMF_DDS_PASSWORD=\"${RMF_DDS_PASSWORD}\"\n" +
                "nohup ./bin/start.sh &\n" +
                "exit 0\n" +
                "EOF"

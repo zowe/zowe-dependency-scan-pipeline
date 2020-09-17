@@ -8,7 +8,7 @@
  * Copyright IBM Corporation 2020
  */
 
-import got from "got";
+import got, { Options as GotOptions, Response as GotResponse } from "got";
 import { parseStringPromise } from "xml2js";
 import { 
   RmfDdsOptions, PartialRmfDdsOptions,
@@ -29,7 +29,15 @@ export default class RmfDds {
   private _caches: {[key: string]: any} = {};
 
   constructor(options?: PartialRmfDdsOptions) {
-    this.options = Object.assign({}, DEFAULT_RMF_DDS_OPTIONS, options);
+    this.options = Object.assign(
+      {},
+      DEFAULT_RMF_DDS_OPTIONS,
+      {
+        username: process.env.RMF_DDS_USERNAME || undefined,
+        password: process.env.RMF_DDS_PASSWORD || undefined,
+      },
+      options
+    );
     logger.silly("initialized rmf-dds with options: %j", this.options);
 
     this.prefixUrl = `${this.options.protocol}://${this.options.host}:${this.options.port}/gpm`;
@@ -49,17 +57,22 @@ export default class RmfDds {
   // eslint-disable-next-line
   async api(endpoint: string, param?: {[key: string]: any}): Promise<any> {
     try {
-      const response = await got.get(endpoint, {
+      const reqOptions = {
         searchParams: param,
-        prefixUrl: this.prefixUrl
-      });
+        prefixUrl: this.prefixUrl,
+      } as GotOptions;
+      if (this.options.username && this.options.password) {
+        reqOptions.username = this.options.username;
+        reqOptions.password = this.options.password;
+      }
+      const response = await got.get(endpoint, reqOptions) as GotResponse;
       logger.silly("RmfDds API request on %s/%s (%j) returns: %j", this.prefixUrl, endpoint, param, response.body);
 
       const result = await parseStringPromise(response.body, {
         explicitArray: false
       });
       if (!result.ddsml) {
-        throw new Error(`Invalid response from RMF DDS server: ${response.body.substr(0, 30)} ...`);
+        throw new Error(`Invalid response from RMF DDS server: ${response.body.toString().substr(0, 30)} ...`);
       }
 
       return result.ddsml;
