@@ -103,6 +103,8 @@ export interface RmfDdsOptions {
   protocol: HttpProtocol;
   host: string;
   port: number;
+  username?: string;
+  password?: string;
   performFilter: string;
 }
 export type PartialRmfDdsOptions = Partial<RmfDdsOptions>;
