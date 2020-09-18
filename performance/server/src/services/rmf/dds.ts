@@ -51,8 +51,8 @@ export default class RmfDds {
     this.options = Object.assign(
       {},
       DEFAULT_RMF_DDS_OPTIONS,
-      optionsFromEnv,
-      options
+      options,
+      optionsFromEnv
     );
     logger.silly("initialized rmf-dds with options: %j", this.options);
 
