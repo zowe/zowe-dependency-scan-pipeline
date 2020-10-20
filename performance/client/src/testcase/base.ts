@@ -62,6 +62,11 @@ export default class BaseTestCase implements PerformanceTestCase {
   // how long this test should wait before starting nex
   public cooldown: number = DEFAULT_TEST_COOLDOWN;
 
+  // these parameters will not be added to context and saved to test report
+  protected ignoredParameters: string[] = [
+    "ignoredParameters", "serverMetricsCollector", "clientMetricsCollector"
+  ];
+
   constructor(options?: {[key: string]: unknown}) {
     Object.assign(this, options);
 
@@ -120,12 +125,9 @@ export default class BaseTestCase implements PerformanceTestCase {
 
   protected _getParameters(): {[key: string]: unknown} {
     const p: {[key: string]: unknown} = Object.create({});
-    const ignoredParameters = [
-      "serverMetricsCollector", "clientMetricsCollector"
-    ];
 
     Object.entries(this).forEach(e => {
-      if (ignoredParameters.indexOf(e[0]) === -1) {
+      if (this.ignoredParameters.indexOf(e[0]) === -1) {
         p[e[0]]=e[1];
       }
     });

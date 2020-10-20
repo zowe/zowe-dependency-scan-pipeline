@@ -9,82 +9,53 @@
  */
 
 import * as fs from "fs";
-import BaseTestCase from "./base";
+import WrkBaseTestCase from "./wrk-base";
 import PerformanceTestException from "../exceptions/performance-test-exception";
-import { parseWrkStdout } from "../utils/parse-wrk-stdout";
-import { spawnPromise } from "../utils/spawn-promise";
 import { HttpRequestMethod, HttpRequest } from "../types";
 import {
-  PERFORMANCE_TEST_RESULT_FILE,
-  PERFORMANCE_TEST_WRK_DOCKER_IMAGE,
   PERFORMANCE_TEST_WRK_LUA_SCRIPT,
   PERFORMANCE_TEST_WRK_LUA_SCRIPTS_NON_GET_REQUEST,
-  PERFORMANCE_TEST_DEBUG_CONSOLE_LOG,
   DEFAULT_HTTP_REQUEST_METHOD,
-  DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION,
-  DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY,
 } from "../constants";
 
 import Debug from 'debug';
 const debug = Debug('zowe-performance-test:wrk-testcase');
 
-export default class WrkTestCase extends BaseTestCase implements HttpRequest {
+/**
+ * This test case can handle single endpoint test by using wrk.
+ *
+ * Ref: https://github.com/wg/wrk
+ */
+export default class WrkTestCase extends WrkBaseTestCase implements HttpRequest {
   // http request method
   public method: HttpRequestMethod = DEFAULT_HTTP_REQUEST_METHOD;
   // which endpoint to test
   public endpoint: string;
-  // extra HTTP headers to help on http calls
-  public headers: string[] = [];
   // http request body
   public body = "";
 
-  // how many concurrent connections we can send to the target server
-  public concurrency = 1;
-  // timeout for the connection to target server
-  public connectionTimeout = 30;
-
-  // wrk docker image will be used
-  public dockerImage = PERFORMANCE_TEST_WRK_DOCKER_IMAGE;
-  // lua script
-  public luaScript: string;
-  // display debugging information
-  public debug = false;
-
-  constructor(options?: {[key: string]: unknown}) {
-    super(options);
-  }
+  // these parameters will not be added to context and saved to test report
+  protected ignoredParameters: string[] = [
+    "ignoredParameters", "serverMetricsCollector", "clientMetricsCollector",
+    "fullUrl", "mountPoints",
+    // we ignore this for security purpose to avoid exposing authorization headers in reports
+    "headers", "body",
+  ];
 
   protected _init(): void {
     super._init();
 
-    // these parameters are mandatory for WRK tests
-    if (!this.targetHost) {
-      throw new PerformanceTestException("Target test server host is missing");
-    }
-    if (!this.targetPort) {
-      throw new PerformanceTestException("Target test server port is missing");
-    }
+    this.fullUrl = `https://${this.targetHost}:${this.targetPort}${this.endpoint}`;
 
     if (!this.luaScript) {
       if (this.debug || this.method !== DEFAULT_HTTP_REQUEST_METHOD) {
         this.luaScript = PERFORMANCE_TEST_WRK_LUA_SCRIPTS_NON_GET_REQUEST;
       }
     }
-
-    if (this.debug) {
-      // for debugging purpose, always set to 1
-      debug(`Running in debug mode, concurrency is set to ${DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY}, duration is set to ${DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION}`);
-      this.concurrency = DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY;
-      this.duration = DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION;
-    }
   }
 
   async before(): Promise<void> {
     await super.before();
-
-    // make sure image is already pulled to local before we start test
-    await spawnPromise("docker", ["pull", this.dockerImage]);
-    debug(`Docker image ${this.dockerImage} is prepared.`)
 
     // prepare lua script
     if (fs.existsSync(PERFORMANCE_TEST_WRK_LUA_SCRIPT)) {
@@ -92,10 +63,11 @@ export default class WrkTestCase extends BaseTestCase implements HttpRequest {
     }
     if (this.luaScript) {
       this._prepareLuaScript(this.luaScript);
-    }
-
-    if (fs.existsSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG)) {
-      fs.unlinkSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG);
+      // these files must exist before we start the tests
+      if (!fs.existsSync(PERFORMANCE_TEST_WRK_LUA_SCRIPT)) {
+        throw new PerformanceTestException("Required LUA script is missing");
+      }
+      this.mountPoints['script.lua'] = PERFORMANCE_TEST_WRK_LUA_SCRIPT;
     }
   }
 
@@ -114,49 +86,5 @@ export default class WrkTestCase extends BaseTestCase implements HttpRequest {
 
     fs.writeFileSync(PERFORMANCE_TEST_WRK_LUA_SCRIPT, content);
     debug(`LUA script ${PERFORMANCE_TEST_WRK_LUA_SCRIPT} is prepared:\n${content}`);
-  }
-
-  async run(): Promise<void> {
-    const fullUrl = `https://${this.targetHost}:${this.targetPort}${this.endpoint}`;
-    const headersWithOption: string[] = [];
-    this.headers.forEach(header => {
-      headersWithOption.push("--header");
-      headersWithOption.push(header);
-    });
-
-    const dockerArgs = ["run", "--rm"];
-    const wrkArgs = [
-      "--duration",
-      "" + this.duration + "s",
-      "--threads",
-      "" + this.concurrency,
-      "--connections",
-      "" + this.concurrency,
-      ...headersWithOption,
-      "--latency",
-      "--timeout",
-      "" + this.connectionTimeout + "s",
-    ];
-    if (this.luaScript) {
-      dockerArgs.push("-v");
-      dockerArgs.push(`${PERFORMANCE_TEST_WRK_LUA_SCRIPT}:/data/script.lua`);
-      wrkArgs.push("--script");
-      wrkArgs.push("/data/script.lua");
-    }
-    const cmdArgs = [...dockerArgs, this.dockerImage, ...wrkArgs, fullUrl];
-    debug(`WRK command: docker ${cmdArgs.join(" ")}`);
-    const { stdout, stderr } = await spawnPromise("docker", cmdArgs);
-    debug(`WRK test stdout:\n${stdout}`);
-    debug(`WRK test stderr:\n${stderr}`);
-    if (this.debug) {
-      fs.writeFileSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG, `==================== stdout ====================\n${stdout}\n\n==================== stderr ====================\n${stderr}`);
-    }
-    if (stderr) {
-      throw new PerformanceTestException(`Wrk test failed: ${stderr}`);
-    }
-    const result = parseWrkStdout(stdout);
-    debug("WRK test result:\n", result);
-
-    fs.writeFileSync(PERFORMANCE_TEST_RESULT_FILE, JSON.stringify(result));
   }
 }

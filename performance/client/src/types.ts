@@ -138,3 +138,19 @@ export interface WeightedHttpRequest extends HttpRequest {
   // weight for this http request
   weight?: number;
 }
+export interface WrkHttpRequest {
+  // http request method
+  method?: HttpRequestMethod;
+  // which endpoint to test
+  endpoint: string;
+  // extra HTTP headers to help on http calls
+  // for wrk, this is key/value pairs
+  headers?: {[key: string]: string};
+  // http request body
+  body?: string;
+}
+
+export interface WeightedWrkHttpRequest extends WrkHttpRequest {
+  // weight for this http request
+  weight?: number;
+}
