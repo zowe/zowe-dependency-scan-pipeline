@@ -36,15 +36,17 @@ class ExampleWrkSequentialEndpointsTest extends WrkSequentialEndpointsTestCase {
       headers  : [
         "Content-Type: application/json",
       ],
-      sequence   : 0,
+      sequence : 0,
+    },
+    {
+      // wait for few seconds before sending this request
+      delay    : [100, 500],
+      endpoint : "/api/v1/datasets/SYS1.PARMLIB",
+      sequence : 10,
     },
     {
       endpoint : "/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content",
-      sequence   : 20,
-    },
-    {
-      endpoint : "/api/v1/datasets/SYS1.PARMLIB",
-      sequence   : 10,
+      sequence : 20,
     },
   ] as SequentialHttpRequest[];
 

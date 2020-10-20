@@ -67,6 +67,27 @@ end
 function init(args)
   -- pointer should be per thread
   pointer  = 1
+  -- requests counter
+  requests = 1
+end
+
+function delay()
+  local selected_request = endpoints[pointer]
+  local ms = 0
+
+  if selected_request.delay ~= nil then
+    if selected_request.delay[1] == selected_request.delay[2] then
+      ms = selected_request.delay[1]
+    else
+      ms = math.random(selected_request.delay[1], selected_request.delay[2])
+    end
+  end
+
+  if ms > 0 then
+    io.write("[debug][thread#" .. id .. "] wait for " .. ms .. "ms\n")
+  end
+
+  return ms
 end
 
 -- handle wrk request, process endpoints one by one
@@ -111,6 +132,12 @@ function request()
   -- move pointer to next request
   pointer = pointer + 1
   if pointer > #endpoints then
+    pointer = 1
+  end
+  requests = requests + 1
+
+  -- wrk will create a dummy request at the beginning, this will ignore it
+  if requests == 2 then
     pointer = 1
   end
 

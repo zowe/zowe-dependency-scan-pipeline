@@ -98,6 +98,7 @@ export default class WrkSequentialEndpointsTestCase extends WrkBaseTestCase {
         method: endpoint.method || DEFAULT_HTTP_REQUEST_METHOD,
         body: endpoint.body || "",
         sequence: endpoint.sequence || 0,
+        delay: endpoint.delay || [0, 0],
         headers: {},
       };
       // convert headers to key/value pairs

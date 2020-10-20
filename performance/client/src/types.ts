@@ -142,6 +142,9 @@ export interface WeightedHttpRequest extends HttpRequest {
 export interface SequentialHttpRequest extends HttpRequest {
   // sequence for this http request
   sequence?: number;
+  // how many milliseconds to delay before next request
+  // 2 numbers represent minimum and maximum time period
+  delay?: [number, number];
 }
 export interface WrkHttpRequest {
   // http request method
@@ -163,4 +166,7 @@ export interface WeightedWrkHttpRequest extends WrkHttpRequest {
 export interface SequentialWrkHttpRequest extends WrkHttpRequest {
   // sequence for this http request
   sequence?: number;
+  // how many milliseconds to delay before next request
+  // 2 numbers represent minimum and maximum time period
+  delay?: [number, number];
 }
