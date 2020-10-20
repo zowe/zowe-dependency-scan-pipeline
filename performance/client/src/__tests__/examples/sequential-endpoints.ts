@@ -8,24 +8,47 @@
  * Copyright IBM Corporation 2020
  */
 
-import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
-import { SDSF_ONLY_ZMS_CPUTIME_METRICS, SDSF_ONLY_ZMS_METRICS } from "../../../constants";
+import WrkSequentialEndpointsTestCase from "../../testcase/wrk-sequential-endpoints";
+import { SequentialHttpRequest } from "../../types";
+import { getBasicAuthorizationHeader } from "../../utils";
 
-class ExplorerApiDatasetContentTest extends WrkTestCase {
+class ExampleWrkSequentialEndpointsTest extends WrkSequentialEndpointsTestCase {
   // name/purpose of the test
-  name = "Test explorer data sets api endpoint /datasets/{ds}/content";
-
+  name = "Test multiple endpoints at same time";
+ 
   // fetch Zowe instance version information
   // this can be turned on if TARGET_PORT is Zowe APIML Gateway port
   fetchZoweVersions = true;
-
+ 
   // example: 15 minutes
   duration = 15 * 60;
   // duration = 30 ;
-
-  // endpoint we want to test
-  endpoint = '/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content';
+ 
+  // this will start multiple threads and each thread will pick an endpoint from the list in sequence
+  concurrency = 10;
+ 
+  // endpoints we want to test
+  endpoints = [
+    {
+      endpoint : "/api/v1/gateway/auth/login",
+      method   : "POST",
+      body     : `{"username":"${process.env.TEST_AUTH_USER}","password":"${process.env.TEST_AUTH_PASSWORD}"}`,
+      headers  : [
+        "Content-Type: application/json",
+      ],
+      sequence : 0,
+    },
+    {
+      // wait for few seconds before sending this request
+      delay    : [100, 500],
+      endpoint : "/api/v1/datasets/SYS1.PARMLIB",
+      sequence : 10,
+    },
+    {
+      endpoint : "/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content",
+      sequence : 20,
+    },
+  ] as SequentialHttpRequest[];
 
   // enable debug mode?
   // Enabling debug mode will log every request/response sent to or received from
@@ -39,28 +62,17 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
 
   // overwrite cooldown time for debugging purpose
   // cooldown = 0;
-
-  // example to overwrite default collector options
-
-  // collect SDSF metrics
-  serverMetricsCollectorOptions = {
-    metrics: SDSF_ONLY_ZMS_METRICS,
-    cputimeMetrics: SDSF_ONLY_ZMS_CPUTIME_METRICS,
-  };
-
-  // example to overwrite default collector options
-  // clientMetricsCollectorOptions = {};
-
+ 
   // we can add customized headers
   // headers = ["X-Special-Header: value"];
 
   async before(): Promise<void> {
     await super.before();
-
+ 
     // this test requires authentication header
     this.headers.push(getBasicAuthorizationHeader());
   }
 }
 
 // init test case
-new ExplorerApiDatasetContentTest().init();
+new ExampleWrkSequentialEndpointsTest().init();

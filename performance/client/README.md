@@ -203,8 +203,9 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // Enabling debug mode will log every request/response sent to or received from
   // the target server. If this is true, these properties will be automatically
   // reset to these values to avoid excessive logs:
-  // - duration: 2
-  // - concurrency: 1
+  // - duration: DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION
+  // - concurrency: DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY
+  // - threads: DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY
   // Enabling debug mode will also show the log in test report as `consoleLog`.
   debug = true;
 
