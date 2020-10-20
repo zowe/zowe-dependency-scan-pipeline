@@ -33,6 +33,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // reset to these values to avoid excessive logs:
   // - duration: DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION
   // - concurrency: DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY
+  // - threads: DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY
   // Enabling debug mode will also show the log in test report as `consoleLog`.
   // debug = true;
 

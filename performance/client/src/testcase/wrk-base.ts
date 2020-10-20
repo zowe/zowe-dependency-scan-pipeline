@@ -36,6 +36,9 @@ export default class WrkBaseTestCase extends BaseTestCase {
 
   // wrk docker image will be used
   public dockerImage = PERFORMANCE_TEST_WRK_DOCKER_IMAGE;
+  // how many threads wrk should use
+  // usually threads should match the cpu count
+  public threads = 1;
   // full url will pass to wrk
   public fullUrl: string;
   // lua script
@@ -71,8 +74,10 @@ export default class WrkBaseTestCase extends BaseTestCase {
 
     if (this.debug) {
       // for debugging purpose, always set to 1
-      debug(`Running in debug mode, concurrency is set to ${DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY}, duration is set to ${DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION}`);
+      debug(`Running in debug mode, concurrency/threads are set to ${DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY}, duration is set to ${DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION}`);
       this.concurrency = DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY;
+      // we assume DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY shouldn't be too big, usually it should be 1
+      this.threads = DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY;
       this.duration = DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION;
     }
   }
@@ -101,7 +106,7 @@ export default class WrkBaseTestCase extends BaseTestCase {
       "--duration",
       "" + this.duration + "s",
       "--threads",
-      "" + this.concurrency,
+      "" + this.threads,
       "--connections",
       "" + this.concurrency,
       ...headersWithOption,
