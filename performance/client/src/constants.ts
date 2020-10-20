@@ -34,7 +34,7 @@ export const PERFORMANCE_TEST_CONTEXT_FILE = path.resolve(PERFORMANCE_TEST_TMP_D
 export const PERFORMANCE_TEST_METRICS_ZMS_FILE = path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-metrics-zms.yaml");
 export const PERFORMANCE_TEST_METRICS_CLIENT_FILE = path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-metrics-client.yaml");
 export const PERFORMANCE_TEST_WRK_LUA_SCRIPT = path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-wrk-script.lua");
-export const PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON = path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-endpoints.json");
+export const PERFORMANCE_TEST_WRK_ENDPOINTS_JSON = path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-endpoints.json");
 export const PERFORMANCE_TEST_DEBUG_CONSOLE_LOG= path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-console-debug.log");
 
 export const DEFAULT_CLIENT_METRICS: ClientMetrics[] = [

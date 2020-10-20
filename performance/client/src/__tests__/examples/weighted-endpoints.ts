@@ -23,6 +23,9 @@ class ExampleWrkWeightedEndpointsTest extends WrkWeightedEndpointsTestCase {
   // example: 15 minutes
   duration = 15 * 60;
   // duration = 30 ;
+
+  // this will start multiple threads and each thread will pick randomly an endpoint from the list
+  concurrency = 10;
  
   // endpoints we want to test
   endpoints = [

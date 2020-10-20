@@ -16,7 +16,7 @@ import {
   PERFORMANCE_TEST_WRK_LUA_SCRIPT,
   PERFORMANCE_TEST_WRK_LUA_SCRIPTS_WEIGHTED_ENDPOINTS,
   PERFORMANCE_TEST_WRK_LUA_SCRIPTS_JSON_LIB,
-  PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON,
+  PERFORMANCE_TEST_WRK_ENDPOINTS_JSON,
   DEFAULT_HTTP_REQUEST_METHOD,
 } from "../constants";
 
@@ -53,8 +53,8 @@ export default class WrkWeightedEndpointsTestCase extends WrkBaseTestCase {
     if (fs.existsSync(PERFORMANCE_TEST_WRK_LUA_SCRIPT)) {
       fs.unlinkSync(PERFORMANCE_TEST_WRK_LUA_SCRIPT);
     }
-    if (fs.existsSync(PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON)) {
-      fs.unlinkSync(PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON);
+    if (fs.existsSync(PERFORMANCE_TEST_WRK_ENDPOINTS_JSON)) {
+      fs.unlinkSync(PERFORMANCE_TEST_WRK_ENDPOINTS_JSON);
     }
     this._prepareLuaScript(this.luaScript);
     this._prepareWeightedEndpointsJson(this.endpoints);
@@ -68,10 +68,10 @@ export default class WrkWeightedEndpointsTestCase extends WrkBaseTestCase {
       throw new PerformanceTestException("Required LUA JSON lib is missing");
     }
     this.mountPoints['JSON.lua'] = PERFORMANCE_TEST_WRK_LUA_SCRIPTS_JSON_LIB;
-    if (!fs.existsSync(PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON)) {
+    if (!fs.existsSync(PERFORMANCE_TEST_WRK_ENDPOINTS_JSON)) {
       throw new PerformanceTestException("Required endpoints JSON file is missing");
     }
-    this.mountPoints['endpoints.json'] = PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON;
+    this.mountPoints['endpoints.json'] = PERFORMANCE_TEST_WRK_ENDPOINTS_JSON;
   }
 
   private _prepareLuaScript(script: string): void {
@@ -80,7 +80,6 @@ export default class WrkWeightedEndpointsTestCase extends WrkBaseTestCase {
     // replace possible macros
     const macros: {[key: string]: string} = {
       debug: JSON.stringify(this.debug),
-      "weighted_endpoints_json": PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON,
     };
     Object.keys(macros).forEach(k => {
       content = content.replace(`{{${k}}}`, macros[k]);
@@ -113,7 +112,7 @@ export default class WrkWeightedEndpointsTestCase extends WrkBaseTestCase {
     }
     const content = JSON.stringify(contentJson);
 
-    fs.writeFileSync(PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON, content);
-    debug(`Weighted endpoints JSON ${PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON} is prepared:\n${content}`);
+    fs.writeFileSync(PERFORMANCE_TEST_WRK_ENDPOINTS_JSON, content);
+    debug(`Weighted endpoints JSON ${PERFORMANCE_TEST_WRK_ENDPOINTS_JSON} is prepared:\n${content}`);
   }
 }

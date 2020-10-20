@@ -82,6 +82,10 @@ if not file_exists(json_file) then
 end
 local endpoints_text = read_file_content(json_file)
 local endpoints = JSON:decode(endpoints_text)
+if #endpoints <= 0 then
+  io.stderr:write("Error: no paths found in " .. json_file .. "\n")
+  os.exit()
+end
 local total_weight = calculate_total_weight(endpoints)
 if debug then
   io.write("[debug]------------------------------\n")
