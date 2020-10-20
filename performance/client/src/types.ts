@@ -122,3 +122,19 @@ export type PerformanceTestReport = {
 };
 
 export type HttpRequestMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS" | "HEAD";
+
+export interface HttpRequest {
+  // http request method
+  method?: HttpRequestMethod;
+  // which endpoint to test
+  endpoint: string;
+  // extra HTTP headers to help on http calls
+  headers?: string[];
+  // http request body
+  body?: string;
+}
+
+export interface WeightedHttpRequest extends HttpRequest {
+  // weight for this http request
+  weight?: number;
+}

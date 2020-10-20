@@ -14,7 +14,7 @@ wrk.method = {{method}}
 wrk.body   = {{body}}
 
 if debug then
-  io.write("[debug]------------------------------\n")
+  io.write("[debug]>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n")
   io.write("[debug][request] " .. wrk.method .. " " .. wrk.scheme .. "://" .. wrk.host .. ":" .. wrk.port .. wrk.path .. "\n")
   io.write("[debug][request] Headers:\n")
   for key, value in pairs(wrk.headers) do
@@ -25,7 +25,7 @@ end
 
 response = function (status, headers, body)
   if debug then
-    io.write("[debug]------------------------------\n")
+    io.write("[debug]<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n")
     io.write("[debug][response] Status: " .. status .. "\n")
 
     io.write("[debug][response] Headers:\n")

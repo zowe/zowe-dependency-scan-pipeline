@@ -13,12 +13,16 @@ import BaseTestCase from "./base";
 import PerformanceTestException from "../exceptions/performance-test-exception";
 import { parseWrkStdout } from "../utils/parse-wrk-stdout";
 import { spawnPromise } from "../utils/spawn-promise";
-import { HttpRequestMethod, HttpRequest } from "../types";
+import {
+  WeightedHttpRequest,
+} from "../types";
 import {
   PERFORMANCE_TEST_RESULT_FILE,
   PERFORMANCE_TEST_WRK_DOCKER_IMAGE,
   PERFORMANCE_TEST_WRK_LUA_SCRIPT,
-  PERFORMANCE_TEST_WRK_LUA_SCRIPTS_NON_GET_REQUEST,
+  PERFORMANCE_TEST_WRK_LUA_SCRIPTS_WEIGHTED_ENDPOINTS,
+  PERFORMANCE_TEST_WRK_LUA_SCRIPTS_JSON_LIB,
+  PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON,
   PERFORMANCE_TEST_DEBUG_CONSOLE_LOG,
   DEFAULT_HTTP_REQUEST_METHOD,
   DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION,
@@ -26,17 +30,14 @@ import {
 } from "../constants";
 
 import Debug from 'debug';
-const debug = Debug('zowe-performance-test:wrk-testcase');
+const debug = Debug('zowe-performance-test:wrk-weighted-endpoints-testcase');
 
-export default class WrkTestCase extends BaseTestCase implements HttpRequest {
-  // http request method
-  public method: HttpRequestMethod = DEFAULT_HTTP_REQUEST_METHOD;
-  // which endpoint to test
-  public endpoint: string;
+export default class WrkWeightedEndpointsTestCase extends BaseTestCase {
+  // all endpoints we want to test
+  public endpoints: WeightedHttpRequest[];
   // extra HTTP headers to help on http calls
+  // these headers will be added to all endpoints
   public headers: string[] = [];
-  // http request body
-  public body = "";
 
   // how many concurrent connections we can send to the target server
   public concurrency = 1;
@@ -46,7 +47,7 @@ export default class WrkTestCase extends BaseTestCase implements HttpRequest {
   // wrk docker image will be used
   public dockerImage = PERFORMANCE_TEST_WRK_DOCKER_IMAGE;
   // lua script
-  public luaScript: string;
+  public luaScript = PERFORMANCE_TEST_WRK_LUA_SCRIPTS_WEIGHTED_ENDPOINTS;
   // display debugging information
   public debug = false;
 
@@ -64,11 +65,8 @@ export default class WrkTestCase extends BaseTestCase implements HttpRequest {
     if (!this.targetPort) {
       throw new PerformanceTestException("Target test server port is missing");
     }
-
-    if (!this.luaScript) {
-      if (this.debug || this.method !== DEFAULT_HTTP_REQUEST_METHOD) {
-        this.luaScript = PERFORMANCE_TEST_WRK_LUA_SCRIPTS_NON_GET_REQUEST;
-      }
+    if (!this.endpoints || this.endpoints.length === 0) {
+      throw new PerformanceTestException("Test endpoints are missing");
     }
 
     if (this.debug) {
@@ -86,16 +84,29 @@ export default class WrkTestCase extends BaseTestCase implements HttpRequest {
     await spawnPromise("docker", ["pull", this.dockerImage]);
     debug(`Docker image ${this.dockerImage} is prepared.`)
 
-    // prepare lua script
+    // prepare lua script & endpoints json
     if (fs.existsSync(PERFORMANCE_TEST_WRK_LUA_SCRIPT)) {
       fs.unlinkSync(PERFORMANCE_TEST_WRK_LUA_SCRIPT);
     }
-    if (this.luaScript) {
-      this._prepareLuaScript(this.luaScript);
+    if (fs.existsSync(PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON)) {
+      fs.unlinkSync(PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON);
     }
+    this._prepareLuaScript(this.luaScript);
+    this._prepareWeightedEndpointsJson(this.endpoints);
 
     if (fs.existsSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG)) {
       fs.unlinkSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG);
+    }
+
+    // these files must exist before we start the tests
+    if (!fs.existsSync(PERFORMANCE_TEST_WRK_LUA_SCRIPT)) {
+      throw new PerformanceTestException("Required LUA script is missing");
+    }
+    if (!fs.existsSync(PERFORMANCE_TEST_WRK_LUA_SCRIPTS_JSON_LIB)) {
+      throw new PerformanceTestException("Required LUA JSON lib is missing");
+    }
+    if (!fs.existsSync(PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON)) {
+      throw new PerformanceTestException("Required endpoints JSON file is missing");
     }
   }
 
@@ -104,9 +115,8 @@ export default class WrkTestCase extends BaseTestCase implements HttpRequest {
 
     // replace possible macros
     const macros: {[key: string]: string} = {
-      body: JSON.stringify(this.body ? this.body.toString() : ""),
-      method: JSON.stringify(this.method ? this.method.toString() : ""),
       debug: JSON.stringify(this.debug),
+      "weighted_endpoints_json": PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON,
     };
     Object.keys(macros).forEach(k => {
       content = content.replace(`{{${k}}}`, macros[k]);
@@ -116,8 +126,35 @@ export default class WrkTestCase extends BaseTestCase implements HttpRequest {
     debug(`LUA script ${PERFORMANCE_TEST_WRK_LUA_SCRIPT} is prepared:\n${content}`);
   }
 
+  private _prepareWeightedEndpointsJson(endpoints: WeightedHttpRequest[]): void {
+    const contentJson = [];
+    // we need to convert headers string to key/value pairs
+    for (const endpoint of endpoints) {
+      const convertedEndpoint: {[key: string]: unknown} = {
+        endpoint: endpoint.endpoint,
+        method: endpoint.method || DEFAULT_HTTP_REQUEST_METHOD,
+        body: endpoint.body || "",
+        weight: endpoint.weight || 0,
+        headers: {},
+      };
+      // convert headers to key/value pairs
+      for (const header of endpoint.headers || []) {
+        const indexOfSemiColon = header.indexOf(":");
+        if (indexOfSemiColon > -1) {
+          convertedEndpoint.headers[header.substr(0, indexOfSemiColon)] = header.substr(indexOfSemiColon + 1).trim();
+        }
+      }
+
+      contentJson.push(convertedEndpoint);
+    }
+    const content = JSON.stringify(contentJson);
+
+    fs.writeFileSync(PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON, content);
+    debug(`Weighted endpoints JSON ${PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON} is prepared:\n${content}`);
+  }
+
   async run(): Promise<void> {
-    const fullUrl = `https://${this.targetHost}:${this.targetPort}${this.endpoint}`;
+    const fullUrl = `https://${this.targetHost}:${this.targetPort}`;
     const headersWithOption: string[] = [];
     this.headers.forEach(header => {
       headersWithOption.push("--header");
@@ -137,12 +174,15 @@ export default class WrkTestCase extends BaseTestCase implements HttpRequest {
       "--timeout",
       "" + this.connectionTimeout + "s",
     ];
-    if (this.luaScript) {
-      dockerArgs.push("-v");
-      dockerArgs.push(`${PERFORMANCE_TEST_WRK_LUA_SCRIPT}:/data/script.lua`);
-      wrkArgs.push("--script");
-      wrkArgs.push("/data/script.lua");
-    }
+    dockerArgs.push("-v");
+    dockerArgs.push(`${PERFORMANCE_TEST_WRK_LUA_SCRIPT}:/data/script.lua`);
+    dockerArgs.push("-v");
+    dockerArgs.push(`${PERFORMANCE_TEST_WRK_LUA_SCRIPTS_JSON_LIB}:/data/JSON.lua`);
+    dockerArgs.push("-v");
+    dockerArgs.push(`${PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON}:/data/endpoints.json`);
+    wrkArgs.push("--script");
+    wrkArgs.push("/data/script.lua");
+
     const cmdArgs = [...dockerArgs, this.dockerImage, ...wrkArgs, fullUrl];
     debug(`WRK command: docker ${cmdArgs.join(" ")}`);
     const { stdout, stderr } = await spawnPromise("docker", cmdArgs);

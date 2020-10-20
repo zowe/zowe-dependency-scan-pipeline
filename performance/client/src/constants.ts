@@ -15,10 +15,14 @@ import {
   HttpRequestMethod,
 } from "./types";
 
+export const PERFORMANCE_TEST_WRK_DOCKER_IMAGE = "williamyeh/wrk";
+
 export const PERFORMANCE_TEST_ROOT_DIR = path.resolve(__dirname, "..");
 export const PERFORMANCE_TEST_TMP_DIR = path.resolve(PERFORMANCE_TEST_ROOT_DIR, ".tmp");
 export const PERFORMANCE_TEST_WRK_LUA_SCRIPTS_DIR = path.resolve(PERFORMANCE_TEST_ROOT_DIR, "src", "wrk-lua-scripts");
 export const PERFORMANCE_TEST_WRK_LUA_SCRIPTS_NON_GET_REQUEST = path.resolve(PERFORMANCE_TEST_WRK_LUA_SCRIPTS_DIR, "non-get-request.lua");
+export const PERFORMANCE_TEST_WRK_LUA_SCRIPTS_WEIGHTED_ENDPOINTS = path.resolve(PERFORMANCE_TEST_WRK_LUA_SCRIPTS_DIR, "weighted-endpoints.lua");
+export const PERFORMANCE_TEST_WRK_LUA_SCRIPTS_JSON_LIB = path.resolve(PERFORMANCE_TEST_WRK_LUA_SCRIPTS_DIR, "JSON.lua");
 
 export const DEFAULT_PERFORMANCE_TEST_REPORTS_OPTIONS: PerformanceTestReporterOptions = {
   format: 'json',
@@ -30,6 +34,7 @@ export const PERFORMANCE_TEST_CONTEXT_FILE = path.resolve(PERFORMANCE_TEST_TMP_D
 export const PERFORMANCE_TEST_METRICS_ZMS_FILE = path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-metrics-zms.yaml");
 export const PERFORMANCE_TEST_METRICS_CLIENT_FILE = path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-metrics-client.yaml");
 export const PERFORMANCE_TEST_WRK_LUA_SCRIPT = path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-wrk-script.lua");
+export const PERFORMANCE_TEST_WRK_WEIGHTED_ENDPOINTS_JSON = path.resolve(PERFORMANCE_TEST_TMP_DIR, "weighted-endpoints.json");
 export const PERFORMANCE_TEST_DEBUG_CONSOLE_LOG= path.resolve(PERFORMANCE_TEST_TMP_DIR, "test-console-debug.log");
 
 export const DEFAULT_CLIENT_METRICS: ClientMetrics[] = [
@@ -42,7 +47,7 @@ export const DEFAULT_PERFORMANCE_TEST_TIMEOUT = 86400 * 1000;
 // default test concurrency if enable debug mode
 export const DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY = 1;
 // default test duration if enable debug mode
-export const DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION = 2;
+export const DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION = 5;
 
 // default target port is Zowe APIML Gateway default port
 export const DEFAULT_TARGET_PORT = 7554;

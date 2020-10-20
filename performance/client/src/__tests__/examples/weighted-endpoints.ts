@@ -8,23 +8,41 @@
  * Copyright IBM Corporation 2020
  */
 
-import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import WrkWeightedEndpointsTestCase from "../../testcase/wrk-weighted-endpoints";
+import { WeightedHttpRequest } from "../../types";
+import { getBasicAuthorizationHeader } from "../../utils";
 
-class ExplorerApiDatasetContentTest extends WrkTestCase {
+class ExampleWrkWeightedEndpointsTest extends WrkWeightedEndpointsTestCase {
   // name/purpose of the test
-  name = "Test explorer data sets api endpoint /datasets/{ds}/content";
-
+  name = "Test multiple endpoints at same time";
+ 
   // fetch Zowe instance version information
   // this can be turned on if TARGET_PORT is Zowe APIML Gateway port
   fetchZoweVersions = true;
-
+ 
   // example: 15 minutes
   duration = 15 * 60;
   // duration = 30 ;
-
-  // endpoint we want to test
-  endpoint = '/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content';
+ 
+  // endpoints we want to test
+  endpoints = [
+    {
+      endpoint : "/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content",
+      // weight can be 0 (zero) which will make this endpoint not possible to be selected
+      weight   : 1,
+    },
+    {
+      endpoint : "/api/v1/gateway/auth/login",
+      method   : "POST",
+      body     : `{"username":"${process.env.TEST_AUTH_USER}","password":"${process.env.TEST_AUTH_PASSWORD}"}`,
+      headers  : [
+        "Content-Type: application/json",
+        // overwrite Authorization provided globally
+        "Authorization:",
+      ],
+      weight   : 3,
+    },
+  ] as WeightedHttpRequest[];
 
   // enable debug mode?
   // Enabling debug mode will log every request/response sent to or received from
@@ -37,39 +55,17 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
 
   // overwrite cooldown time for debugging purpose
   // cooldown = 0;
-
-  // example to overwrite default collector options
-  // serverMetricsCollectorOptions = {
-  //   // interval 0 will disable server side metrics collecting
-  //   interval: 0,
-
-  //   // example to define customized metrics
-  //   metrics: [
-  //     // my special metrics
-  //     "my-special-metric-a", "my-special-metric-b",
-  //     // example to collect CPU time for processes matching "MY*"
-  //     // this is regular expression, please be aware of the special escape characters
-  //     "cpu\\{source=\"rmf.dds\",item=\"MY.*\".+\\}",
-  //   ],
-  //   // also customize what metrics will be used for cpu time calculation
-  //   cputimeMetrics: [
-  //     "cpu\\{source=\"rmf.dds\",item=\"MY.*\".+\\}",
-  //   ],
-  // };
-
-  // example to overwrite default collector options
-  // clientMetricsCollectorOptions = {};
-
+ 
   // we can add customized headers
   // headers = ["X-Special-Header: value"];
 
   async before(): Promise<void> {
     await super.before();
-
+ 
     // this test requires authentication header
     this.headers.push(getBasicAuthorizationHeader());
   }
 }
 
 // init test case
-new ExplorerApiDatasetContentTest().init();
+new ExampleWrkWeightedEndpointsTest().init();
