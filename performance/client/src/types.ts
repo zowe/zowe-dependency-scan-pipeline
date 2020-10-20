@@ -138,6 +138,11 @@ export interface WeightedHttpRequest extends HttpRequest {
   // weight for this http request
   weight?: number;
 }
+
+export interface SequentialHttpRequest extends HttpRequest {
+  // sequence for this http request
+  sequence?: number;
+}
 export interface WrkHttpRequest {
   // http request method
   method?: HttpRequestMethod;
@@ -153,4 +158,9 @@ export interface WrkHttpRequest {
 export interface WeightedWrkHttpRequest extends WrkHttpRequest {
   // weight for this http request
   weight?: number;
+}
+
+export interface SequentialWrkHttpRequest extends WrkHttpRequest {
+  // sequence for this http request
+  sequence?: number;
 }
