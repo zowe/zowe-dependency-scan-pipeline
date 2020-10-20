@@ -49,8 +49,46 @@ function calculate_total_weight(endpoints)
   return total_weight
 end
 
+function convert_to_wrk_requests(endpoints, total_weight)
+  local wrk_requests = {}
+
+  for index, http_request in ipairs(endpoints) do
+    local wrk_request = {
+      path = "/",
+      method = "GET",
+      headers = {},
+      body = nil,
+      weight = 0
+    }
+    if http_request.endpoint ~= nil then
+      wrk_request.path = http_request.endpoint
+    end
+    if http_request.method ~= nil then
+      wrk_request.method = http_request.method
+    end
+    for key, value in pairs(wrk.headers) do
+      wrk_request.headers[key] = value
+    end
+    if http_request.headers ~= nil and type(http_request.headers) == "table" then
+      for key, value in pairs(http_request.headers) do
+        wrk_request.headers[key] = value
+      end
+    end
+    if http_request.body ~= nil then
+      wrk_request.body = http_request.body
+    end
+    if http_request.weight ~= nil then
+      wrk_request.weight = http_request.weight / total_weight
+    end
+
+    wrk_requests[#wrk_requests + 1] = wrk_request
+  end
+
+  return wrk_requests
+end
+
 -- randomly select a http request based on the weight defined for each request
-function select_http_request(endpoints, total_weight)
+function select_http_request(wrk_requests)
   local chance = math.random()
   if debug then
     io.write("[debug][random] " .. chance .. "\n")
@@ -58,18 +96,14 @@ function select_http_request(endpoints, total_weight)
 
   local selected_request
   local range_low = 0
-  for index, http_request in ipairs(endpoints) do
-    local current_weight = 0
-    if http_request.weight ~= nil then
-      current_weight = http_request.weight / total_weight
-    end
-    local range_high = range_low + current_weight
+  for index, wrk_request in ipairs(wrk_requests) do
+    local range_high = range_low + wrk_request.weight
     if chance >= range_low and chance < range_high then
-      selected_request = http_request
+      selected_request = wrk_request
       break
     end
   
-    range_low = range_low + current_weight
+    range_low = range_high
   end
 
   return selected_request
@@ -92,50 +126,27 @@ if debug then
   io.write("[debug] total endpoints: " .. #endpoints .. "\n")
   io.write("[debug]    total weight: " .. total_weight .. "\n")
 end
+-- convert to wrk requests before start
+local wrk_requests = convert_to_wrk_requests(endpoints, total_weight)
 
 -- handle wrk request, use randomly selected one
-request = function()
+function request()
   if debug then
     io.write("[debug]>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n")
   end
 
-  local selected_request = select_http_request(endpoints, total_weight)
-
-  local path = "/"
-  if selected_request.endpoint ~= nil then
-    path = selected_request.endpoint
-  end
-
-  local method = "GET"
-  if selected_request.method ~= nil then
-    method = selected_request.method
-  end
-
-  local headers = {}
-  for key, value in pairs(wrk.headers) do
-    headers[key] = value
-  end
-  if selected_request.headers ~= nil and type(selected_request.headers) == "table" then
-    for key, value in pairs(selected_request.headers) do
-      headers[key] = value
-    end
-  end
-
-  local body = ""
-  if selected_request.body ~= nil then
-    body = selected_request.body
-  end
+  local selected_request = select_http_request(wrk_requests)
 
   if debug then
-    io.write("[debug][request] " .. method .. " " .. wrk.scheme .. "://" .. wrk.host .. ":" .. wrk.port .. path .. "\n")
+    io.write("[debug][request] " .. selected_request.method .. " " .. wrk.scheme .. "://" .. wrk.host .. ":" .. wrk.port .. selected_request.path .. "\n")
     io.write("[debug][request] Headers:\n")
-    for key, value in pairs(headers) do
+    for key, value in pairs(selected_request.headers) do
       io.write("[debug][request]  - " .. key  .. ": " .. value .. "\n")
     end
-    io.write("[debug][request] Body: " .. body .. "\n")
+    io.write("[debug][request] Body: " .. selected_request.body .. "\n")
   end
 
-  return wrk.format(method, path, headers, body)
+  return wrk.format(selected_request.method, selected_request.path, selected_request.headers, selected_request.body)
 end
 
 -- debug http response
