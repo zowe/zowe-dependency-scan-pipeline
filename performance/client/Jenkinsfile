@@ -440,7 +440,7 @@ node('ibm-jenkins-slave-dind') {
                   exclusionValues: 'Average CPU %'
                 ]],
                 group: 'Performance Dashoard',
-                numBuilds: '10',
+                numBuilds: '20',
                 style: 'line',
                 title: "${test.name}",
                 yaxis: 'Time (s)'
