@@ -26,6 +26,7 @@ Finally, navigate to https://localhost:19000 and you should see the home page sh
 
 - `NODE_HOME` or `NVM_BIN` environment variable is required to start ZMS with `bin/start.sh`.
 - Default ports is `19000` (https) and `19001` (http).
+- You can find the latest development build from [Zowe Artifactory org.zowe.metrics-server Folder](https://zowe.jfrog.io/zowe/webapp/#/artifacts/browse/tree/General/libs-snapshot-local/org/zowe/metrics-server/).
 
 ### Install and Start Independently
 
