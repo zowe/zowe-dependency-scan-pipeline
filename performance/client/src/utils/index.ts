@@ -48,7 +48,7 @@ export const getSafeEnvironmentVariables = (): {[key: string]: string} => {
  * @param user        username
  * @param password    password
  */
-export const getBasicAuthorizationHeader = (user?: string, password?: string): string => {
+export const getBasicAuthorizationHeaderValue = (user?: string, password?: string): string => {
   if (!user) {
     user = process.env.TEST_AUTH_USER;
   }
@@ -58,8 +58,19 @@ export const getBasicAuthorizationHeader = (user?: string, password?: string): s
   if (user && password) {
     // use basic authentication
     const userPassBase64: string = Buffer.from(`${user}:${password}`).toString("base64");
-    return `Authorization: Basic ${userPassBase64}`;
+    return `Basic ${userPassBase64}`;
   } else {
     throw new PerformanceTestException("Authentication is required for this test");
   }
+};
+
+/**
+ * Prepare Basic Authorization Header
+ *
+ * @param user        username
+ * @param password    password
+ */
+export const getBasicAuthorizationHeader = (user?: string, password?: string): string => {
+  const authHeaderValue = getBasicAuthorizationHeaderValue(user, password);
+  return `Authorization: ${authHeaderValue}`;
 };

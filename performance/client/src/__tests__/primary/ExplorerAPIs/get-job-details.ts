@@ -10,7 +10,7 @@
 
 import got from "got";
 import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import { getBasicAuthorizationHeader, getBasicAuthorizationHeaderValue } from "../../../utils";
 
 class ExplorerApiJobDetailsTest extends WrkTestCase {
   fetchZoweVersions = true;
@@ -31,16 +31,13 @@ class ExplorerApiJobDetailsTest extends WrkTestCase {
     
       //let authHeader = getBasicAuthorizationHeader();
 
-      let user = process.env.TEST_AUTH_USER;
-      let password = process.env.TEST_AUTH_PASSWORD;
-
       console.log("calling: " + url);
       const response =  await got(url, {
         https: {
           rejectUnauthorized: false
         },
         headers: {
-          "Authorization":Buffer.from(`${user}:${password}`).toString("base64")
+          "Authorization": getBasicAuthorizationHeaderValue()
         }
       });
       console.log("res: " + response.body);
