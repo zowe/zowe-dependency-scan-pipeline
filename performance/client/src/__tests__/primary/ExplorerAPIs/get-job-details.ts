@@ -18,7 +18,7 @@ class ExplorerApiJobDetailsTest extends WrkTestCase {
   name = "Test explorer data sets api endpoint /api/v2/jobs/{jobName}/{jobId}";
   endpoint = `/api/v2/jobs/SDSF/{jobId}`;
 
-  duration = 5;
+  duration = 15 * 60;
   concurrency = 10;
   threads = 1;
   debug = true;
