@@ -11,11 +11,12 @@
 import got from "got";
 import WrkTestCase from "../../../testcase/wrk";
 import { getBasicAuthorizationHeader, getBasicAuthorizationHeaderValue } from "../../../utils";
+import PerformanceTestException from "../../../exceptions/performance-test-exception";
 
 class ExplorerApiJobDetailsTest extends WrkTestCase {
   fetchZoweVersions = true;
   name = "Test explorer data sets api endpoint /api/v2/jobs/{jobName}/{jobId}";
-  endpoint = '/api/v2/jobs/SDSF/STC01060';
+  endpoint = `/api/v2/jobs/SDSF/{jobId}`;
 
   duration = 5;
   concurrency = 10;
@@ -25,26 +26,26 @@ class ExplorerApiJobDetailsTest extends WrkTestCase {
   async before(): Promise<void> {
     await super.before();
 
-    try{
-      const url = `https://${this.targetHost}:${this.targetPort}/api/v2/jobs?prefix=SDSF*&status=ACTIVE`;
-      console.log("calling: " + url);
-    
-      //let authHeader = getBasicAuthorizationHeader();
-
-      console.log("calling: " + url);
-      const response =  await got(url, {
-        https: {
-          rejectUnauthorized: false
-        },
-        headers: {
-          "Authorization": getBasicAuthorizationHeaderValue()
-        }
-      });
-      console.log("res: " + response.body);
-    } catch (e) {
-      console.log('e: ' + e);
-      console.log('error: ' + e.response.body);
+    // get active job ID
+    const url = `https://${this.targetHost}:${this.targetPort}/api/v2/jobs?prefix=SDSF&status=ACTIVE&owner=*`;
+    const { body } =  await got(url, {
+      https: {
+        rejectUnauthorized: false
+      },
+      headers: {
+        "Authorization": getBasicAuthorizationHeaderValue()
+      },
+      responseType: 'json'
+    }); 
+    const jobs = body as {items: [{[key: string]: string|null}]};
+    const jobId = jobs && jobs.items[0] && jobs.items[0]['jobId'];
+    if (!jobId) {
+      throw new PerformanceTestException("Cannot find job ID for testing");
     }
+
+    // apply the changes to endpoint and test url
+    this.endpoint = this.endpoint.replace('{jobId}', jobId);
+    this.fullUrl = `https://${this.targetHost}:${this.targetPort}${this.endpoint}`;
    
     this.headers.push(getBasicAuthorizationHeader());
  
