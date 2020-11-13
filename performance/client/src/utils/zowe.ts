@@ -67,8 +67,7 @@ export const getJobId = async (targetHost: string, targetPort: number, jobName: 
  * Get the the fileID of first output file of a job
  *
  * @param jobName
- * @param jobStatus
- * @param jobOwner
+ * @param jobId
  */
 export const getFileId = async (targetHost: string, targetPort: number, jobName: string, jobId: string): Promise<string> => {
   const url = `https://${targetHost}:${targetPort}/api/v2/jobs/${jobName}/${jobId}/files`;
