@@ -8,9 +8,8 @@
  * Copyright IBM Corporation 2020
  */
 
-import got from "got";
 import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader, getBasicAuthorizationHeaderValue } from "../../../utils";
+import { getBasicAuthorizationHeader } from "../../../utils";
 import { getJobId } from "../../../utils/zowe";
 import PerformanceTestException from "../../../exceptions/performance-test-exception";
 
