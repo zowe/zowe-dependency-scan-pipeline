@@ -62,3 +62,28 @@ export const getJobId = async (targetHost: string, targetPort: number, jobName: 
 
   return jobId;
 };
+
+/**
+ * Get the the fileID of first output file of a job
+ *
+ * @param jobName
+ * @param jobStatus
+ * @param jobOwner
+ */
+export const getFileId = async (targetHost: string, targetPort: number, jobName: string, jobId: string): Promise<string> => {
+  const url = `https://${targetHost}:${targetPort}/api/v2/jobs/${jobName}/${jobId}/files`;
+
+  const { body } =  await got(url, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    responseType: 'json'
+  }); 
+  const files = body as {items: [{[key: string]: string|null}]};
+  const fileId = files && files.items[0] && files.items[0]['id'];
+
+  return fileId;
+};

@@ -11,7 +11,7 @@
 import got from "got";
 import WrkTestCase from "../../../testcase/wrk";
 import { getBasicAuthorizationHeader, getBasicAuthorizationHeaderValue } from "../../../utils";
-import { getJobId } from "../../../utils/zowe";
+import { getJobId, getFileId } from "../../../utils/zowe";
 import PerformanceTestException from "../../../exceptions/performance-test-exception";
 
 class ExplorerApiJobOutputFileContentTest extends WrkTestCase {
@@ -20,7 +20,7 @@ class ExplorerApiJobOutputFileContentTest extends WrkTestCase {
   name = "Test explorer data sets api endpoint /api/v2/jobs/{jobName}/{jobId}/files/{fileId}/content";
   endpoint = '/api/v2/jobs/SDSF/{jobId}/files/{fileId}/content';
 
-  duration = 5;
+  duration = 15 * 60;
   concurrency = 10;
   threads = 1;
 
@@ -32,10 +32,15 @@ class ExplorerApiJobOutputFileContentTest extends WrkTestCase {
     if (!jobId) {
       throw new PerformanceTestException("Cannot find job ID for testing");
     }
+    // get id of first job output file
+    const fileId = await getFileId(this.targetHost, this.targetPort, 'SDSF', jobId);
+    if (!fileId) {
+      throw new PerformanceTestException("Cannot find job output file ID for testing");
+    }
 
     // apply the changes to endpoint and test url
     this.endpoint = this.endpoint.replace('{jobId}', jobId);
-    this.endpoint = this.endpoint.replace('{fileId}', '3');
+    this.endpoint = this.endpoint.replace('{fileId}', fileId);
     this.fullUrl = `https://${this.targetHost}:${this.targetPort}${this.endpoint}`;
 
     this.headers.push(getBasicAuthorizationHeader());
