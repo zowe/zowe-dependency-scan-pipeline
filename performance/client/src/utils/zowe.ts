@@ -9,6 +9,7 @@
  */
 
 import got from "got";
+import { getBasicAuthorizationHeaderValue } from "../utils";
 
 /**
  * Fetch Zowe instance version from APIML Gateway
@@ -35,4 +36,29 @@ export const getZoweVersions = async (apimlGatewayHost: string, apimlGatewayPort
   });
 
   return JSON.parse(body);
+};
+
+/**
+ * Get the jobID of a job
+ *
+ * @param jobName
+ * @param jobStatus
+ * @param jobOwner
+ */
+export const getJobId = async (targetHost: string, targetPort: number, jobName: string, jobStatus: string, jobOwner: string): Promise<string> => {
+  const url = `https://${targetHost}:${targetPort}/api/v2/jobs?prefix=${jobName}&status=${jobStatus}&owner=${jobOwner}`;
+
+  const { body } =  await got(url, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    responseType: 'json'
+  }); 
+  const jobs = body as {items: [{[key: string]: string|null}]};
+  const jobId = jobs && jobs.items[0] && jobs.items[0]['jobId'];
+
+  return jobId;
 };

@@ -11,6 +11,7 @@
 import got from "got";
 import WrkTestCase from "../../../testcase/wrk";
 import { getBasicAuthorizationHeader, getBasicAuthorizationHeaderValue } from "../../../utils";
+import { getJobId } from "../../../utils/zowe";
 import PerformanceTestException from "../../../exceptions/performance-test-exception";
 
 class ExplorerApiJobDetailsTest extends WrkTestCase {
@@ -21,24 +22,12 @@ class ExplorerApiJobDetailsTest extends WrkTestCase {
   duration = 15 * 60;
   concurrency = 10;
   threads = 1;
-  debug = true;
 
   async before(): Promise<void> {
     await super.before();
 
     // get active job ID
-    const url = `https://${this.targetHost}:${this.targetPort}/api/v2/jobs?prefix=SDSF&status=ACTIVE&owner=*`;
-    const { body } =  await got(url, {
-      https: {
-        rejectUnauthorized: false
-      },
-      headers: {
-        "Authorization": getBasicAuthorizationHeaderValue()
-      },
-      responseType: 'json'
-    }); 
-    const jobs = body as {items: [{[key: string]: string|null}]};
-    const jobId = jobs && jobs.items[0] && jobs.items[0]['jobId'];
+    const jobId = await getJobId(this.targetHost, this.targetPort, 'SDSF', 'ACTIVE', '*');
     if (!jobId) {
       throw new PerformanceTestException("Cannot find job ID for testing");
     }
