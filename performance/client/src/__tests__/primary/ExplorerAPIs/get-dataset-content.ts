@@ -14,7 +14,7 @@ import { getBasicAuthorizationHeader } from "../../../utils";
 class ExplorerApiDatasetContentTest extends WrkTestCase {
   fetchZoweVersions = true;
 
-  name = "Test explorer data sets api endpoint /datasets/{ds}/content";
+  name = "Test explorer api endpoint /datasets/{ds}/content";
   endpoint = '/api/v2/datasets/SYS1.HELP(TIME)/content';
 
   duration = 15 * 60;

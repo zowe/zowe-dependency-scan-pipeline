@@ -14,7 +14,7 @@ import { getBasicAuthorizationHeader } from "../../../utils";
 class ExplorerApiJobListTest extends WrkTestCase {
   fetchZoweVersions = true;
 
-  name = "Test explorer data sets api endpoint /api/v2/jobs";
+  name = "Test explorer api endpoint /api/v2/jobs";
   endpoint = '/api/v2/jobs?prefix=SDSF&status=ACTIVE&owner=*';
 
   duration = 15 * 60;

@@ -15,7 +15,7 @@ import PerformanceTestException from "../../../exceptions/performance-test-excep
 
 class ExplorerApiJobDetailsTest extends WrkTestCase {
   fetchZoweVersions = true;
-  name = "Test explorer data sets api endpoint /api/v2/jobs/{jobName}/{jobId}";
+  name = "Test explorer api endpoint /api/v2/jobs/{jobName}/{jobId}";
   endpoint = `/api/v2/jobs/SDSF/{jobId}`;
 
   duration = 15 * 60;
