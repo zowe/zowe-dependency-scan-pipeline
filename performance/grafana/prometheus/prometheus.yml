@@ -48,6 +48,6 @@ scrape_configs:
       insecure_skip_verify: true
 
     static_configs:
-      - targets: ['<server-host>:19000']
+      - targets: ['zms:19000']
       # - targets: ['vm30101.svl.ibm.com:19000']
       # - targets: ['zzow01.zowe.marist.cloud:19000']
