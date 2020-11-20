@@ -9,7 +9,6 @@
  */
 
 import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
 
 class PluginListTest extends WrkTestCase {
   fetchZoweVersions = true;
@@ -20,11 +19,6 @@ class PluginListTest extends WrkTestCase {
   duration = 15 * 60;
   concurrency = 10;
   threads = 1;
-
-  async before(): Promise<void> {
-    await super.before();
-    this.headers.push(getBasicAuthorizationHeader());
-  }
 }
 
 new PluginListTest().init();
