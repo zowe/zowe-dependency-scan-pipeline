@@ -9,9 +9,7 @@
  */
 
 import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
 import { getDesktopAuthenticationCookieHeader } from "../../../utils/zowe";
-import PerformanceTestException from "../../../exceptions/performance-test-exception";
 
 class DesktopUnixFileContentTest extends WrkTestCase {
   fetchZoweVersions = true;
