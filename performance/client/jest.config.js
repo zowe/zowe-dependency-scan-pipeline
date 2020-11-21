@@ -15,6 +15,8 @@ module.exports = {
   testTimeout: 86400000,
   // what consider as slow
   slowTestThreshold: 3600,
+  // use jest circus
+  testRunner: "jest-circus/runner",
   reporters: [
     "default",
 

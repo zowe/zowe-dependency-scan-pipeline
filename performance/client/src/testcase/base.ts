@@ -164,14 +164,6 @@ export default class BaseTestCase implements PerformanceTestCase {
   init(): void {
     this._init();
 
-    const undefinedOrZero = (rc: unknown): void => {
-      if (rc !== undefined) {
-        expect(rc).toBe(0);
-      } else {
-        expect(rc).toBeUndefined();
-      }
-    };
-
     beforeAll(async () => {
       let targetZoweVersions: unknown = null;
       if (this.fetchZoweVersions) {
@@ -208,24 +200,35 @@ export default class BaseTestCase implements PerformanceTestCase {
       this.serverMetricsCollector && await this.serverMetricsCollector.prepare();
       this.clientMetricsCollector && await this.clientMetricsCollector.prepare();
 
-      const rc = await this.before();
-      undefinedOrZero(rc);
+      try {
+        await this.before();
+      } catch (e) {
+        debug('Error in test case "before" stage: ', e);
+        expect(e).toBeUndefined();
+      }
     });
 
     afterEach(async () => {
       this.serverMetricsCollector && await this.serverMetricsCollector.destroy();
       this.clientMetricsCollector && await this.clientMetricsCollector.destroy();
 
-      const rc = await this.after();
-      undefinedOrZero(rc);
+      try {
+        await this.after();
+      } catch (e) {
+        debug('Error in test case "after" stage: ', e);
+        expect(e).toBeUndefined();
+      }
     });
 
     test(this.name, async () => {
       this.serverMetricsCollector && await this.serverMetricsCollector.start();
       this.clientMetricsCollector && await this.clientMetricsCollector.start();
 
-      const rc = await this.run();
-      undefinedOrZero(rc);
-    });
+      try {
+        await this.run();
+      } catch (e) {
+        debug('Error in test case "run" stage: ', e);
+        expect(e).toBeUndefined();
+      }    });
   }
 }
