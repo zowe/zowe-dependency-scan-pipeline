@@ -9,22 +9,16 @@
  */
 
 import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
 
-class ExplorerApiDatasetContentTest extends WrkTestCase {
+class PluginListTest extends WrkTestCase {
   fetchZoweVersions = true;
 
-  name = "Test explorer data sets api endpoint /datasets/{ds}/content";
-  endpoint = '/api/v2/datasets/SYS1.HELP(TIME)/content';
+  name = "Test desktop api endpoint /ui/v1/zlux/plugins";
+  endpoint = '/ui/v1/zlux/plugins?type=desktop';
 
   duration = 15 * 60;
   concurrency = 10;
   threads = 1;
-
-  async before(): Promise<void> {
-    await super.before();
-    this.headers.push(getBasicAuthorizationHeader());
-  }
 }
 
-new ExplorerApiDatasetContentTest().init();
+new PluginListTest().init();

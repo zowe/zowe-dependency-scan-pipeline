@@ -11,11 +11,11 @@
 import WrkTestCase from "../../../testcase/wrk";
 import { getBasicAuthorizationHeader } from "../../../utils";
 
-class ExplorerApiUnixFilesListTest extends WrkTestCase {
+class ExplorerApiJobListTest extends WrkTestCase {
   fetchZoweVersions = true;
 
-  name = "Test explorer data sets api endpoint /unixfiles";
-  endpoint = '/api/v2/unixfiles?path=/etc';
+  name = "Test explorer api endpoint /api/v2/jobs";
+  endpoint = '/api/v2/jobs?prefix=SDSF&status=ACTIVE&owner=*';
 
   duration = 15 * 60;
   concurrency = 10;
@@ -27,4 +27,4 @@ class ExplorerApiUnixFilesListTest extends WrkTestCase {
   }
 }
 
-new ExplorerApiUnixFilesListTest().init();
+new ExplorerApiJobListTest().init();

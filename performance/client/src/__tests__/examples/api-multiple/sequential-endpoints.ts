@@ -8,11 +8,11 @@
  * Copyright IBM Corporation 2020
  */
 
-import WrkWeightedEndpointsTestCase from "../../testcase/wrk-weighted-endpoints";
-import { WeightedHttpRequest } from "../../types";
-import { getBasicAuthorizationHeader } from "../../utils";
+import WrkSequentialEndpointsTestCase from "../../../testcase/wrk-sequential-endpoints";
+import { SequentialHttpRequest } from "../../../types";
+import { getBasicAuthorizationHeader } from "../../../utils";
 
-class ExampleWrkWeightedEndpointsTest extends WrkWeightedEndpointsTestCase {
+class ExampleWrkSequentialEndpointsTest extends WrkSequentialEndpointsTestCase {
   // name/purpose of the test
   name = "Test multiple endpoints at same time";
  
@@ -23,29 +23,32 @@ class ExampleWrkWeightedEndpointsTest extends WrkWeightedEndpointsTestCase {
   // example: 15 minutes
   duration = 15 * 60;
   // duration = 30 ;
-
-  // this will start multiple threads and each thread will pick randomly an endpoint from the list
+ 
+  // this will start multiple threads and each thread will pick an endpoint from the list in sequence
   concurrency = 10;
  
   // endpoints we want to test
   endpoints = [
-    {
-      endpoint : "/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content",
-      // weight can be 0 (zero) which will make this endpoint not possible to be selected
-      weight   : 1,
-    },
     {
       endpoint : "/api/v1/gateway/auth/login",
       method   : "POST",
       body     : `{"username":"${process.env.TEST_AUTH_USER}","password":"${process.env.TEST_AUTH_PASSWORD}"}`,
       headers  : [
         "Content-Type: application/json",
-        // overwrite Authorization provided globally
-        "Authorization:",
       ],
-      weight   : 3,
+      sequence : 0,
     },
-  ] as WeightedHttpRequest[];
+    {
+      // wait for few seconds before sending this request
+      delay    : [100, 500],
+      endpoint : "/api/v1/datasets/SYS1.PARMLIB",
+      sequence : 10,
+    },
+    {
+      endpoint : "/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content",
+      sequence : 20,
+    },
+  ] as SequentialHttpRequest[];
 
   // enable debug mode?
   // Enabling debug mode will log every request/response sent to or received from
@@ -72,4 +75,4 @@ class ExampleWrkWeightedEndpointsTest extends WrkWeightedEndpointsTestCase {
 }
 
 // init test case
-new ExampleWrkWeightedEndpointsTest().init();
+new ExampleWrkSequentialEndpointsTest().init();

@@ -11,12 +11,12 @@
 import WrkTestCase from "../../../testcase/wrk";
 import { getBasicAuthorizationHeader } from "../../../utils";
 
-class ExplorerApiDatasetListByFilterTest extends WrkTestCase {
+class ExplorerApiUnixFileContentTest extends WrkTestCase {
   fetchZoweVersions = true;
 
-  name = "Test explorer data sets api endpoint /datasets/{filter}";
-  endpoint = '/api/v2/datasets/SYS1.HELP';
-
+  name = "Test explorer api endpoint /api/v2/unixfiles/{path}";
+  endpoint = '/api/v2/unixfiles/usr/lpp/tcpip/man/C/cat1/host.1';
+  
   duration = 15 * 60;
   concurrency = 10;
   threads = 1;
@@ -27,4 +27,4 @@ class ExplorerApiDatasetListByFilterTest extends WrkTestCase {
   }
 }
 
-new ExplorerApiDatasetListByFilterTest().init();
+new ExplorerApiUnixFileContentTest().init();
