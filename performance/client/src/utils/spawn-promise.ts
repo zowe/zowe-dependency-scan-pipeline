@@ -50,7 +50,7 @@ export const spawnPromise = (command: string, args: string[], options?: SpawnOpt
       result.exitCode = code;
 
       if (code !== 0) {
-        const e = new ChildProcessException(`Child process exits with code ${code}`);
+        const e = new ChildProcessException(`Child process "${command} ${args}" exits with code ${code}: ${result.stderr}`);
         e.exitCode = code;
         e.stdout = result.stdout;
         e.stderr = result.stderr;
