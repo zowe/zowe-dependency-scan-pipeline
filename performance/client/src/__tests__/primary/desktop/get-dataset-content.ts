@@ -14,7 +14,7 @@ import { getDesktopAuthenticationCookieHeader } from "../../../utils/zowe";
 class DesktopDatasetContentTest extends WrkTestCase {
   fetchZoweVersions = true;
 
-  name = "Test desktop api endpoint /unixfile/contents/{path}";
+  name = "Test desktop api endpoint /ui/v1/zlux/datasetContents/{path}";
   endpoint = '/ui/v1/zlux/datasetContents/SYS1.HELP(TIME)';
 
   duration = 15 * 60;
