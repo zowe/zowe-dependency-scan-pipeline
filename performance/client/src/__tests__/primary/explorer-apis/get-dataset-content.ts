@@ -17,8 +17,11 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   name = "Test explorer api endpoint /api/v2/datasets/{ds}/content";
   endpoint = '/api/v2/datasets/SYS1.HELP(TIME)/content';
 
-  duration = 15 * 60;
-  concurrency = 10;
+  // duration = 15 * 60;
+  // concurrency = 10;
+  // FIXME: TEST-RUN-ONLY
+  duration = 20;
+  concurrency = 1;
   threads = 1;
 
   async before(): Promise<void> {

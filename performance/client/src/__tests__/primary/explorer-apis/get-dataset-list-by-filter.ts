@@ -17,8 +17,11 @@ class ExplorerApiDatasetListByFilterTest extends WrkTestCase {
   name = "Test explorer api endpoint /api/v2/datasets/{filter}";
   endpoint = '/api/v2/datasets/SYS1.HELP';
 
-  duration = 15 * 60;
-  concurrency = 10;
+  // duration = 15 * 60;
+  // concurrency = 10;
+  // FIXME: TEST-RUN-ONLY
+  duration = 20;
+  concurrency = 1;
   threads = 1;
 
   async before(): Promise<void> {

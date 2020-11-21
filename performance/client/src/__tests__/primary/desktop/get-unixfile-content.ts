@@ -17,8 +17,11 @@ class DesktopUnixFileContentTest extends WrkTestCase {
   name = "Test desktop api endpoint /ui/v1/zlux/unixfile/contents/{path}";
   endpoint = '/ui/v1/zlux/unixfile/contents/usr/lpp/tcpip/man/C/cat1/host.1';
 
-  duration = 15 * 60;
-  concurrency = 10;
+  // duration = 15 * 60;
+  // concurrency = 10;
+  // FIXME: TEST-RUN-ONLY
+  duration = 20;
+  concurrency = 1;
   threads = 1;
 
   async before(): Promise<void> {

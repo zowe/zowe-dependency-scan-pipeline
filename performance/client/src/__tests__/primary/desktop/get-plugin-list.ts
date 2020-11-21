@@ -16,8 +16,11 @@ class PluginListTest extends WrkTestCase {
   name = "Test desktop api endpoint /ui/v1/zlux/plugins";
   endpoint = '/ui/v1/zlux/plugins?type=desktop';
 
-  duration = 15 * 60;
-  concurrency = 10;
+  // duration = 15 * 60;
+  // concurrency = 10;
+  // FIXME: TEST-RUN-ONLY
+  duration = 20;
+  concurrency = 1;
   threads = 1;
 }
 

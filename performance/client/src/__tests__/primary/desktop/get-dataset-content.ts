@@ -17,8 +17,11 @@ class DesktopDatasetContentTest extends WrkTestCase {
   name = "Test desktop api endpoint /ui/v1/zlux/datasetContents/{path}";
   endpoint = '/ui/v1/zlux/datasetContents/SYS1.HELP(TIME)';
 
-  duration = 15 * 60;
-  concurrency = 10;
+  // duration = 15 * 60;
+  // concurrency = 10;
+  // FIXME: TEST-RUN-ONLY
+  duration = 20;
+  concurrency = 1;
   threads = 1;
 
   async before(): Promise<void> {
