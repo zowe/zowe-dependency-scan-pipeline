@@ -21,6 +21,7 @@ class PluginListTest extends WrkTestCase {
   // FIXME: TEST-RUN-ONLY
   duration = 20;
   concurrency = 1;
+  cooldown = 0;
   threads = 1;
 }
 

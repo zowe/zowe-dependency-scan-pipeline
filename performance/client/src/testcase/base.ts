@@ -148,10 +148,6 @@ export default class BaseTestCase implements PerformanceTestCase {
 
   async after(): Promise<void> {
     debug(`test "${this.name}" ends at ${new Date().toISOString()}`);
-    if (this.cooldown) {
-      debug(`wait for ${this.cooldown} seconds cool down before next test`);
-      await sleep(this.cooldown * 1000);
-    }
   }
 
   async run(): Promise<void> {
@@ -171,8 +167,6 @@ export default class BaseTestCase implements PerformanceTestCase {
         // get Zowe version
         targetZoweVersions = await getZoweVersions(this.targetHost, this.targetPort);
         debug("Zowe version: ", targetZoweVersions, ". Waiting for cool down before starting the test ...");
-        // cool down after api call
-        await sleep(this.cooldown * 1000);
       }
 
       // write text context to file
@@ -205,6 +199,11 @@ export default class BaseTestCase implements PerformanceTestCase {
       } catch (e) {
         debug('Error in test case "before" stage: ', e);
         expect(e).toBeUndefined();
+      }
+
+      if (this.cooldown) {
+        debug(`wait for ${this.cooldown} seconds cool down before starting test`);
+        await sleep(this.cooldown * 1000);
       }
     });
 
