@@ -8,8 +8,8 @@
  * Copyright IBM Corporation 2020
  */
 
-import BaseTestCase from "../../../testcase/base";
-import { SDSF_ONLY_ZMS_CPUTIME_METRICS, SDSF_ONLY_ZMS_METRICS } from "../../../constants";
+import BaseTestCase from "../../../../testcase/base";
+import { SDSF_ONLY_ZMS_CPUTIME_METRICS, SDSF_ONLY_ZMS_METRICS } from "../../../../constants";
 
 class IdleTest extends BaseTestCase {
   // name/purpose of the test

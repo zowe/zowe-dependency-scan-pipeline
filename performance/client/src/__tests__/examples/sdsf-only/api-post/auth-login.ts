@@ -8,24 +8,33 @@
  * Copyright IBM Corporation 2020
  */
 
-import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
-import { SDSF_ONLY_ZMS_CPUTIME_METRICS, SDSF_ONLY_ZMS_METRICS } from "../../../constants";
+import WrkTestCase from "../../../../testcase/wrk";
+import { HttpRequestMethod } from "../../../../types";
+import { SDSF_ONLY_ZMS_CPUTIME_METRICS, SDSF_ONLY_ZMS_METRICS } from "../../../../constants";
 
-class ExplorerApiDatasetContentTest extends WrkTestCase {
+class ApimlAuthLoginTest extends WrkTestCase {
   // name/purpose of the test
-  name = "Test explorer data sets api endpoint /datasets/{ds}/content";
+  name = "Test APIML Gateway api endpoint /api/v1/gateway/auth/login";
 
   // fetch Zowe instance version information
   // this can be turned on if TARGET_PORT is Zowe APIML Gateway port
   fetchZoweVersions = true;
 
   // example: 15 minutes
-  duration = 15 * 60;
-  // duration = 30 ;
+  // duration = 15 * 60;
+  duration = 30;
+
+  // http method
+  method = "POST" as HttpRequestMethod;
 
   // endpoint we want to test
-  endpoint = '/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content';
+  endpoint = '/api/v1/gateway/auth/login';
+
+  // body of post request
+  body = JSON.stringify({
+    username: process.env.TEST_AUTH_USER,
+    password: process.env.TEST_AUTH_PASSWORD,
+  });
 
   // enable debug mode?
   // Enabling debug mode will log every request/response sent to or received from
@@ -40,27 +49,17 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // overwrite cooldown time for debugging purpose
   // cooldown = 0;
 
-  // example to overwrite default collector options
-
   // collect SDSF metrics
   serverMetricsCollectorOptions = {
     metrics: SDSF_ONLY_ZMS_METRICS,
     cputimeMetrics: SDSF_ONLY_ZMS_CPUTIME_METRICS,
   };
 
-  // example to overwrite default collector options
-  // clientMetricsCollectorOptions = {};
-
   // we can add customized headers
-  // headers = ["X-Special-Header: value"];
-
-  async before(): Promise<void> {
-    await super.before();
-
-    // this test requires authentication header
-    this.headers.push(getBasicAuthorizationHeader());
-  }
+  headers = [
+    "Content-Type: application/json",
+  ];
 }
 
 // init test case
-new ExplorerApiDatasetContentTest().init();
+new ApimlAuthLoginTest().init();
