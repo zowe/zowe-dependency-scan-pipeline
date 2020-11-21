@@ -11,7 +11,7 @@
 import WrkTestCase from "../../../testcase/wrk";
 import { getDesktopAuthenticationCookieHeader } from "../../../utils/zowe";
 
-class PluginListTest extends WrkTestCase {
+class DesktopDatasetContentTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test desktop api endpoint /unixfile/contents/{path}";
@@ -29,4 +29,4 @@ class PluginListTest extends WrkTestCase {
   }
 }
 
-new PluginListTest().init();
+new DesktopDatasetContentTest().init();
