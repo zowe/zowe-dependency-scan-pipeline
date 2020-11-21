@@ -71,7 +71,7 @@ node('ibm-jenkins-slave-dind') {
     string(
       name: 'TEST_SCOPE',
       description: 'Test cases to be executed',
-      defaultValue: 'dist/__tests__/default/idle/',
+      defaultValue: 'dist/__tests__/examples/idle/',
       trim: true
     ),
     booleanParam(

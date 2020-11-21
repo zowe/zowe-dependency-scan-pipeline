@@ -35,9 +35,9 @@ docker run -it --rm \
 
 The `-v /var/run/docker.sock:/var/run/docker.sock` option in the command is to allow usage of docker inside the container. This is required to run WRK API tests. The test report will be exposed in your current directory with `-v $(pwd):/app/reports` command option.
 
-`<test-to-run>` is to specific a small set of test cases to run. These tests usually are located in `dist/__tests__/` folder. For example, `dist/__tests__/default/idle/`.
+`<test-to-run>` is to specific a small set of test cases to run. These tests usually are located in `dist/__tests__/` folder. For example, `dist/__tests__/examples/idle/`.
 
-Here is an example to run default test cases:
+Here is an example to run the idle test case:
 
 ```
 docker run -it --rm \
@@ -46,7 +46,7 @@ docker run -it --rm \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v $(pwd):/app/reports \
   jackjiaibm/zowe-performance-test-client \
-  -- dist/__tests__/default/idle/
+  -- dist/__tests__/examples/idle/
 ```
 
 You can have you customized test cases and run them with this docker image. For example, you have these sub-directories:

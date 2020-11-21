@@ -101,35 +101,35 @@ export const getFileId = async (apimlGatewayHost: string, apimlGatewayPort: numb
  * @param user
  * @param password
  */
-export const getDesktopAuthenticationCookieHeader =  async (apimlGatewayHost: string, apimlGatewayPort: number, user?: string, password?: string): Promise<string> => {
-  const url = `https://${apimlGatewayHost}:${apimlGatewayPort}/ui/v1/zlux/auth`;
+export const getDesktopAuthenticationCookieHeader = async (apimlGatewayHost: string, apimlGatewayPort: number, user?: string, password?: string): Promise<string> => {
+  const url = `https://${apimlGatewayHost}:${apimlGatewayPort}/ui/v1/zlux/auth`;
 
   if (!user) {
-    user = process.env.TEST_AUTH_USER;
-  }
-  if (!password) {
-    password = process.env.TEST_AUTH_PASSWORD;
-  }
-  if (!user || !password) {
-    throw new PerformanceTestException("Username and password are required to login desktop");
-  }
+    user = process.env.TEST_AUTH_USER;
+  }
+  if (!password) {
+    password = process.env.TEST_AUTH_PASSWORD;
+  }
+  if (!user || !password) {
+    throw new PerformanceTestException("Username and password are required to login desktop");
+  }
 
-  const { statusCode, headers, body } =  await got.post(url, {
-    https: {
-      rejectUnauthorized: false
-    },
-    json: {
-      username: user,
-      password,
-    }
-  });
+  const { statusCode, headers } = await got.post(url, {
+    https: {
+      rejectUnauthorized: false
+    },
+    json: {
+      username: user,
+      password,
+    }
+  });
 
-  if (statusCode !== 200) {
-    throw new PerformanceTestException(`Authentication failed with desktop, status code is ${statusCode}`);
-  }
+  if (statusCode !== 200) {
+    throw new PerformanceTestException(`Authentication failed with desktop, status code is ${statusCode}`);
+  }
 
-  let cookies: Cookie[] = [];
-  if (Array.isArray(headers['set-cookie'])) {
+  let cookies: Cookie[] = [];
+  if (Array.isArray(headers['set-cookie'])) {
     cookies = headers['set-cookie'].map((cookieString) => {
       return Cookie.parse(cookieString);
     });
@@ -137,7 +137,7 @@ export const getDesktopAuthenticationCookieHeader =  async (apimlGatewayHost: s
     cookies = [Cookie.parse(`${headers['set-cookie']}`)];
   }
 
-  return 'Cookie: ' + cookies.map((cookie): string => {
-    return cookie.key + '=' + cookie.value;
-  }).join('; ');
+  return 'Cookie: ' + cookies.map((cookie): string => {
+    return cookie.key + '=' + cookie.value;
+  }).join('; ');
 };
