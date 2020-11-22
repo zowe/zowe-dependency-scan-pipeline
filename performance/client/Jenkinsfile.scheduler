@@ -18,7 +18,7 @@ node('ibm-jenkins-slave-nvm') {
   pipeline.admins.add("jackjia")
 
   // usually nightly build will end before 3am
-  pipeline.addBuildOption(pipelineTriggers([cron("TZ=America/New_York\nH 4 * * 0")]))
+  pipeline.addBuildOption(pipelineTriggers([cron("TZ=America/New_York\nH 6 * * 0")]))
 
   pipeline.setup()
 
@@ -37,9 +37,7 @@ node('ibm-jenkins-slave-nvm') {
         booleanParam(name: 'Skip Stage: Audit', value: true),
       ]
       def test_result = build(
-        // job: '/Zowe Performance - Test/master',
-        // FIXME: TEST-RUN-ONLY
-        job: '/Zowe Performance - Test/users/jack/test-run-20201122',
+        job: '/Zowe Performance - Test/master',
         parameters: testParameters,
         propagate: false
       )
