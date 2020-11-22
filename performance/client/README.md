@@ -102,10 +102,9 @@ The process of running a test can be illustrated with these steps:
 
 - Start the test case
 - If the test case has `fetchZoweVersions` enabled, it will try to fetch Zowe instance version.
-- If the test case has `fetchZoweVersions` enabled, after retrieved Zowe version, it will try to cool down with time defined as `<TestCase>.cooldown` (default value is `DEFAULT_TEST_COOLDOWN`).
+- Wait for `<TestCase>.cooldown` (default value is `DEFAULT_TEST_COOLDOWN`) seconds before starting test.
 - Execute the actions defined for this test case, and also polling both server and client side metrics.
 - After reaches the duration of the test case, it will wait for another cool down time defined by `<TestCase>.serverMetricsCollectorOptions.cooldown` (default value is `DEFAULT_SERVER_METRICS_COLLECTOR_COOLDOWN_TIME`) or `<TestCase>.clientMetricsCollectorOptions.cooldown` (default value is `DEFAULT_CLIENT_METRICS_COLLECTOR_COOLDOWN_TIME`) before collecting last metrics.
-- Wait for another `<TestCase>.cooldown` (default value is `DEFAULT_TEST_COOLDOWN`) seconds before starting next test.
 
 ## Write Test Cases
 

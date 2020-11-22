@@ -285,7 +285,6 @@ node('ibm-jenkins-slave-dind') {
     ]
   )
 
-
   pipeline.createStage(
     name: "Chart Report",
     isSkippable: false,
@@ -293,182 +292,18 @@ node('ibm-jenkins-slave-dind') {
     stage: {
       echo "Content of reports/:"
       sh "ls -la reports/"
+
+      def reportTool = lib.performance.PerformanceTestReport.new(this)
       def reports = findFiles(glob: "reports/*.yaml")
       if (reports.length == 1) {
         reportFile = reports[0]
 
-        def htmlReport = "<!DOCTYPE html>\n" +
-            "<html>\n" +
-            "<head>\n" +
-            "  <script src=\"https://code.highcharts.com/highcharts.js\"></script>\n" +
-            "  <script src=\"https://code.highcharts.com/modules/data.js\"></script>\n" +
-            "  <script src=\"https://code.highcharts.com/modules/exporting.js\"></script>\n" +
-            "</head>\n" +
-            "<body>\n"
-        def jsReport = "document.addEventListener('DOMContentLoaded', function () {\n" +
-            "var baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));\n"
-
-        // what metric we want to display
-        def regex = /^cpu\{.+,(?:item|process)="([^"]+)",(?:jobid|extra)="([^"]+)"\}$/
-
-        htmlReport += "<h1>Test ${reportFile.toString()}</h1>\n"
-        echo "Processing report ${reportFile.toString()} ..."
-        def report = readYaml(file: reportFile.toString())
-        def testIndex = 0
-        report.tests.each { test ->
-          testIndex = testIndex + 1
-          echo "Processing test ${test.name} ..."
-          if (test["serverMetrics"] && test["serverMetrics"].size()) {
-            def sanitizedTestName = test.name.toLowerCase().replaceAll(/[^0-9a-zA-Z]/, "-")
-            def csvFile = sanitizedTestName + ".csv"
-            def plotFile = "plot-" + sanitizedTestName + ".csv"
-            echo "- Preparing CSV ${csvFile} ..."
-
-            // prepare columns and row indexes (timestamp)
-            def csvColumns = []
-            def csvRowIndexes = []
-            test.serverMetrics.each { metric ->
-              def matches = metric.name =~ regex
-              if (matches.matches() && matches[0] && matches[0].size() == 3) {
-                def process = matches[0][1]
-                def extra = matches[0][2]
-                def colname = "${process}${extra ? "(${extra})" : ""}"
-                if (!csvColumns.contains(colname)) {
-                  csvColumns.add(colname)
-                }
-
-                if (!csvRowIndexes.contains(metric.timestamp)) {
-                  csvRowIndexes.add(metric.timestamp)
-                }
-              }
-            }
-            csvColumns.sort().add(0, "Timestamp")
-            csvRowIndexes.sort()
-
-            // create map because indexOf requires special privileges
-            def totalCols = csvColumns.size()
-            def totalRows = csvRowIndexes.size()
-            def csvColumnsMap = [:]
-            def csvRowIndexesMap = [:]
-            for (i = 0; i < totalCols; i++) {
-                csvColumnsMap["${csvColumns[i]}".toString()] = i
-            }
-            for (i = 0; i < totalRows; i++) {
-                csvRowIndexesMap["${csvRowIndexes[i]}".toString()] = i
-            }
-
-            // init result rows
-            def csvRows = []
-            csvRowIndexes.each { ts ->
-              def row = []
-              for (i = 0; i < totalCols; i++) {
-                row.add(i == 0 ? ts : null)
-              }
-              csvRows.add(row)
-            }
-
-            // fill in data
-            test.serverMetrics.each { metric ->
-              def matches = metric.name =~ regex
-              if (matches.matches() && matches[0] && matches[0].size() == 3) {
-                def process = matches[0][1]
-                def extra = matches[0][2]
-                def colname = "${process}${extra ? "(${extra})" : ""}"
-                def col = csvColumnsMap[colname]
-                def row = csvRowIndexesMap["${metric.timestamp}".toString()]
-                csvRows[row][col] = metric.value
-              }
-            }
-
-            // calculate delta
-            for (i = csvRows.size() - 1; i >= 0; i--) {
-              for (j = 1; j < csvRows[i].size(); j++) {
-                if (i > 0) {
-                  csvRows[i][j] -= csvRows[i - 1][j]
-                } else {
-                  csvRows[i][j] = 0
-                }
-              }
-            }
-
-            // write csv file
-            echo "- writing CSV ..."
-            def result = []
-            result.add("\"" + csvColumns.join("\",\"") + "\"")
-            csvRows.each {
-              result.add(it.join(","))
-            }
-            echo result.join("\n")
-            writeFile file: "reports/${csvFile}", text: result.join("\n")
-
-            def plotCsvContent = []
-            htmlReport += "<h2>${test.name}</h2>\n" +
-              "<ul>\n"
-            if (test.result && test.result.total_cpu_percentage_from_server_metrics) {
-              htmlReport += "<li><strong>Test Duration<strong>: ${test.result.total_time_elapse_from_server_metrics}</li>\n"
-              htmlReport += "<li><strong>Total CPU Time<strong>: ${test.result.total_cpu_time_from_server_metrics}</li>\n"
-              htmlReport += "<li><strong>Average CPU %<strong>: ${test.result.total_cpu_percentage_from_server_metrics}%</li>\n"
-
-              plotCsvContent.push('"Build","Average CPU %","Total CPU Time","Duration"')
-              plotCsvContent.push("${BUILD_NUMBER},${test.result.total_cpu_percentage_from_server_metrics},${test.result.total_cpu_time_from_server_metrics},${test.result.total_time_elapse_from_server_metrics}")
-            }
-            htmlReport += "</ul>\n"
-
-            // highcharts script to generate chart for this test
-            htmlReport += "\n" +
-              "<div id=\"container_${testIndex}\" style=\"width:80%; height:400px; margin: auto;\"></div>\n"
-            jsReport += "\n" +
-              "  Highcharts.chart('container_${testIndex}', {\n" +
-              "    chart: { type: 'line' },\n" +
-              "    data: { csvURL: baseUrl + '/${csvFile}' },\n" +
-              "    title: { text: '${test.name}' },\n" +
-              "    yAxis: { title: { text: 'CPU Time Delta' } }\n" +
-              "  });\n"
-
-            if (params.UPDATE_PLOTS) {
-              // write plot file
-              echo "- writing ${plotFile} ..."
-              echo plotCsvContent.join("\n")
-              writeFile file: "reports/${plotFile}", text: plotCsvContent.join("\n")
-
-              // generate plot graph
-              plot csvFileName: 'plot-84918970-489a-4cec-ac00-b1181f145849.csv',
-                csvSeries: [[
-                  displayTableFlag: true,
-                  file: "reports/${plotFile}",
-                  inclusionFlag: 'INCLUDE_BY_STRING',
-                  exclusionValues: 'Average CPU %'
-                ]],
-                group: 'Performance Dashoard',
-                numBuilds: '20',
-                style: 'line',
-                title: "${test.name}",
-                yaxis: 'Time (s)'
-            }
-          }
+        reportTool.generateCpuChartHtmlReport(reportFile.toString())
+        if (params.UPDATE_PLOTS) {
+          reportTool.updatePlot(reportFile.toString())
         }
-
-        if (testIndex > 0) {
-          // write test report
-          echo "Saving test report"
-          htmlReport += "<script src=\"main.js\"></script>\n" +
-            "</body>\n" +
-            "</html>"
-          writeFile file: "reports/index.html", text: htmlReport
-          jsReport += "});"
-          writeFile file: "reports/main.js", text: jsReport
-          publishHTML([
-            allowMissing          : false,
-            alwaysLinkToLastBuild : true,
-            keepAll               : true,
-            reportDir             : 'reports',
-            reportFiles           : 'index.html',
-            reportName            : 'Test Result Charts',
-            reportTitles          : ''
-          ])
-        }
-      }
-    }
+      } // end of if reports.length == 1
+    } // end of stage
   )
 
   pipeline.end()

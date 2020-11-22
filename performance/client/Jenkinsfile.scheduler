@@ -18,7 +18,7 @@ node('ibm-jenkins-slave-nvm') {
   pipeline.admins.add("jackjia")
 
   // usually nightly build will end before 3am
-  pipeline.addBuildOption(pipelineTriggers([cron("TZ=America/New_York\nH 3 * * *")]))
+  pipeline.addBuildOption(pipelineTriggers([cron("TZ=America/New_York\nH 6 * * 0")]))
 
   pipeline.setup()
 
@@ -29,7 +29,7 @@ node('ibm-jenkins-slave-nvm') {
       def testParameters = [
         string(name: 'TEST_SERVER', value: 'marist'),
         string(name: 'TEST_PORT', value: '7554'),
-        string(name: 'TEST_SCOPE', value: 'dist/__tests__/examples/idle/'),
+        string(name: 'TEST_SCOPE', value: 'dist/__tests__/primary/'),
         string(name: 'REPORT_NAME', value: 'scheduled'),
         booleanParam(name: 'UPDATE_PLOTS', value: true),
         string(name: 'PERFORMANCE_TEST_DEBUG_INFORMATION', value: 'zowe-performance-test:*'),
