@@ -146,73 +146,73 @@ node('ibm-jenkins-slave-dind') {
         remote.password = SSH_PASSWORD
         remote.allowAnyHosts = true
 
-        // download ZMS
-        echo "Downloading ZMS ..."
-        pipeline.artifactory.download(
-          specContent : "{\n" +
-                        "  \"files\": [{\n" +
-                        "    \"pattern\": \"${params.ZMS_ARTIFACTORY_PATTERN}\",\n" +
-                        "    \"target\": \".tmp/zms.pax\",\n" +
-                        "    \"flat\": \"true\",\n" +
-                        "    \"build\": \"${params.ZMS_ARTIFACTORY_BUILD}\"\n" +
-                        "  }]\n" +
-                        "}",
-          expected    : 1
+        // // download ZMS
+        // echo "Downloading ZMS ..."
+        // pipeline.artifactory.download(
+        //   specContent : "{\n" +
+        //                 "  \"files\": [{\n" +
+        //                 "    \"pattern\": \"${params.ZMS_ARTIFACTORY_PATTERN}\",\n" +
+        //                 "    \"target\": \".tmp/zms.pax\",\n" +
+        //                 "    \"flat\": \"true\",\n" +
+        //                 "    \"build\": \"${params.ZMS_ARTIFACTORY_BUILD}\"\n" +
+        //                 "  }]\n" +
+        //                 "}",
+        //   expected    : 1
         )
 
         lock("performance-test-${params.TEST_SERVER}") {
           try {
-            // prepare remote folders
-            echo "Preparing remote folders ..."
-            // sshCommand remote: remote, command: "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}"
-            // sshCommand remote: remote, command: "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}"
-            sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
-               "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}\n" +
-               "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
-               "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
-               "exit 0\n" +
-               "EOF"
+            // // prepare remote folders
+            // echo "Preparing remote folders ..."
+            // // sshCommand remote: remote, command: "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}"
+            // // sshCommand remote: remote, command: "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}"
+            // sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
+            //    "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}\n" +
+            //    "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+            //    "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+            //    "exit 0\n" +
+            //    "EOF"
 
-            // transfer to the server
-            echo "Uploading ZMS to ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']} ..."
-            // sshPut remote: remote, from: '.tmp/zms.pax', into: TEST_SERVERS[params.TEST_SERVER]['tmp_dir']
-            sh "SSHPASS=${remote.password} sshpass -e sftp -o BatchMode=no -o StrictHostKeyChecking=no -P ${remote.port} -b - ${remote.user}@${remote.host} << EOF\n" +
-               "put .tmp/zms.pax ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}\n" +
-               "EOF"
+            // // transfer to the server
+            // echo "Uploading ZMS to ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']} ..."
+            // // sshPut remote: remote, from: '.tmp/zms.pax', into: TEST_SERVERS[params.TEST_SERVER]['tmp_dir']
+            // sh "SSHPASS=${remote.password} sshpass -e sftp -o BatchMode=no -o StrictHostKeyChecking=no -P ${remote.port} -b - ${remote.user}@${remote.host} << EOF\n" +
+            //    "put .tmp/zms.pax ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}\n" +
+            //    "EOF"
 
-            // extract ZMS
-            // use SDSF metrics temporarily before RMF is configured
-            // sshCommand remote: remote, command: "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax && echo \"ls -la \$(pwd):\" && ls -la"
-            echo "Extracting ZMS ..."
-            //  "cp configs/sdsf-only.yaml configs/index.yaml\n" +
-            sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
-               "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
-               "pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax\n" +
-               "echo \"ls -la \\\$(pwd):\"\n" +
-               "ls -la\n" +
-               "exit 0\n" +
-               "EOF"
+            // // extract ZMS
+            // // use SDSF metrics temporarily before RMF is configured
+            // // sshCommand remote: remote, command: "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax && echo \"ls -la \$(pwd):\" && ls -la"
+            // echo "Extracting ZMS ..."
+            // //  "cp configs/sdsf-only.yaml configs/index.yaml\n" +
+            // sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
+            //    "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+            //    "pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax\n" +
+            //    "echo \"ls -la \\\$(pwd):\"\n" +
+            //    "ls -la\n" +
+            //    "exit 0\n" +
+            //    "EOF"
 
-            // start ZMS
-            echo "Starting ZMS ..."
-            sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
-               "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
-               "ZWS_PID=\\\$(ps -elf | grep zms | grep -v grep | awk '{print \\\$2;}')\n" +
-               "[ -n \"\\\$ZWS_PID\" ] && echo \"Found ZMS PID: \\\${ZWS_PID}, send kill signal\" && kill -9 \\\$ZWS_PID\n" +
-               "[ -f ~/.profile ] && . ~/.profile\n" +
-               "export NODE_HOME=${TEST_SERVERS[params.TEST_SERVER]['node_home']}\n" +
-               "export _BPXK_AUTOCVT=ON\n" +
-               "export _CEE_RUNOPTS=\"FILETAG(AUTOCVT,AUTOTAG) POSIX(ON)\"\n" +
-               "export RMF_DDS_HOST=\"${remote.host}\"\n" +
-               "export RMF_DDS_USERNAME=\"${RMF_DDS_USERNAME}\"\n" +
-               "export RMF_DDS_PASSWORD=\"${RMF_DDS_PASSWORD}\"\n" +
-               "nohup ./bin/start.sh &\n" +
-               "exit 0\n" +
-               "EOF"
+            // // start ZMS
+            // echo "Starting ZMS ..."
+            // sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
+            //    "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+            //    "ZWS_PID=\\\$(ps -elf | grep zms | grep -v grep | awk '{print \\\$2;}')\n" +
+            //    "[ -n \"\\\$ZWS_PID\" ] && echo \"Found ZMS PID: \\\${ZWS_PID}, send kill signal\" && kill -9 \\\$ZWS_PID\n" +
+            //    "[ -f ~/.profile ] && . ~/.profile\n" +
+            //    "export NODE_HOME=${TEST_SERVERS[params.TEST_SERVER]['node_home']}\n" +
+            //    "export _BPXK_AUTOCVT=ON\n" +
+            //    "export _CEE_RUNOPTS=\"FILETAG(AUTOCVT,AUTOTAG) POSIX(ON)\"\n" +
+            //    "export RMF_DDS_HOST=\"${remote.host}\"\n" +
+            //    "export RMF_DDS_USERNAME=\"${RMF_DDS_USERNAME}\"\n" +
+            //    "export RMF_DDS_PASSWORD=\"${RMF_DDS_PASSWORD}\"\n" +
+            //    "nohup ./bin/start.sh &\n" +
+            //    "exit 0\n" +
+            //    "EOF"
 
-            // wait for a minute to let system cool down
-            echo "Waiting for cool down ..."
-            sleep time: 1, unit: 'MINUTES'
+            // // wait for a minute to let system cool down
+            // echo "Waiting for cool down ..."
+            // sleep time: 1, unit: 'MINUTES'
 
             // start test
             def testEnvVars = [
@@ -239,15 +239,15 @@ node('ibm-jenkins-slave-dind') {
             echo "Content of .tmp:"
             sh 'ls -la .tmp'
 
-            // shutdown ZMS
-            echo "Shutting down ZMS ..."
-            sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
-               "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
-               "[ -f nohup.out ] && chtag -tc819 nohup.out && echo \"Output of ZMS:\" && cat nohup.out\n" +
-               "ZWS_PID=\\\$(ps -elf | grep zms | grep -v grep | awk '{print \\\$2;}')\n" +
-               "[ -n \"\\\$ZWS_PID\" ] && echo \"Found ZMS PID: \\\${ZWS_PID}, send kill signal\" && kill -9 \\\$ZWS_PID\n" +
-               "exit 0\n" +
-               "EOF"
+            // // shutdown ZMS
+            // echo "Shutting down ZMS ..."
+            // sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
+            //    "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+            //    "[ -f nohup.out ] && chtag -tc819 nohup.out && echo \"Output of ZMS:\" && cat nohup.out\n" +
+            //    "ZWS_PID=\\\$(ps -elf | grep zms | grep -v grep | awk '{print \\\$2;}')\n" +
+            //    "[ -n \"\\\$ZWS_PID\" ] && echo \"Found ZMS PID: \\\${ZWS_PID}, send kill signal\" && kill -9 \\\$ZWS_PID\n" +
+            //    "exit 0\n" +
+            //    "EOF"
           }
         } // end of lock
       } // end of withCredentials
@@ -284,7 +284,6 @@ node('ibm-jenkins-slave-dind') {
       "reports/*.yaml"
     ]
   )
-
 
   pipeline.createStage(
     name: "Chart Report",
