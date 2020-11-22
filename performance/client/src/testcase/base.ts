@@ -166,7 +166,7 @@ export default class BaseTestCase implements PerformanceTestCase {
         debug("Fetching Zowe version ...");
         // get Zowe version
         targetZoweVersions = await getZoweVersions(this.targetHost, this.targetPort);
-        debug("Zowe version: ", targetZoweVersions, ". Waiting for cool down before starting the test ...");
+        debug("Zowe version: ", targetZoweVersions);
       }
 
       // write text context to file
