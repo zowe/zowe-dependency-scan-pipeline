@@ -18,7 +18,7 @@ node('ibm-jenkins-slave-nvm') {
   pipeline.admins.add("jackjia")
 
   // usually nightly build will end before 3am
-  pipeline.addBuildOption(pipelineTriggers([cron("TZ=America/New_York\nH 3 * * *")]))
+  pipeline.addBuildOption(pipelineTriggers([cron("TZ=America/New_York\nH 4 * * 0")]))
 
   pipeline.setup()
 
