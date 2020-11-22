@@ -158,7 +158,7 @@ node('ibm-jenkins-slave-dind') {
         //                 "  }]\n" +
         //                 "}",
         //   expected    : 1
-        )
+        // )
 
         lock("performance-test-${params.TEST_SERVER}") {
           try {
