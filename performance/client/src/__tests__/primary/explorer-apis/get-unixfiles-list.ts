@@ -17,11 +17,8 @@ class ExplorerApiUnixFilesListTest extends WrkTestCase {
   name = "Test explorer api endpoint /api/v2/unixfiles";
   endpoint = '/api/v2/unixfiles?path=/etc';
 
-  // duration = 15 * 60;
-  // concurrency = 10;
-  // FIXME: TEST-RUN-ONLY
-  duration = 20;
-  concurrency = 1;
+  duration = 15 * 60;
+  concurrency = 10;
   threads = 1;
 
   async before(): Promise<void> {

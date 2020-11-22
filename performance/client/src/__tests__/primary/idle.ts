@@ -14,9 +14,7 @@ class IdleTest extends BaseTestCase {
   fetchZoweVersions = true;
 
   name = "Test when Zowe is idling";
-  // duration = 15 * 60;
-  // FIXME: TEST-RUN-ONLY
-  duration = 20;
+  duration = 15 * 60;
 }
 
 new IdleTest().init();

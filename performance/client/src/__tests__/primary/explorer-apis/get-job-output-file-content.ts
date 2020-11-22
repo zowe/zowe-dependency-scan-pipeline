@@ -19,11 +19,8 @@ class ExplorerApiJobOutputFileContentTest extends WrkTestCase {
   name = "Test explorer api endpoint /api/v2/jobs/{jobName}/{jobId}/files/{fileId}/content";
   endpoint = '/api/v2/jobs/SDSF/{jobId}/files/{fileId}/content';
 
-  // duration = 15 * 60;
-  // concurrency = 10;
-  // FIXME: TEST-RUN-ONLY
-  duration = 20;
-  concurrency = 1;
+  duration = 15 * 60;
+  concurrency = 10;
   threads = 1;
 
   async before(): Promise<void> {
