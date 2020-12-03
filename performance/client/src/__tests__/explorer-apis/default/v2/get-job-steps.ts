@@ -10,7 +10,7 @@
 
 import WrkTestCase from "../../../../testcase/wrk";
 import { getBasicAuthorizationHeader } from "../../../../utils";
-import { getJobId} from "../../../../utils/zowe";
+import { getJobId } from "../../../../utils/zowe";
 import PerformanceTestException from "../../../../exceptions/performance-test-exception";
 
 class ExplorerApiJobStepTest extends WrkTestCase {
