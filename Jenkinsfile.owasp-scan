@@ -22,7 +22,7 @@ if (env.BRANCH_NAME && (env.BRANCH_NAME == 'master')) {
 // set build properties
 properties(opts)
 
-node('ibm-jenkins-slave-dind') {
+node('zowe-jenkins-agent-dind') {
   currentBuild.result = 'SUCCESS'
   def EMAIL_RECIPIENTS = "jackjia.ibm@gmail.com"
 
