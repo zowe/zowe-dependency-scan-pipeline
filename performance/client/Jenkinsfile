@@ -11,7 +11,7 @@
  */
 
 
-node('ibm-jenkins-slave-dind') {
+node('zowe-jenkins-agent-dind') {
   def PROJECT_BASE_DIR = "performance/client"
   def DEFAULT_ZMS_PORT = 19000
 
