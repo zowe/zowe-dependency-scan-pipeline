@@ -63,9 +63,9 @@ echo "rm -fr tomcat.*" | su
 echo
 
 ################################################################################
-echo "[${SCRIPT_NAME}] purge job queue and output"
 opercmd=/ZOWE/zowe-installs/opercmd.rexx
 if [ -f "${opercmd}" ]; then
+  echo "[${SCRIPT_NAME}] purge job queue and output"
   echo "[${SCRIPT_NAME}] - \$P JQ,DAYS>2,PROT"
   "${opercmd}" '$P JQ,DAYS>2,PROT'
   echo "[${SCRIPT_NAME}] - \$PO STC1-9999"
@@ -74,6 +74,7 @@ if [ -f "${opercmd}" ]; then
   "${opercmd}" '$PO TSU1-9999'
   echo "[${SCRIPT_NAME}] - \$PO JOB1-9999"
   "${opercmd}" '$PO JOB1-9999'
+  echo
 fi
 
 ################################################################################
