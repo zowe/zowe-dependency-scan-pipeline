@@ -143,7 +143,7 @@ export const getDesktopAuthenticationCookieHeader = async (apimlGatewayHost: str
 };
 
 /**
- * Cleanup test dataset
+ * Delete test dataset and verify deletion
  *
  * @param apimlGatewayHost
  * @param apimlGatewayPort
@@ -152,7 +152,7 @@ export const getDesktopAuthenticationCookieHeader = async (apimlGatewayHost: str
 export const cleanupTestDataset = async (apimlGatewayHost: string, apimlGatewayPort: number, datasetName: string): Promise<string> => {
   const url = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/datasets/${datasetName}`;
 
-  const { body } =  await got.delete(url, {
+  const { statusCode } =  await got.delete(url, {
     https: {
       rejectUnauthorized: false
     },
@@ -161,6 +161,21 @@ export const cleanupTestDataset = async (apimlGatewayHost: string, apimlGatewayP
     },
     responseType: 'json'
   });
+
+  const { body } =  await got(url, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    responseType: 'json'
+  }); 
+  const datasets = body as {items: [{[key: string]: string|null}]};
+
+  if (Array.isArray(datasets.items) && datasets.items.length) {
+    throw new PerformanceTestException("Cleanup failed to delete test dataset");
+  }
 
   return;
 };

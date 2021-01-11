@@ -29,7 +29,7 @@ class ExplorerApiPostAndDeleteDatasetTest extends WrkSequentialEndpointsTestCase
       sequence : 0,
     },
     {
-      delay    : [100, 500],
+      delay    : [100, 100],
       endpoint : "/api/v2/datasets/TEST.TESTDS",
       method   : "DELETE",
       sequence : 10,
