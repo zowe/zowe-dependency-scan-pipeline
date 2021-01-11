@@ -10,6 +10,7 @@
 
 import WrkSequentialEndpointsTestCase from "../../../../testcase/wrk-sequential-endpoints";
 import { SequentialHttpRequest } from "../../../../types";
+import { cleanupTestDataset } from "../../../../utils/zowe";
 import { getBasicAuthorizationHeader } from "../../../../utils";
 
 class ExplorerApiPostAndDeleteDatasetTest extends WrkSequentialEndpointsTestCase {
@@ -43,6 +44,12 @@ class ExplorerApiPostAndDeleteDatasetTest extends WrkSequentialEndpointsTestCase
     await super.before();
 
     this.headers.push(getBasicAuthorizationHeader());
+  }
+
+  async after(): Promise<void> {
+    await super.after();
+
+    await cleanupTestDataset(this.targetHost, this.targetPort, "TEST.TESTDS");
   }
 }
 

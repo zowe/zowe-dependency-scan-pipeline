@@ -141,3 +141,26 @@ export const getDesktopAuthenticationCookieHeader = async (apimlGatewayHost: str
     return cookie.key + '=' + cookie.value;
   }).join('; ');
 };
+
+/**
+ * Cleanup test dataset
+ *
+ * @param apimlGatewayHost
+ * @param apimlGatewayPort
+ * @param datasetName
+ */
+export const cleanupTestDataset = async (apimlGatewayHost: string, apimlGatewayPort: number, datasetName: string): Promise<string> => {
+  const url = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/datasets/${datasetName}`;
+
+  const { body } =  await got.delete(url, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    responseType: 'json'
+  });
+
+  return;
+};
