@@ -174,7 +174,7 @@ export const cleanupTestDataset = async (apimlGatewayHost: string, apimlGatewayP
   const datasets = body as {items: [{[key: string]: string|null}]};
 
   if (Array.isArray(datasets.items) && datasets.items.length) {
-    throw new PerformanceTestException("Cleanup failed to delete test dataset");
+    throw new PerformanceTestException("Cleanup failed to delete test dataset " + datasetName);
   }
 
   return;
