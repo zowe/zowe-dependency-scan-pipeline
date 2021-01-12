@@ -174,7 +174,48 @@ export const cleanupTestDataset = async (apimlGatewayHost: string, apimlGatewayP
   const datasets = body as {items: [{[key: string]: string|null}]};
 
   if (Array.isArray(datasets.items) && datasets.items.length) {
-    throw new PerformanceTestException("Cleanup failed to delete test dataset " + datasetName);
+    throw new PerformanceTestException("Cleanup failed to delete test dataset: " + datasetName);
+  }
+
+  return;
+};
+
+/**
+ * Delete test unix file and verify deletion
+ *
+ * @param apimlGatewayHost
+ * @param apimlGatewayPort
+ * @param unixFilePath
+ * @param testDirectoryPath
+ */
+export const cleanupTestUnixFile = async (apimlGatewayHost: string, apimlGatewayPort: number, unixFilePath: string, testDirectoryPath: string): Promise<string> => {
+  const fileUrl = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/unixfiles/${unixFilePath}`;
+  const dirUrl = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/unixfiles?path=${testDirectoryPath}`;
+
+  const { statusCode } =  await got.delete(fileUrl, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    responseType: 'json'
+  });
+
+  const { body } =  await got(dirUrl, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    responseType: 'json'
+  });
+
+  console.log("cleanup: " + JSON.stringify(body).includes("zowe-performance-test-file"));
+
+  if (JSON.stringify(body).includes("zowe-performance-test-file")) {
+    throw new PerformanceTestException("Cleanup failed to delete test unix file: " + unixFilePath);
   }
 
   return;

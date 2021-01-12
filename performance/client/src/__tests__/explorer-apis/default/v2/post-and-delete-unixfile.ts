@@ -10,6 +10,7 @@
 
 import WrkSequentialEndpointsTestCase from "../../../../testcase/wrk-sequential-endpoints";
 import { SequentialHttpRequest } from "../../../../types";
+import { cleanupTestUnixFile } from "../../../../utils/zowe";
 import { getBasicAuthorizationHeader } from "../../../../utils";
 
 class ExplorerApiPostAndDeleteUnixFileTest extends WrkSequentialEndpointsTestCase {
@@ -35,16 +36,20 @@ class ExplorerApiPostAndDeleteUnixFileTest extends WrkSequentialEndpointsTestCas
     },
   ] as SequentialHttpRequest[];
 
-  duration = 1;
-  cooldown = 0;
+  duration = 15 * 60;
   concurrency = 1;
   threads = 1;
-  debug = true;
 
   async before(): Promise<void> {
     await super.before();
 
     this.headers.push(getBasicAuthorizationHeader());
+  }
+
+  async after(): Promise<void> {
+    await super.after();
+
+    await cleanupTestUnixFile(this.targetHost, this.targetPort, "tmp/zowe-performance-test-file", "/tmp");
   }
 }
 
