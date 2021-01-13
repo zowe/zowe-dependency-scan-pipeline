@@ -143,6 +143,41 @@ export const getDesktopAuthenticationCookieHeader = async (apimlGatewayHost: str
 };
 
 /**
+ * Create test dataset
+ *
+ * @param apimlGatewayHost
+ * @param apimlGatewayPort
+ * @param datasetName
+ */
+export const createTestDataset = async (apimlGatewayHost: string, apimlGatewayPort: number, datasetName: string): Promise<string> => {
+  const url = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/datasets`;
+
+  const { statusCode, headers } = await got.post(url, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    json: {
+      "allocationUnit":"TRACK",
+      "averageBlock":500,
+      "blockSize":400,
+      "dataSetOrganization":"PO",
+      "deviceType":3390,
+      "directoryBlocks":5,
+      "name":`${datasetName}`,
+      "primary":10,
+      "recordFormat":"FB",
+      "recordLength":80,
+      "secondary":5
+    }
+  });
+
+  return;
+};
+
+/**
  * Delete test dataset and verify deletion
  *
  * @param apimlGatewayHost
