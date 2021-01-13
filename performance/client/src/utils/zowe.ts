@@ -216,6 +216,47 @@ export const cleanupTestDataset = async (apimlGatewayHost: string, apimlGatewayP
 };
 
 /**
+ * Create test unix file and verify creation
+ *
+ * @param apimlGatewayHost
+ * @param apimlGatewayPort
+ * @param unixFilePath
+ * @param testDirectoryPath
+ */
+export const createTestUnixFile = async (apimlGatewayHost: string, apimlGatewayPort: number, unixFilePath: string, testDirectoryPath: string): Promise<string> => {
+  const fileUrl = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/unixfiles/${unixFilePath}`;
+  const dirUrl = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/unixfiles?path=${testDirectoryPath}`;
+
+  const { statusCode, headers } =  await got.post(fileUrl, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    json: {
+      "type":"FILE"
+    }
+  });
+
+  const { body } =  await got(dirUrl, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    responseType: 'json'
+  });
+
+  if (!JSON.stringify(body).includes("zowe-performance-test-file")) {
+    throw new PerformanceTestException("Set up failed to create test unix file: " + unixFilePath);
+  }
+
+  return;
+};
+
+/**
  * Delete test unix file and verify deletion
  *
  * @param apimlGatewayHost
@@ -234,6 +275,9 @@ export const cleanupTestUnixFile = async (apimlGatewayHost: string, apimlGateway
     headers: {
       'Authorization': getBasicAuthorizationHeaderValue()
     },
+    json: {
+      "type":"FILE"
+    },
     responseType: 'json'
   });
 
@@ -246,8 +290,6 @@ export const cleanupTestUnixFile = async (apimlGatewayHost: string, apimlGateway
     },
     responseType: 'json'
   });
-
-  console.log("cleanup: " + JSON.stringify(body).includes("zowe-performance-test-file"));
 
   if (JSON.stringify(body).includes("zowe-performance-test-file")) {
     throw new PerformanceTestException("Cleanup failed to delete test unix file: " + unixFilePath);
