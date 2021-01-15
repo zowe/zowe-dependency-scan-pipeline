@@ -10,6 +10,7 @@
 
 import WrkTestCase from "../../../testcase/wrk";
 import { getBasicAuthorizationHeader } from "../../../utils";
+import { purgeJobOutputsWithoutFailure } from "../../../utils/zosmf";
 
 class ExplorerApiUnixFilesListTest extends WrkTestCase {
   fetchZoweVersions = true;
@@ -23,7 +24,13 @@ class ExplorerApiUnixFilesListTest extends WrkTestCase {
 
   async before(): Promise<void> {
     await super.before();
+    await purgeJobOutputsWithoutFailure('TSU');
     this.headers.push(getBasicAuthorizationHeader());
+  }
+
+  async after(): Promise<void> {
+    await super.after();
+    await purgeJobOutputsWithoutFailure('TSU');
   }
 }
 

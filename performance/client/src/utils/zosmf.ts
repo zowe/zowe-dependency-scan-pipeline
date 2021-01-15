@@ -12,10 +12,9 @@ import { Options } from "got";
 import { PerformanceTestException } from "..";
 import { GotHttpResponse, JesCheckpointSpace, JesPurgeJobOutputResponse, JesSpoolStatus } from "../types";
 import { getBasicAuthorizationHeaderValue, httpRequest } from "../utils";
-// import PerformanceTestException from "../exceptions/performance-test-exception";
 
-// import Debug from 'debug';
-// const debug = Debug('zowe-performance-test:zosmf-utils');
+import Debug from 'debug';
+const debug = Debug('zowe-performance-test:zosmf-utils');
 
 /**
  * Parse key/value pairs from string
@@ -233,5 +232,15 @@ export const purgeJobOutputs = async (jobClass = 'TSU'): Promise<JesPurgeJobOutp
   return response;
 };
 
-
-
+/**
+ * Purge JES job output without throwing any errors
+ *
+ * @param jobClass 
+ */
+export const purgeJobOutputsWithoutFailure = async (jobClass = 'TSU'): Promise<JesPurgeJobOutputResponse> => {
+  try {
+    return await purgeJobOutputs(jobClass);
+  } catch (e) {
+    debug(`Purge job failed: ${e}`);
+  }
+};
