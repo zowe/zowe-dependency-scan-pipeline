@@ -8,7 +8,6 @@
  * Copyright IBM Corporation 2020
  */
 
-import got from "got";
 import { getBasicAuthorizationHeaderValue, httpRequest, parseHttpResponseCookies, prepareHttpRequestCookies } from "../utils";
 import PerformanceTestException from "../exceptions/performance-test-exception";
 
@@ -54,9 +53,10 @@ export const getJobId = async (apimlGatewayHost: string, apimlGatewayPort: numbe
     apimlGatewayHost,
     apimlGatewayPort,
     `/api/v2/jobs?prefix=${jobName}&status=${jobStatus}&owner=${jobOwner}`,
-    'GET',
     {
-      'Authorization': getBasicAuthorizationHeaderValue()
+      headers: {
+        'Authorization': getBasicAuthorizationHeaderValue()
+      }
     }
   );
 
@@ -79,9 +79,10 @@ export const getFileId = async (apimlGatewayHost: string, apimlGatewayPort: numb
     apimlGatewayHost,
     apimlGatewayPort,
     `/api/v2/jobs/${jobName}/${jobId}/files`,
-    'GET',
     {
-      'Authorization': getBasicAuthorizationHeaderValue()
+      headers: {
+        'Authorization': getBasicAuthorizationHeaderValue()
+      }
     }
   );
 
@@ -115,11 +116,12 @@ export const getDesktopAuthenticationCookieHeader = async (apimlGatewayHost: str
     apimlGatewayHost,
     apimlGatewayPort,
     '/ui/v1/zlux/auth',
-    'POST',
-    {},
     {
-      username: user,
-      password,
+      method: 'POST',
+      json: {
+        username: user,
+        password,
+      }
     }
   );
 
@@ -154,11 +156,12 @@ export const getApimlAuthenticationCookieHeader = async (apimlGatewayHost: strin
     apimlGatewayHost,
     apimlGatewayPort,
     '/api/v1/gateway/auth/login',
-    'POST',
-    {},
     {
-      username: user,
-      password,
+      method: 'POST',
+      json: {
+        username: user,
+        password,
+      }
     }
   );
 

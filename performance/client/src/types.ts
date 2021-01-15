@@ -8,6 +8,8 @@
  * Copyright IBM Corporation 2020
  */
 
+import { IncomingHttpHeaders } from "http2";
+
 export interface PerformanceTestCase {
   // test case name
   name: string;
@@ -169,4 +171,37 @@ export interface SequentialWrkHttpRequest extends WrkHttpRequest {
   // how many milliseconds to delay before next request
   // 2 numbers represent minimum and maximum time period
   delay?: [number, number];
+}
+
+export interface GotHttpResponse {
+  statusCode: number;
+  headers: IncomingHttpHeaders;
+  // eslint-disable-next-line
+  body: any;
+}
+
+export interface JesSpoolStatus {
+  percent?: number;
+  volumes: {
+    [key: string]: {
+      [key: string]: string;
+    };
+  };
+}
+
+export interface JesCheckpointSpace {
+  bertNum: number;
+  bertFree: number;
+  bertWarn: number;
+  checkpoints: {
+    [key: string]: {
+      [key: string]: string;
+    };
+  };
+}
+
+export interface JesPurgeJobOutputResponse {
+  rc: number;
+  count: number;
+  message?: string;
 }

@@ -8,12 +8,13 @@
  * Copyright IBM Corporation 2020
  */
 
-import got, { Method } from "got";
+import got, { Options } from "got";
 import { IncomingHttpHeaders } from "http2";
 import { Cookie } from "tough-cookie";
 import PerformanceTestException from "../exceptions/performance-test-exception";
 
 import Debug from 'debug';
+import { GotHttpResponse } from "../types";
 const debug = Debug('zowe-performance-test:utils');
 
 /**
@@ -91,33 +92,33 @@ export const prepareHttpRequestCookies = (cookies: Cookie[]): string => {
  * @param method      request method, default is 'GET'
  * @param json        POST/PUT body
  */
-export const httpRequest = async (targetHost: string, targetPort: number, path: string, method?: Method, headers?: Record<string, string | string[]>, json?: { [key: string]: unknown }): Promise<{ statusCode: number; headers: IncomingHttpHeaders; body: unknown}> => {
+export const httpRequest = async (targetHost: string, targetPort: number, path: string, options?: Options): Promise<GotHttpResponse> => {
   const url = `https://${targetHost}:${targetPort}${path}`;
 
   debug(`HTTP request url: ${url}`);
 
   try {
-    const response =  await got(url, {
+    // eslint-disable-next-line
+    const response: any = await got(url, Object.assign({
       https: {
         rejectUnauthorized: false
       },
-      method,
-      headers,
-      json,
       responseType: 'json'
-    });
-    debug(`HTTP response status: ${response.statusCode}`);
-    debug(`              headers: ${JSON.stringify(response.headers)}`);
-    debug(`              body: ${JSON.stringify(response.body)}`);
+    }, options));
+    const { statusCode, headers, body } = response;
+    debug(`HTTP response status: ${statusCode}`);
+    debug(`              headers: ${JSON.stringify(headers)}`);
+    debug(`              body: ${JSON.stringify(body)}`);
 
-    return { statusCode: response.statusCode, headers: response.headers, body: response.body };
+    return { statusCode, headers, body };
   } catch (e) {
     if (e.response) {
-      debug(`HTTP response status: ${e.response.statusCode}`);
-      debug(`              headers: ${JSON.stringify(e.response.headers)}`);
-      debug(`              body: ${JSON.stringify(e.response.body)}`);
+      const { statusCode, headers, body } = e.response;
+      debug(`HTTP response status: ${statusCode}`);
+      debug(`              headers: ${JSON.stringify(headers)}`);
+      debug(`              body: ${JSON.stringify(body)}`);
 
-      return { statusCode: e.response.statusCode, headers: e.response.headers, body: e.response.body };
+      return { statusCode, headers, body };
     } else {
       throw e;
     }
