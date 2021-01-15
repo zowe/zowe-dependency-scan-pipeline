@@ -181,7 +181,7 @@ export interface GotHttpResponse {
 }
 
 export interface JesSpoolStatus {
-  percent?: number;
+  utilization?: number;
   volumes: {
     [key: string]: {
       [key: string]: string;

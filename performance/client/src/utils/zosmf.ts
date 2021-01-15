@@ -14,6 +14,7 @@ import { GotHttpResponse, JesCheckpointSpace, JesPurgeJobOutputResponse, JesSpoo
 import { getBasicAuthorizationHeaderValue, httpRequest } from "../utils";
 
 import Debug from 'debug';
+import { DEFAULT_JES_MINIMAL_FREE_BERTS_PERCENT, DEFAULT_JES_MINIMAL_FREE_SPOOL_PERCENT } from "../constants";
 const debug = Debug('zowe-performance-test:zosmf-utils');
 
 /**
@@ -49,20 +50,18 @@ const parseProps = (str: string): { [key: string]: string } => {
  * @param zOSMFHost 
  * @param zOSMFPort 
  */
-export const zOSMFRequest = async (path: string, options?: Options, zOSMFHost?: string, zOSMFPort?: number): Promise<GotHttpResponse> => {
-  if (!zOSMFHost) {
-    zOSMFHost = process.env.ZOSMF_HOST || process.env.TARGET_HOST;
-  }
-  if (!zOSMFPort) {
-    zOSMFPort = (process.env.ZOSMF_PORT && parseInt(process.env.ZOSMF_PORT, 10)) || 443;
-  }
+export const zOSMFRequest = async (path: string, options?: Options): Promise<GotHttpResponse> => {
+  const zOSMFHost = process.env.ZOSMF_HOST || process.env.TARGET_HOST;
+  const zOSMFPort = (process.env.ZOSMF_PORT && parseInt(process.env.ZOSMF_PORT, 10)) || 443;
+  const zOSMFUser = process.env.ZOSMF_AUTH_USER || process.env.TEST_AUTH_USER;
+  const zOSMFPassword = process.env.ZOSMF_AUTH_PASSWORD || process.env.TEST_AUTH_PASSWORD;
 
   if (!options) {
     options = {};
   }
   if (!options.headers) {
     options.headers = {
-      'Authorization': getBasicAuthorizationHeaderValue(),
+      'Authorization': getBasicAuthorizationHeaderValue(zOSMFUser, zOSMFPassword),
       'X-CSRF-ZOSMF-HEADER': '*'
     };
   }
@@ -108,7 +107,7 @@ export const getJesSpoolStatus = async (): Promise<JesSpoolStatus> => {
 
   const lines = text.split(/\n|\r/);
   const response: JesSpoolStatus = {
-    percent: null,
+    utilization: null,
     volumes: Object.create({}),
   };
   let currentVolume: string;
@@ -130,7 +129,7 @@ export const getJesSpoolStatus = async (): Promise<JesSpoolStatus> => {
         };
       }
     } else if (m = line.match(/^\$HASP646 (.+) PERCENT SPOOL UTILIZATION/)) {
-      response.percent = parseFloat(m[1]);
+      response.utilization = parseFloat(m[1]);
     }
   });
 
@@ -182,6 +181,51 @@ export const getJesCheckpointSpace = async (): Promise<JesCheckpointSpace> => {
   return response;
 };
 
+/**
+ * Validate if BERTs is big enough to start test
+ *
+ * @param threshold 
+ */
+export const validateFreeBerts = async (threshold?: number): Promise<void> => {
+  if (!threshold) {
+    threshold = (process.env.JES_MINIMAL_FREE_BERTS_PERCENT && parseInt(process.env.JES_MINIMAL_FREE_BERTS_PERCENT, 10)) || DEFAULT_JES_MINIMAL_FREE_BERTS_PERCENT;
+  }
+  debug(`JES BERTs free threshold: ${threshold}`);
+
+  const ckpt = await getJesCheckpointSpace();
+  if (ckpt.bertNum) {
+    const free = (ckpt.bertFree / ckpt.bertNum) * 100;
+    debug(`BERTs (free/num = %): ${ckpt.bertFree}/${ckpt.bertNum} = ${free}%`);
+    if (free < threshold) {
+      throw new PerformanceTestException(`Not enough JES BERTs (${ckpt.bertFree}/${ckpt.bertNum}) to start test`);
+    }
+  } else {
+    debug('WARNING: unable to determine BERTNUM');
+  }
+};
+
+/**
+ * Validate if JES Spool is big enough to start test
+ *
+ * @param threshold 
+ */
+export const validateJesSpool = async (threshold?: number): Promise<void> => {
+  if (!threshold) {
+    threshold = (process.env.JES_MINIMAL_FREE_SPOOL_PERCENT && parseInt(process.env.JES_MINIMAL_FREE_SPOOL_PERCENT, 10)) || DEFAULT_JES_MINIMAL_FREE_SPOOL_PERCENT;
+  }
+  debug(`JES Spool free threshold: ${threshold}`);
+
+  const spool = await getJesSpoolStatus();
+  if (spool.utilization) {
+    debug(`JES Spool utilization: ${spool.utilization}%`);
+    const free = 100 - spool.utilization;
+    if (free < threshold) {
+      throw new PerformanceTestException(`Not enough JES Spool (${spool.utilization}% utilization) to start test`);
+    }
+  } else {
+    debug('WARNING: unable to determine JES spool utilization');
+  }
+};
 
 /**
  * Purge JES2 Job Outputs

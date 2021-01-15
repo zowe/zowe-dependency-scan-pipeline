@@ -113,3 +113,8 @@ export const DEFAULT_CLIENT_METRICS_COLLECTOR_COOLDOWN_TIME = 0;
 export const DEFAULT_TEST_COOLDOWN = 40;
 
 export const DEFAULT_HTTP_REQUEST_METHOD: HttpRequestMethod = "GET";
+
+// if BERTFREE/BERTNUM is less than this threshold, test case will be rejected to start
+export const DEFAULT_JES_MINIMAL_FREE_BERTS_PERCENT = 20;
+// if free JES Spool percentage is less than this threshold, test case will be rejected to start
+export const DEFAULT_JES_MINIMAL_FREE_SPOOL_PERCENT = 20;
