@@ -9,7 +9,7 @@
  */
 
 import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
 
 class ExplorerApiJobListTest extends WrkTestCase {
   fetchZoweVersions = true;
@@ -23,7 +23,7 @@ class ExplorerApiJobListTest extends WrkTestCase {
 
   async before(): Promise<void> {
     await super.before();
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 }
 

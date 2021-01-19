@@ -10,7 +10,7 @@
 
 import WrkWeightedEndpointsTestCase from "../../../testcase/wrk-weighted-endpoints";
 import { WeightedHttpRequest } from "../../../types";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
 
 class ExampleWrkWeightedEndpointsTest extends WrkWeightedEndpointsTestCase {
   // name/purpose of the test
@@ -67,7 +67,7 @@ class ExampleWrkWeightedEndpointsTest extends WrkWeightedEndpointsTestCase {
     await super.before();
  
     // this test requires authentication header
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 }
 

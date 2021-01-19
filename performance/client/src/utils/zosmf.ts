@@ -9,12 +9,12 @@
  */
 
 import { Options } from "got";
-import { PerformanceTestException } from "..";
+import PerformanceTestException from "../exceptions/performance-test-exception";
 import { GotHttpResponse, JesCheckpointSpace, JesPurgeJobOutputResponse, JesSpoolStatus } from "../types";
+import { DEFAULT_JES_MINIMAL_FREE_BERTS_PERCENT, DEFAULT_JES_MINIMAL_FREE_SPOOL_PERCENT } from "../constants";
 import { getBasicAuthorizationHeaderValue, httpRequest } from "../utils";
 
 import Debug from 'debug';
-import { DEFAULT_JES_MINIMAL_FREE_BERTS_PERCENT, DEFAULT_JES_MINIMAL_FREE_SPOOL_PERCENT } from "../constants";
 const debug = Debug('zowe-performance-test:zosmf-utils');
 
 /**

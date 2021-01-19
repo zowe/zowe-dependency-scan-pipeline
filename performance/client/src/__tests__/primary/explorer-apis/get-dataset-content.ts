@@ -9,7 +9,7 @@
  */
 
 import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
 import { purgeJobOutputsWithoutFailure, validateFreeBerts, validateJesSpool } from "../../../utils/zosmf";
 
 class ExplorerApiDatasetContentTest extends WrkTestCase {
@@ -27,7 +27,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
     await purgeJobOutputsWithoutFailure('TSU');
     await validateFreeBerts();
     await validateJesSpool();
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 
   async after(): Promise<void> {

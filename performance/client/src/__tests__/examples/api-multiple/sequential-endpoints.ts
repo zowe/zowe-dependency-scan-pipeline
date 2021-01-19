@@ -10,7 +10,7 @@
 
 import WrkSequentialEndpointsTestCase from "../../../testcase/wrk-sequential-endpoints";
 import { SequentialHttpRequest } from "../../../types";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
 
 class ExampleWrkSequentialEndpointsTest extends WrkSequentialEndpointsTestCase {
   // name/purpose of the test
@@ -70,7 +70,7 @@ class ExampleWrkSequentialEndpointsTest extends WrkSequentialEndpointsTestCase {
     await super.before();
  
     // this test requires authentication header
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 }
 

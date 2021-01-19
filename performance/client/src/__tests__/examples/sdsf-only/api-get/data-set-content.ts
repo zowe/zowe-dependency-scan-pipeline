@@ -9,7 +9,7 @@
  */
 
 import WrkTestCase from "../../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../../utils";
+import { getApimlAuthenticationCookieHeader } from "../../../../utils/zowe";
 import { SDSF_ONLY_ZMS_CPUTIME_METRICS, SDSF_ONLY_ZMS_METRICS } from "../../../../constants";
 
 class ExplorerApiDatasetContentTest extends WrkTestCase {
@@ -58,7 +58,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
     await super.before();
 
     // this test requires authentication header
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 }
 

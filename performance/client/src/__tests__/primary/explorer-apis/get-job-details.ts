@@ -9,7 +9,7 @@
  */
 
 import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
 import { getJobId } from "../../../utils/zowe";
 import PerformanceTestException from "../../../exceptions/performance-test-exception";
 
@@ -35,7 +35,7 @@ class ExplorerApiJobDetailsTest extends WrkTestCase {
     this.endpoint = this.endpoint.replace('{jobId}', jobId);
     this.fullUrl = `https://${this.targetHost}:${this.targetPort}${this.endpoint}`;
    
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
  
   }
 }

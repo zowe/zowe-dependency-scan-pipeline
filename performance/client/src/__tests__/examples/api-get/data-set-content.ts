@@ -9,7 +9,7 @@
  */
 
 import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
 
 class ExplorerApiDatasetContentTest extends WrkTestCase {
   // name/purpose of the test
@@ -20,8 +20,8 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   // example: 15 minutes
-  duration = 15 * 60;
-  // duration = 30 ;
+  // duration = 15 * 60;
+  duration = 30 ;
 
   // endpoint we want to test
   endpoint = '/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content';
@@ -34,10 +34,10 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // - concurrency: DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY
   // - threads: DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY
   // Enabling debug mode will also show the log in test report as `consoleLog`.
-  // debug = true;
+  debug = true;
 
   // overwrite cooldown time for debugging purpose
-  // cooldown = 0;
+  cooldown = 0;
 
   // example to overwrite default collector options
   // serverMetricsCollectorOptions = {
@@ -68,7 +68,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
     await super.before();
 
     // this test requires authentication header
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 }
 
