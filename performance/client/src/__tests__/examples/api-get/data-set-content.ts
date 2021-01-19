@@ -10,6 +10,7 @@
 
 import WrkTestCase from "../../../testcase/wrk";
 import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
+import { purgeJobOutputsWithoutFailure, validateFreeBerts, validateJesSpool } from "../../../utils/zosmf";
 
 class ExplorerApiDatasetContentTest extends WrkTestCase {
   // name/purpose of the test
@@ -20,11 +21,11 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   // example: 15 minutes
-  // duration = 15 * 60;
-  duration = 30 ;
+  duration = 15 * 60;
+  // duration = 30 ;
 
   // endpoint we want to test
-  endpoint = '/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content';
+  endpoint = '/api/v2/datasets/SYS1.PARMLIB(ERBRMF00)/content';
 
   // enable debug mode?
   // Enabling debug mode will log every request/response sent to or received from
@@ -34,10 +35,10 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // - concurrency: DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY
   // - threads: DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY
   // Enabling debug mode will also show the log in test report as `consoleLog`.
-  debug = true;
+  // debug = true;
 
   // overwrite cooldown time for debugging purpose
-  cooldown = 0;
+  // cooldown = 0;
 
   // example to overwrite default collector options
   // serverMetricsCollectorOptions = {
@@ -67,8 +68,24 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   async before(): Promise<void> {
     await super.before();
 
+    // depends on the endpoint, some tests may need these check
+    // /api/v2/datasets will create TSO address spaces behind the scene,
+    // we want to cleanup job outputs before and after test
+    // cleanup job outputs before test
+    await purgeJobOutputsWithoutFailure('TSU');
+    // validate if JES spool percentage and free BERTs are good for test
+    await validateFreeBerts();
+    await validateJesSpool();
+
     // this test requires authentication header
     this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
+  }
+
+  async after(): Promise<void> {
+    await super.after();
+
+    // cleanup job outputs after test
+    await purgeJobOutputsWithoutFailure('TSU');
   }
 }
 

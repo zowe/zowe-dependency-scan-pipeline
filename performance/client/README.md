@@ -167,7 +167,7 @@ We can extend from `WrkTestCase` to define a customized API test. This is an exa
 ```typescript
 // depends on your relative folder from where "testcase/base" is located
 import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
 import { DEFAULT_CLIENT_METRICS } from "../../../constants";
 import { HttpRequestMethod } from "../../../types";
 
@@ -183,14 +183,14 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   duration = 15 * 60;
 
   // required. endpoint we want to test
-  endpoint = '/api/v1/datasets/MYUSER.MYDS(MYMEMBER)/content';
+  endpoint = '/api/v2/datasets/MYUSER.MYDS(MYMEMBER)/content';
 
   // http method. Default value is GET.
   // You can change to POST, PUT, DELETE, etc.
   // method = "POST" as HttpRequestMethod;
 
   // endpoint we want to test
-  endpoint = '/api/v1/gateway/auth/login';
+  // endpoint = '/api/v1/gateway/auth/login';
 
   // body of post request in string format
   // body = JSON.stringify({
@@ -252,7 +252,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
     await super.before();
 
     // this test requires authentication header
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 };
 

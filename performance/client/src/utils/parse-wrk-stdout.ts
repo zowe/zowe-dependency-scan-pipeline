@@ -78,7 +78,7 @@ export const parseWrkStdout = (stdout: string): {[key: string]: unknown} => {
 
   /* stdout examples:
 
-Running 15s test @ https://zzow02.zowe.marist.cloud:7554/api/v1/datasets/ZOWEAD3.PERF.TEST(PURGEJOB)/content
+Running 15s test @ https://<host>:7554/api/v2/datasets/ZOWEAD3.PERF.TEST(PURGEJOB)/content
   1 threads and 10 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
     Latency     1.24s   535.19ms   3.16s    67.52%
@@ -92,7 +92,7 @@ Running 15s test @ https://zzow02.zowe.marist.cloud:7554/api/v1/datasets/ZOWEAD3
 Requests/sec:      7.58
 Transfer/sec:      8.55KB
 
-Running 15s test @ https://zzow01.zowe.marist.cloud:7554/api/v1/datasets/ZOWEAD3.PERF.TEST(PURGEJOB)/content
+Running 15s test @ https://<host>:7554/api/v2/datasets/ZOWEAD3.PERF.TEST(PURGEJOB)/content
   1 threads and 10 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
     Latency     0.00us    0.00us   0.00us    -nan%
@@ -106,7 +106,7 @@ Running 15s test @ https://zzow01.zowe.marist.cloud:7554/api/v1/datasets/ZOWEAD3
 Requests/sec:      0.00
 Transfer/sec:       0.00B
 
-Running 15s test @ https://zzow02.zowe.marist.cloud:7554/api/v1/datasets/ZOWEAD3.PERF.TEST(PURGEJOB)/content
+Running 15s test @ https://<host>:7554/api/v2/datasets/ZOWEAD3.PERF.TEST(PURGEJOB)/content
   1 threads and 10 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
     Latency    36.60ms    5.13ms  81.35ms   82.82%

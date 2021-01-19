@@ -25,7 +25,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   // duration = 30 ;
 
   // endpoint we want to test
-  endpoint = '/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content';
+  endpoint = '/api/v2/datasets/SYS1.PARMLIB(ERBRMF00)/content';
 
   // enable debug mode?
   // Enabling debug mode will log every request/response sent to or received from

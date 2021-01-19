@@ -30,7 +30,7 @@ class ExampleWrkWeightedEndpointsTest extends WrkWeightedEndpointsTestCase {
   // endpoints we want to test
   endpoints = [
     {
-      endpoint : "/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content",
+      endpoint : "/api/v2/datasets/SYS1.PARMLIB(ERBRMF00)/content",
       // weight can be 0 (zero) which will make this endpoint not possible to be selected
       weight   : 1,
     },
