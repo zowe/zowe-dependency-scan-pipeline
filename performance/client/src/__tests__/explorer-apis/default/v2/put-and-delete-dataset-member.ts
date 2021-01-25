@@ -36,14 +36,14 @@ class ExplorerApiPutAndDeleteDatasetMemberTest extends WrkSequentialEndpointsTes
     },
   ] as SequentialHttpRequest[];
 
-  duration = 15 * 60;
+  duration = 5;
   concurrency = 1;
   threads = 1;
 
   async before(): Promise<void> {
     await super.before();
 
-    await createTestDataset(this.targetHost, this.targetPort, "TEST.TESTDS");
+    await createTestDataset(this.targetHost, this.targetPort, "TEST.TESTDS", "PO");
 
     this.headers.push(getBasicAuthorizationHeader());
   }

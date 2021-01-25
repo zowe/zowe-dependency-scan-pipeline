@@ -148,8 +148,9 @@ export const getDesktopAuthenticationCookieHeader = async (apimlGatewayHost: str
  * @param apimlGatewayHost
  * @param apimlGatewayPort
  * @param datasetName
+ * @param datasetOrganization
  */
-export const createTestDataset = async (apimlGatewayHost: string, apimlGatewayPort: number, datasetName: string): Promise<string> => {
+export const createTestDataset = async (apimlGatewayHost: string, apimlGatewayPort: number, datasetName: string, datasetOrganization: string): Promise<string> => {
   const url = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/datasets`;
 
   const { statusCode, headers } = await got.post(url, {
@@ -163,7 +164,7 @@ export const createTestDataset = async (apimlGatewayHost: string, apimlGatewayPo
       "allocationUnit":"TRACK",
       "averageBlock":500,
       "blockSize":400,
-      "dataSetOrganization":"PO",
+      "dataSetOrganization":`${datasetOrganization}`,
       "deviceType":3390,
       "directoryBlocks":5,
       "name":`${datasetName}`,
