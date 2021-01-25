@@ -153,6 +153,9 @@ export const getDesktopAuthenticationCookieHeader = async (apimlGatewayHost: str
 export const createTestDataset = async (apimlGatewayHost: string, apimlGatewayPort: number, datasetName: string, datasetOrganization: string): Promise<string> => {
   const url = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/datasets`;
 
+  let directoryBlocks = 0;
+  if (datasetOrganization == "PO") directoryBlocks = 5;
+
   const { statusCode, headers } = await got.post(url, {
     https: {
       rejectUnauthorized: false
@@ -166,7 +169,7 @@ export const createTestDataset = async (apimlGatewayHost: string, apimlGatewayPo
       "blockSize":400,
       "dataSetOrganization":`${datasetOrganization}`,
       "deviceType":3390,
-      "directoryBlocks":5,
+      "directoryBlocks":`${directoryBlocks}`,
       "name":`${datasetName}`,
       "primary":10,
       "recordFormat":"FB",
