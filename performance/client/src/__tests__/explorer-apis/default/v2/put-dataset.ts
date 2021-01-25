@@ -28,7 +28,7 @@ class ExplorerApiPutDatasetTest extends WrkTestCase {
   ];
 
   duration = 15 * 60;
-  concurrency = 10;
+  concurrency = 1;
   threads = 1;
 
   async before(): Promise<void> {
