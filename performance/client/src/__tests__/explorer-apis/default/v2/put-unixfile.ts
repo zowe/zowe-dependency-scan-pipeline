@@ -16,7 +16,7 @@ import { HttpRequestMethod } from "../../../../types";
 class ExplorerApiPutUnixFileTest extends WrkTestCase {
   fetchZoweVersions = true;
 
-  name = "Test explorer api endpoints PUT /api/v2/unixfiles/{path}";
+  name = "Test explorer api endpoint PUT /api/v2/unixfiles/{path}";
   endpoint = '/api/v2/unixfiles/tmp/zowe-performance-test-file';
 
   method = "PUT" as HttpRequestMethod;
