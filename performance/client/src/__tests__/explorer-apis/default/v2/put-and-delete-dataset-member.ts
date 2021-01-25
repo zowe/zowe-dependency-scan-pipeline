@@ -36,7 +36,7 @@ class ExplorerApiPutAndDeleteDatasetMemberTest extends WrkSequentialEndpointsTes
     },
   ] as SequentialHttpRequest[];
 
-  duration = 5;
+  duration = 15 * 60;
   concurrency = 1;
   threads = 1;
 
