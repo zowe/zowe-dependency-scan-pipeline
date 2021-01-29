@@ -15,7 +15,7 @@ class DesktopDatasetContentTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test desktop api endpoint /ui/v1/zlux/datasetContents/{path}";
-  endpoint = '/ui/v1/zlux/datasetContents/SYS1.HELP(TIME)';
+  endpoint = "/ui/v1/zlux/datasetContents/SYS1.HELP(TIME)";
 
   duration = 15 * 60;
   concurrency = 10;

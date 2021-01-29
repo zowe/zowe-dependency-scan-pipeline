@@ -1,11 +1,16 @@
 libs-snapshot-local/org/zowe/
 libs-snapshot-local/org/zowe/cli/zowe-cli-package/
 libs-snapshot-local/org/zowe/explorer/data/sets/
+libs-snapshot-local/org/zowe/explorer/files/
 libs-snapshot-local/org/zowe/explorer/jobs/
 libs-snapshot-local/org/zowe/explorer-jes/
 libs-snapshot-local/org/zowe/explorer-mvs/
 libs-snapshot-local/org/zowe/explorer-uss/
+libs-snapshot-local/org/zowe/explorer-ui-server/
+libs-snapshot-local/org/zowe/keyring-utilities/
+libs-snapshot-local/org/zowe/utility_tools/
 libs-snapshot-local/org/zowe/metrics-server/
+libs-snapshot-local/org/zowe/launcher/
 libs-snapshot-local/org/zowe/zlux/sample-angular-app/
 libs-snapshot-local/org/zowe/zlux/sample-iframe-app/
 libs-snapshot-local/org/zowe/zlux/sample-react-app/
@@ -22,3 +27,5 @@ libs-snapshot-local/org/zowe/zlux/zlux-workflow/
 libs-snapshot-local/org/zowe/zlux/zosmf-auth/
 libs-snapshot-local/org/zowe/zlux/zss-auth/
 libs-snapshot-local/org/zowe/zss/
+libs-snapshot-local/org/zowe/sample-node-api/
+libs-snapshot-local/org/zowe/sample-trial-app/

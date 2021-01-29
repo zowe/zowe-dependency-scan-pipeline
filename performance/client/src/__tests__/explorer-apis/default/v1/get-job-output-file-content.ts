@@ -8,16 +8,16 @@
  * Copyright IBM Corporation 2020
  */
 
-import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
-import { getJobId, getFileId } from "../../../utils/zowe";
-import PerformanceTestException from "../../../exceptions/performance-test-exception";
+import WrkTestCase from "../../../../testcase/wrk";
+import { getBasicAuthorizationHeader } from "../../../../utils";
+import { getJobId, getFileId } from "../../../../utils/zowe";
+import PerformanceTestException from "../../../../exceptions/performance-test-exception";
 
 class ExplorerApiJobOutputFileContentTest extends WrkTestCase {
   fetchZoweVersions = true;
 
-  name = "Test explorer api endpoint /api/v2/jobs/{jobName}/{jobId}/files/{fileId}/content";
-  endpoint = "/api/v2/jobs/SDSF/{jobId}/files/{fileId}/content";
+  name = "Test explorer api endpoint /api/v1/jobs/{jobName}/{jobId}/files/{fileId}/content";
+  endpoint = "/api/v1/jobs/SDSF/{jobId}/files/{fileId}/content";
 
   duration = 15 * 60;
   concurrency = 10;

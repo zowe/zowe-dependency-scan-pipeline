@@ -8,8 +8,8 @@
  * Copyright IBM Corporation 2020
  */
 
-import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import WrkTestCase from "../../../../testcase/wrk";
+import { getBasicAuthorizationHeader } from "../../../../utils";
 
 class ExplorerApiUnixFileContentTest extends WrkTestCase {
   fetchZoweVersions = true;

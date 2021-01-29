@@ -14,7 +14,7 @@ class PluginListTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test desktop api endpoint /ui/v1/zlux/plugins";
-  endpoint = '/ui/v1/zlux/plugins?type=desktop';
+  endpoint = "/ui/v1/zlux/plugins?type=desktop";
 
   duration = 15 * 60;
   concurrency = 10;
