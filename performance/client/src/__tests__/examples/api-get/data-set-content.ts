@@ -10,7 +10,7 @@
 
 import WrkTestCase from "../../../testcase/wrk";
 import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
-import { purgeJobOutputsWithoutFailure, validateFreeBerts, validateJesSpool } from "../../../utils/zosmf";
+import { purgeJobOutputsWithoutFailure, validateFreeBerts, validateJesSpool, validateTsUsers } from "../../../utils/zosmf";
 
 class ExplorerApiDatasetContentTest extends WrkTestCase {
   // name/purpose of the test
@@ -76,6 +76,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
     // validate if JES spool percentage and free BERTs are good for test
     await validateFreeBerts();
     await validateJesSpool();
+    await validateTsUsers();
 
     // this test requires authentication header
     this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));

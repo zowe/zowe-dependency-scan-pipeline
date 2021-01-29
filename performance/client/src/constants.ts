@@ -118,3 +118,5 @@ export const DEFAULT_HTTP_REQUEST_METHOD: HttpRequestMethod = "GET";
 export const DEFAULT_JES_MINIMAL_FREE_BERTS_PERCENT = 20;
 // if free JES Spool percentage is less than this threshold, test case will be rejected to start
 export const DEFAULT_JES_MINIMAL_FREE_SPOOL_PERCENT = 20;
+// if free time-sharing users percentage is less than this threshold, test case will be rejected to start
+export const DEFAULT_JES_MINIMAL_FREE_TS_USERS_PERCENT = 50;

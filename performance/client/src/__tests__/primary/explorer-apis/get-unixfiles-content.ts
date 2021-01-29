@@ -10,7 +10,7 @@
 
 import WrkTestCase from "../../../testcase/wrk";
 import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
-import { purgeJobOutputsWithoutFailure, validateFreeBerts, validateJesSpool } from "../../../utils/zosmf";
+import { purgeJobOutputsWithoutFailure, validateFreeBerts, validateJesSpool, validateTsUsers } from "../../../utils/zosmf";
 
 class ExplorerApiUnixFileContentTest extends WrkTestCase {
   fetchZoweVersions = true;
@@ -27,6 +27,7 @@ class ExplorerApiUnixFileContentTest extends WrkTestCase {
     await purgeJobOutputsWithoutFailure('TSU');
     await validateFreeBerts();
     await validateJesSpool();
+    await validateTsUsers();
     this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 

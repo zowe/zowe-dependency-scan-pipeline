@@ -205,3 +205,14 @@ export interface JesPurgeJobOutputResponse {
   count: number;
   message?: string;
 }
+
+export interface JesSystemActivity {
+  jobs: number;
+  startedTasks: number;
+  tsUsers: number;
+  tsUsersUnderTso: number;
+  maxTsUsersUnderTso: number;
+  systemAddressSpaces: number;
+  initiators: number;
+  ussAddressSpaces: number;
+}
