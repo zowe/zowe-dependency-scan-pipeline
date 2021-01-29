@@ -171,3 +171,163 @@ export const getApimlAuthenticationCookieHeader = async (apimlGatewayHost: strin
 
   return prepareHttpRequestCookies(parseHttpResponseCookies(headers));
 };
+
+/**
+ * Create test dataset
+ *
+ * @param apimlGatewayHost
+ * @param apimlGatewayPort
+ * @param datasetName
+ * @param datasetOrganization
+ */
+export const createTestDataset = async (apimlGatewayHost: string, apimlGatewayPort: number, datasetName: string, datasetOrganization: string): Promise<string> => {
+  const url = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/datasets`;
+
+  let directoryBlocks = 0;
+  if (datasetOrganization == "PO") directoryBlocks = 5;
+
+  const { statusCode, headers } = await got.post(url, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    json: {
+      "allocationUnit":"TRACK",
+      "averageBlock":500,
+      "blockSize":400,
+      "dataSetOrganization":`${datasetOrganization}`,
+      "deviceType":3390,
+      "directoryBlocks":`${directoryBlocks}`,
+      "name":`${datasetName}`,
+      "primary":10,
+      "recordFormat":"FB",
+      "recordLength":80,
+      "secondary":5
+    }
+  });
+
+  return;
+};
+
+/**
+ * Delete test dataset and verify deletion
+ *
+ * @param apimlGatewayHost
+ * @param apimlGatewayPort
+ * @param datasetName
+ */
+export const cleanupTestDataset = async (apimlGatewayHost: string, apimlGatewayPort: number, datasetName: string): Promise<string> => {
+  const url = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/datasets/${datasetName}`;
+
+  const { statusCode } =  await got.delete(url, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    responseType: 'json'
+  });
+
+  const { body } =  await got(url, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    responseType: 'json'
+  }); 
+  const datasets = body as {items: [{[key: string]: string|null}]};
+
+  if (Array.isArray(datasets.items) && datasets.items.length) {
+    throw new PerformanceTestException("Cleanup failed to delete test dataset: " + datasetName);
+  }
+
+  return;
+};
+
+/**
+ * Create test unix file and verify creation
+ *
+ * @param apimlGatewayHost
+ * @param apimlGatewayPort
+ * @param unixFilePath
+ * @param testDirectoryPath
+ */
+export const createTestUnixFile = async (apimlGatewayHost: string, apimlGatewayPort: number, unixFilePath: string, testDirectoryPath: string): Promise<string> => {
+  const fileUrl = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/unixfiles/${unixFilePath}`;
+  const dirUrl = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/unixfiles?path=${testDirectoryPath}`;
+
+  const { statusCode, headers } =  await got.post(fileUrl, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    json: {
+      "type":"FILE"
+    }
+  });
+
+  const { body } =  await got(dirUrl, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    responseType: 'json'
+  });
+
+  if (!JSON.stringify(body).includes("zowe-performance-test-file")) {
+    throw new PerformanceTestException("Set up failed to create test unix file: " + unixFilePath);
+  }
+
+  return;
+};
+
+/**
+ * Delete test unix file and verify deletion
+ *
+ * @param apimlGatewayHost
+ * @param apimlGatewayPort
+ * @param unixFilePath
+ * @param testDirectoryPath
+ */
+export const cleanupTestUnixFile = async (apimlGatewayHost: string, apimlGatewayPort: number, unixFilePath: string, testDirectoryPath: string): Promise<string> => {
+  const fileUrl = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/unixfiles/${unixFilePath}`;
+  const dirUrl = `https://${apimlGatewayHost}:${apimlGatewayPort}/api/v2/unixfiles?path=${testDirectoryPath}`;
+
+  const { statusCode } =  await got.delete(fileUrl, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    json: {
+      "type":"FILE"
+    },
+    responseType: 'json'
+  });
+
+  const { body } =  await got(dirUrl, {
+    https: {
+      rejectUnauthorized: false
+    },
+    headers: {
+      'Authorization': getBasicAuthorizationHeaderValue()
+    },
+    responseType: 'json'
+  });
+
+  if (JSON.stringify(body).includes("zowe-performance-test-file")) {
+    throw new PerformanceTestException("Cleanup failed to delete test unix file: " + unixFilePath);
+  }
+
+  return;
+};

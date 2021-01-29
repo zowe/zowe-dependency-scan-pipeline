@@ -8,14 +8,14 @@
  * Copyright IBM Corporation 2020
  */
 
-import WrkTestCase from "../../../testcase/wrk";
-import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
+import WrkTestCase from "../../../../testcase/wrk";
+import { getBasicAuthorizationHeader } from "../../../../utils";
 
 class ExplorerApiJobListTest extends WrkTestCase {
   fetchZoweVersions = true;
 
-  name = "Test explorer api endpoint /api/v2/jobs";
-  endpoint = "/api/v2/jobs?prefix=SDSF&status=ACTIVE&owner=*";
+  name = "Test explorer api endpoint /api/v1/jobs";
+  endpoint = "/api/v1/jobs?prefix=SDSF&status=ACTIVE&owner=*";
 
   duration = 15 * 60;
   concurrency = 10;
@@ -23,7 +23,7 @@ class ExplorerApiJobListTest extends WrkTestCase {
 
   async before(): Promise<void> {
     await super.before();
-    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
+    this.headers.push(getBasicAuthorizationHeader());
   }
 }
 

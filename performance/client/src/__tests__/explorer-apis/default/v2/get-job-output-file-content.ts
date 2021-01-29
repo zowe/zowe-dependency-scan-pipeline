@@ -8,10 +8,10 @@
  * Copyright IBM Corporation 2020
  */
 
-import WrkTestCase from "../../../testcase/wrk";
-import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
-import { getJobId, getFileId } from "../../../utils/zowe";
-import PerformanceTestException from "../../../exceptions/performance-test-exception";
+import WrkTestCase from "../../../../testcase/wrk";
+import { getBasicAuthorizationHeader } from "../../../../utils";
+import { getJobId, getFileId } from "../../../../utils/zowe";
+import PerformanceTestException from "../../../../exceptions/performance-test-exception";
 
 class ExplorerApiJobOutputFileContentTest extends WrkTestCase {
   fetchZoweVersions = true;
@@ -42,7 +42,7 @@ class ExplorerApiJobOutputFileContentTest extends WrkTestCase {
     this.endpoint = this.endpoint.replace("{fileId}", fileId);
     this.fullUrl = `https://${this.targetHost}:${this.targetPort}${this.endpoint}`;
 
-    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
+    this.headers.push(getBasicAuthorizationHeader());
   }
 }
 

@@ -8,9 +8,8 @@
  * Copyright IBM Corporation 2020
  */
 
-import WrkTestCase from "../../../testcase/wrk";
-import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
-import { purgeJobOutputsWithoutFailure, validateFreeBerts, validateJesSpool, validateTsUsers } from "../../../utils/zosmf";
+import WrkTestCase from "../../../../testcase/wrk";
+import { getBasicAuthorizationHeader } from "../../../../utils";
 
 class ExplorerApiUnixFileContentTest extends WrkTestCase {
   fetchZoweVersions = true;
@@ -24,16 +23,7 @@ class ExplorerApiUnixFileContentTest extends WrkTestCase {
 
   async before(): Promise<void> {
     await super.before();
-    await purgeJobOutputsWithoutFailure('TSU');
-    await validateFreeBerts();
-    await validateJesSpool();
-    await validateTsUsers();
-    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
-  }
-
-  async after(): Promise<void> {
-    await super.after();
-    await purgeJobOutputsWithoutFailure('TSU');
+    this.headers.push(getBasicAuthorizationHeader());
   }
 }
 
