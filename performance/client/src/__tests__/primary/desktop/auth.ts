@@ -15,7 +15,7 @@ class DesktopAuthTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test desktop api endpoint /ui/v1/zlux/auth";
-  endpoint = '/ui/v1/zlux/auth';
+  endpoint = "/ui/v1/zlux/auth";
 
   method = "POST" as HttpRequestMethod;
   body = JSON.stringify({

@@ -15,7 +15,7 @@ class ApimlAuthLoginTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test APIML Gateway api endpoint /api/v1/gateway/auth/login";
-  endpoint = '/api/v1/gateway/auth/login';
+  endpoint = "/api/v1/gateway/auth/login";
 
   method = "POST" as HttpRequestMethod;
   body = JSON.stringify({

@@ -15,7 +15,7 @@ class ExplorerApiUnixFileContentTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test explorer api endpoint /api/v2/unixfiles/{path}";
-  endpoint = '/api/v2/unixfiles/usr/lpp/tcpip/man/C/cat1/host.1';
+  endpoint = "/api/v2/unixfiles/usr/lpp/tcpip/man/C/cat1/host.1";
   
   duration = 15 * 60;
   concurrency = 10;
