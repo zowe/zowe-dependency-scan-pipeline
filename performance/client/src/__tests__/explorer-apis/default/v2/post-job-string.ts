@@ -17,7 +17,7 @@ class ExplorerApiPostJobStringTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test explorer api endpoint PUT /api/v2/jobs/string";
-  endpoint = '/api/v2/jobs/string';
+  endpoint = "/api/v2/jobs/string";
 
   method = "POST" as HttpRequestMethod;
   body = JSON.stringify({
@@ -39,7 +39,7 @@ class ExplorerApiPostJobStringTest extends WrkTestCase {
   async after(): Promise<void> {
     await super.after();
 
-    //TODO: await purgeJobOutputsWithoutFailure('JOB');
+    //TODO: await purgeJobOutputsWithoutFailure("JOB");
   }
 }
 

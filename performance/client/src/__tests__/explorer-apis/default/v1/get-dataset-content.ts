@@ -15,7 +15,7 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test explorer api endpoint /api/v1/datasets/{ds}/content";
-  endpoint = '/api/v1/datasets/SYS1.HELP(TIME)/content';
+  endpoint = "/api/v1/datasets/SYS1.HELP(TIME)/content";
 
   duration = 15 * 60;
   concurrency = 10;

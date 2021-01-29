@@ -17,7 +17,7 @@ class ExplorerApiJobOutputFilesTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test explorer api endpoint /api/v2/jobs/{jobName}/{jobId}/files";
-  endpoint = '/api/v2/jobs/SDSF/{jobId}/files';
+  endpoint = "/api/v2/jobs/SDSF/{jobId}/files";
 
   duration = 15 * 60;
   concurrency = 10;
@@ -27,13 +27,13 @@ class ExplorerApiJobOutputFilesTest extends WrkTestCase {
     await super.before();
 
     // get active job ID
-    const jobId = await getJobId(this.targetHost, this.targetPort, 'SDSF', 'ACTIVE', '*');
+    const jobId = await getJobId(this.targetHost, this.targetPort, "SDSF", "ACTIVE", "*");
     if (!jobId) {
       throw new PerformanceTestException("Cannot find job ID for testing");
     }
 
     // apply the changes to endpoint and test url
-    this.endpoint = this.endpoint.replace('{jobId}', jobId);
+    this.endpoint = this.endpoint.replace("{jobId}", jobId);
     this.fullUrl = `https://${this.targetHost}:${this.targetPort}${this.endpoint}`;
 
     this.headers.push(getBasicAuthorizationHeader());

@@ -17,7 +17,7 @@ class ExplorerApiPutUnixFileTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test explorer api endpoint PUT /api/v2/unixfiles/{path}";
-  endpoint = '/api/v2/unixfiles/tmp/zowe-performance-test-file';
+  endpoint = "/api/v2/unixfiles/tmp/zowe-performance-test-file";
 
   method = "PUT" as HttpRequestMethod;
   body = JSON.stringify({

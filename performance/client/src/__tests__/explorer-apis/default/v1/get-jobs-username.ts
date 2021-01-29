@@ -15,7 +15,7 @@ class ExplorerApiJobsUsernameTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test explorer api endpoint /api/v1/jobs/username";
-  endpoint = '/api/v1/jobs/username';
+  endpoint = "/api/v1/jobs/username";
 
   duration = 15 * 60;
   concurrency = 10;

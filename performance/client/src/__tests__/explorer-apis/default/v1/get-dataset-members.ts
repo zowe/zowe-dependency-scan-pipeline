@@ -15,7 +15,7 @@ class ExplorerApiDatasetMemberListTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test explorer api endpoint /api/v1/datasets/{ds}/members";
-  endpoint = '/api/v1/datasets/SYS1.HELP/members';
+  endpoint = "/api/v1/datasets/SYS1.HELP/members";
 
   duration = 15 * 60;
   concurrency = 10;

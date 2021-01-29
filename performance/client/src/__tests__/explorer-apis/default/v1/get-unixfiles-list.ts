@@ -15,7 +15,7 @@ class ExplorerApiUnixFilesListTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test explorer api endpoint /api/v1/unixfiles";
-  endpoint = '/api/v1/unixfiles?path=/etc';
+  endpoint = "/api/v1/unixfiles?path=/etc";
 
   duration = 15 * 60;
   concurrency = 10;

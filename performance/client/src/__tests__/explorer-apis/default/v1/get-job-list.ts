@@ -15,7 +15,7 @@ class ExplorerApiJobListTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test explorer api endpoint /api/v1/jobs";
-  endpoint = '/api/v1/jobs?prefix=SDSF&status=ACTIVE&owner=*';
+  endpoint = "/api/v1/jobs?prefix=SDSF&status=ACTIVE&owner=*";
 
   duration = 15 * 60;
   concurrency = 10;

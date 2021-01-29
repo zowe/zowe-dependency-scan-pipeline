@@ -15,7 +15,7 @@ class ExplorerApiDatasetListByFilterTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test explorer api endpoint /api/v1/datasets/{filter}";
-  endpoint = '/api/v1/datasets/SYS1.HELP';
+  endpoint = "/api/v1/datasets/SYS1.HELP";
 
   duration = 15 * 60;
   concurrency = 10;

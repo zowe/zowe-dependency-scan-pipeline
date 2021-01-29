@@ -16,7 +16,7 @@ import PerformanceTestException from "../../../../exceptions/performance-test-ex
 class ExplorerApiJobDetailsTest extends WrkTestCase {
   fetchZoweVersions = true;
   name = "Test explorer api endpoint /api/v1/jobs/{jobName}/{jobId}";
-  endpoint = `/api/v1/jobs/SDSF/{jobId}`;
+  endpoint = "/api/v1/jobs/SDSF/{jobId}";
 
   duration = 15 * 60;
   concurrency = 10;
@@ -26,13 +26,13 @@ class ExplorerApiJobDetailsTest extends WrkTestCase {
     await super.before();
 
     // get active job ID
-    const jobId = await getJobId(this.targetHost, this.targetPort, 'SDSF', 'ACTIVE', '*');
+    const jobId = await getJobId(this.targetHost, this.targetPort, "SDSF", "ACTIVE", "*");
     if (!jobId) {
       throw new PerformanceTestException("Cannot find job ID for testing");
     }
 
     // apply the changes to endpoint and test url
-    this.endpoint = this.endpoint.replace('{jobId}', jobId);
+    this.endpoint = this.endpoint.replace("{jobId}", jobId);
     this.fullUrl = `https://${this.targetHost}:${this.targetPort}${this.endpoint}`;
    
     this.headers.push(getBasicAuthorizationHeader());

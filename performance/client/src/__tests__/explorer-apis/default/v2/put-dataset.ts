@@ -17,7 +17,7 @@ class ExplorerApiPutDatasetTest extends WrkTestCase {
   fetchZoweVersions = true;
 
   name = "Test explorer api endpoint PUT /api/v2/datasets/{datasetName}/content";
-  endpoint = '/api/v2/datasets/TEST.TESTDS/content';
+  endpoint = "/api/v2/datasets/TEST.TESTDS/content";
 
   method = "PUT" as HttpRequestMethod;
   body = JSON.stringify({
