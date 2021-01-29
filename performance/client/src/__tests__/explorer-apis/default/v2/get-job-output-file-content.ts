@@ -8,10 +8,10 @@
  * Copyright IBM Corporation 2020
  */
 
-import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
-import { getJobId, getFileId } from "../../../utils/zowe";
-import PerformanceTestException from "../../../exceptions/performance-test-exception";
+import WrkTestCase from "../../../../testcase/wrk";
+import { getBasicAuthorizationHeader } from "../../../../utils";
+import { getJobId, getFileId } from "../../../../utils/zowe";
+import PerformanceTestException from "../../../../exceptions/performance-test-exception";
 
 class ExplorerApiJobOutputFileContentTest extends WrkTestCase {
   fetchZoweVersions = true;

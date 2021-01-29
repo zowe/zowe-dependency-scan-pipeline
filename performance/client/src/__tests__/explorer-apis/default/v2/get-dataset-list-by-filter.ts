@@ -8,15 +8,15 @@
  * Copyright IBM Corporation 2020
  */
 
-import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import WrkTestCase from "../../../../testcase/wrk";
+import { getBasicAuthorizationHeader } from "../../../../utils";
 
-class ExplorerApiUnixFileContentTest extends WrkTestCase {
+class ExplorerApiDatasetListByFilterTest extends WrkTestCase {
   fetchZoweVersions = true;
 
-  name = "Test explorer api endpoint /api/v2/unixfiles/{path}";
-  endpoint = "/api/v2/unixfiles/usr/lpp/tcpip/man/C/cat1/host.1";
-  
+  name = "Test explorer api endpoint /api/v2/datasets/{filter}";
+  endpoint = "/api/v2/datasets/SYS1.HELP";
+
   duration = 15 * 60;
   concurrency = 10;
   threads = 1;
@@ -27,4 +27,4 @@ class ExplorerApiUnixFileContentTest extends WrkTestCase {
   }
 }
 
-new ExplorerApiUnixFileContentTest().init();
+new ExplorerApiDatasetListByFilterTest().init();

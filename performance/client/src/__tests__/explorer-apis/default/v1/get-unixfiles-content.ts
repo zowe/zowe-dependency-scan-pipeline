@@ -8,14 +8,14 @@
  * Copyright IBM Corporation 2020
  */
 
-import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import WrkTestCase from "../../../../testcase/wrk";
+import { getBasicAuthorizationHeader } from "../../../../utils";
 
 class ExplorerApiUnixFileContentTest extends WrkTestCase {
   fetchZoweVersions = true;
 
-  name = "Test explorer api endpoint /api/v2/unixfiles/{path}";
-  endpoint = "/api/v2/unixfiles/usr/lpp/tcpip/man/C/cat1/host.1";
+  name = "Test explorer api endpoint /api/v1/unixfiles/{path}";
+  endpoint = "/api/v1/unixfiles/usr/lpp/tcpip/man/C/cat1/host.1";
   
   duration = 15 * 60;
   concurrency = 10;
