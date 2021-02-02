@@ -10,6 +10,7 @@
 
 import WrkTestCase from "../../../../testcase/wrk";
 import { getBasicAuthorizationHeader } from "../../../../utils";
+import { purgeJobOutputsWithoutFailure, validateFreeBerts, validateJesSpool, validateTsUsers } from "../../../../utils/zosmf";
 
 class ExplorerApiDatasetSimpleListByFilterTest extends WrkTestCase {
   fetchZoweVersions = true;
@@ -23,6 +24,17 @@ class ExplorerApiDatasetSimpleListByFilterTest extends WrkTestCase {
 
   async before(): Promise<void> {
     await super.before();
+
+    // depends on the endpoint, some tests may need these check
+    // /api/v2/datasets will create TSO address spaces behind the scene,
+    // we want to cleanup job outputs before and after test
+    // cleanup job outputs before test
+    await purgeJobOutputsWithoutFailure('TSU');
+    // validate if JES spool percentage and free BERTs are good for test
+    await validateFreeBerts();
+    await validateJesSpool();
+    await validateTsUsers();
+
     this.headers.push(getBasicAuthorizationHeader());
   }
 }
