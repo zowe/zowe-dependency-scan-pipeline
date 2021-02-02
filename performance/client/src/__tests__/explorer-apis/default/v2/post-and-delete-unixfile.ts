@@ -10,8 +10,8 @@
 
 import WrkSequentialEndpointsTestCase from "../../../../testcase/wrk-sequential-endpoints";
 import { SequentialHttpRequest } from "../../../../types";
-import { cleanupTestUnixFile } from "../../../../utils/zowe";
-import { getBasicAuthorizationHeader } from "../../../../utils";
+import { getApimlAuthenticationCookieHeader, cleanupTestUnixFile } from "../../../../utils/zowe";
+import { purgeJobOutputsWithoutFailure, validateFreeBerts, validateJesSpool, validateTsUsers } from "../../../../utils/zosmf";
 
 class ExplorerApiPostAndDeleteUnixFileTest extends WrkSequentialEndpointsTestCase {
   fetchZoweVersions = true;
@@ -43,13 +43,26 @@ class ExplorerApiPostAndDeleteUnixFileTest extends WrkSequentialEndpointsTestCas
   async before(): Promise<void> {
     await super.before();
 
-    this.headers.push(getBasicAuthorizationHeader());
+    // depends on the endpoint, some tests may need these check
+    // /api/v2/datasets will create TSO address spaces behind the scene,
+    // we want to cleanup job outputs before and after test
+    // cleanup job outputs before test
+    await purgeJobOutputsWithoutFailure('TSU');
+    // validate if JES spool percentage and free BERTs are good for test
+    await validateFreeBerts();
+    await validateJesSpool();
+    await validateTsUsers();
+
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 
   async after(): Promise<void> {
     await super.after();
 
     await cleanupTestUnixFile(this.targetHost, this.targetPort, "tmp/zowe-performance-test-file", "/tmp");
+
+    // cleanup job outputs after test
+    await purgeJobOutputsWithoutFailure('TSU');
   }
 }
 
