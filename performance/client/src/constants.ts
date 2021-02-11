@@ -49,6 +49,8 @@ export const DEFAULT_PERFORMANCE_TEST_TIMEOUT = 86400 * 1000;
 export const DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY = 1;
 // default test duration if enable debug mode
 export const DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION = 5;
+// maximum test duration if enable debug mode
+export const MAXIMUM_PERFORMANCE_TEST_DEBUG_DURATION = 60;
 
 // default target port is Zowe APIML Gateway default port
 export const DEFAULT_TARGET_PORT = 7554;
