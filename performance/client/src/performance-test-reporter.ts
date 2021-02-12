@@ -76,6 +76,13 @@ export default class PerformanceTestReporter extends BaseReporter {
       timestamps: {
         start: (new Date()).getTime(),
       },
+      summary: {
+        total: 0,
+        passed: 0,
+        failed: 0,
+        pending: 0,
+        todo: 0,
+      },
       tests: [],
     };
   }
@@ -198,7 +205,7 @@ export default class PerformanceTestReporter extends BaseReporter {
       consoleLog,
       result: testResult,
     };
-    debug('onTestResult(testCaseReport):', testCaseReport);
+    // debug('onTestResult(testCaseReport):', testCaseReport);
     this.report.tests.push(testCaseReport);
   }
 
@@ -217,8 +224,13 @@ export default class PerformanceTestReporter extends BaseReporter {
     // debug('onRunComplete(_aggregatedResults):', _aggregatedResults);
 
     this.report.timestamps.end = (new Date()).getTime();
+    this.report.summary.total = _aggregatedResults.numTotalTests;
+    this.report.summary.passed = _aggregatedResults.numPassedTests;
+    this.report.summary.failed = _aggregatedResults.numFailedTests;
+    this.report.summary.pending = _aggregatedResults.numPendingTests;
+    this.report.summary.todo = _aggregatedResults.numTodoTests;
 
-    debug('onRunComplete(report):', this.report);
+    // debug('onRunComplete(report):', this.report);
     
     const reportFile = `test-report-${new Date().toISOString().replace(/[:\-]/g, "")}.${this.options.format}`;
     debug('report file:', reportFile);

@@ -122,6 +122,13 @@ export type PerformanceTestReport = {
     start: number;
     end?: number;
   };
+  summary: {
+    total: number;
+    passed: number;
+    failed: number;
+    pending: number;
+    todo: number;
+  };
   tests?: PerformanceTestCaseReport[];
 };
 
