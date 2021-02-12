@@ -13,6 +13,7 @@ import { MetricsCollectorOptions, MetricsCollector } from "../types";
 
 import Debug from 'debug';
 import { sleep } from "../utils";
+import PerformanceTestException from "../exceptions/performance-test-exception";
 const debug = Debug('zowe-performance-test:base-metrics-collector');
 
 export default class BaseMetricsCollector implements MetricsCollector {
@@ -29,6 +30,13 @@ export default class BaseMetricsCollector implements MetricsCollector {
   }
 
   async start(): Promise<void> {
+    if (fs.existsSync(this.options.cacheFile)) {
+      fs.unlinkSync(this.options.cacheFile);
+    }
+    if (fs.existsSync(this.options.cacheFile)) {
+      throw new PerformanceTestException('Cannot delete old metrics collector cache file');
+    }
+
     // start right away
     setTimeout(async () => {
       debug("start first poll at", new Date());
