@@ -165,19 +165,19 @@ export default class BaseTestCase implements PerformanceTestCase {
       if (fs.existsSync(PERFORMANCE_TEST_CONTEXT_FILE)) {
         fs.unlinkSync(PERFORMANCE_TEST_CONTEXT_FILE);
       }
-      expect(fs.existsSync(PERFORMANCE_TEST_CONTEXT_FILE)).to.be.false;
+      expect(fs.existsSync(PERFORMANCE_TEST_CONTEXT_FILE)).toBe(false);
       if (fs.existsSync(PERFORMANCE_TEST_RESULT_FILE)) {
         fs.unlinkSync(PERFORMANCE_TEST_RESULT_FILE);
       }
-      expect(fs.existsSync(PERFORMANCE_TEST_RESULT_FILE)).to.be.false;
+      expect(fs.existsSync(PERFORMANCE_TEST_RESULT_FILE)).toBe(false);
       if (fs.existsSync(PERFORMANCE_TEST_METRICS_ZMS_FILE)) {
         fs.unlinkSync(PERFORMANCE_TEST_METRICS_ZMS_FILE);
       }
-      expect(fs.existsSync(PERFORMANCE_TEST_METRICS_ZMS_FILE)).to.be.false;
+      expect(fs.existsSync(PERFORMANCE_TEST_METRICS_ZMS_FILE)).toBe(false);
       if (fs.existsSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE)) {
         fs.unlinkSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE);
       }
-      expect(fs.existsSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE)).to.be.false;
+      expect(fs.existsSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE)).toBe(false);
 
       let targetZoweVersions: unknown = null;
       if (this.fetchZoweVersions) {

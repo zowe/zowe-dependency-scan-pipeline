@@ -106,6 +106,8 @@ export type PerformanceTestCaseReport = {
     end?: number;
   };
   path: string;
+  status: string;
+  failureMessages?: string[];
   environments: {[key: string]: unknown};
   parameters: {[key: string]: unknown};
   zoweVersions?: unknown;

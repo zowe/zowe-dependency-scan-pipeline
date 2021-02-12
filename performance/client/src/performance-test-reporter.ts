@@ -15,6 +15,7 @@ import type { AggregatedResult, TestResult } from "@jest/test-result";
 import type { Config } from '@jest/types';
 import type { Context, ReporterOnStartOptions, Test } from "@jest/reporters";
 import { dump, load } from 'js-yaml';
+import stripAnsi = require('strip-ansi');
 
 import PerformanceTestException from "./exceptions/performance-test-exception";
 import {
@@ -87,6 +88,7 @@ export default class PerformanceTestReporter extends BaseReporter {
   ): void {
     // debug('onTestResult(_test):', _test);
     // debug('onTestResult(_testResult):', _testResult);
+    // debug('onTestResult(_testResult.testResults[0]):', _testResult.testResults[0]);
     // debug('onTestResult(_results):', _results);
 
     // _testResult.testResults should only have one element because the way how
@@ -186,6 +188,8 @@ export default class PerformanceTestReporter extends BaseReporter {
         start: _testResult.perfStats.start,
         end: _testResult.perfStats.end,
       },
+      status: _testResult.testResults[0].status,
+      failureMessages: _testResult && _testResult.testResults && _testResult.testResults[0] && _testResult.testResults[0].failureMessages && _testResult.testResults[0].failureMessages.map(stripAnsi),
       environments: testEnv,
       parameters: testParameters,
       zoweVersions: zoweVersions,

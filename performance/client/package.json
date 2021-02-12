@@ -25,6 +25,7 @@
     "jest": "^26.4.2",
     "jest-circus": "^26.6.3",
     "js-yaml": "^3.14.0",
+    "strip-ansi": "^6.0.0",
     "tough-cookie": "^4.0.0",
     "typescript": "^3.9.7"
   },

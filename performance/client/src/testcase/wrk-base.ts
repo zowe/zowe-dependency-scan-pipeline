@@ -91,7 +91,7 @@ export default class WrkBaseTestCase extends BaseTestCase {
     if (fs.existsSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG)) {
       fs.unlinkSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG);
     }
-    expect(fs.existsSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG)).to.be.false;
+    expect(fs.existsSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG)).toBe(false);
 
     // make sure image is already pulled to local before we start test
     await spawnPromise("docker", ["pull", this.dockerImage]);
