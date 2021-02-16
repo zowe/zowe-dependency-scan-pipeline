@@ -86,7 +86,13 @@ export const tsoCommand = async (command: string, console?: string): Promise<str
     }
   );
 
-  return body['cmd-response'];
+  if (body['cmd-response']) {
+    return body['cmd-response'];
+  } else if (body['reason']) {
+    throw new PerformanceTestException(`TSO command "${command}" failed with (return code ${body['return-code']}, reason code ${body['reason-code']}): "${body['reason']}"`);
+  } else {
+    throw new PerformanceTestException(`TSO command "${command}" failed with unknown reason: "${JSON.stringify(body)}"`);
+  }
 };
 
 /**
