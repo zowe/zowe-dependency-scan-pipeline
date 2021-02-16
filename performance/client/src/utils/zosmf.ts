@@ -76,6 +76,7 @@ export const zOSMFRequest = async (path: string, options?: Options): Promise<Got
  * @param console 
  */
 export const tsoCommand = async (command: string, console?: string): Promise<string> => {
+  debug(`TSO command: ${command}`);
   const { body } = await zOSMFRequest(
     `/zosmf/restconsoles/consoles/${console? console : 'defcn'}`,
     {
