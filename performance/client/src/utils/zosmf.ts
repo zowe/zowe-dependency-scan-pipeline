@@ -380,3 +380,26 @@ export const purgeJobOutputsWithoutFailure = async (jobClass = 'TSU'): Promise<J
     debug(`Purge job failed: ${e}`);
   }
 };
+
+/**
+ * Recommended JES checks before test
+ */
+export const recommendedJesChecksBeforeTest = async (): Promise<void> => {
+  // depends on the endpoint, some tests may need these check
+  // /api/v2/datasets will create TSO address spaces behind the scene,
+  // we want to cleanup job outputs before and after test
+  // cleanup job outputs before test
+  await purgeJobOutputsWithoutFailure('TSU');
+  // validate if JES spool percentage and free BERTs are good for test
+  await validateFreeBerts();
+  await validateJesSpool();
+  await validateTsUsers();
+};
+
+/**
+ * Recommended JES checks after test
+ */
+export const recommendedJesChecksAfterTest = async (): Promise<void> => {
+  await purgeJobOutputsWithoutFailure('TSU');
+};
+
