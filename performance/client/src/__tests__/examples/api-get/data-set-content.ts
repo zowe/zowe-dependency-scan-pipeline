@@ -10,7 +10,7 @@
 
 import WrkTestCase from "../../../testcase/wrk";
 import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
-import { recommendedJesChecksBeforeTest, recommendedJesChecksAfterTest } from "../../../../utils/zosmf";
+import { recommendedJesChecksBeforeTest, recommendedJesChecksAfterTest } from "../../../utils/zosmf";
 
 class ExplorerApiDatasetContentTest extends WrkTestCase {
   // name/purpose of the test
