@@ -10,7 +10,7 @@
 
 import { Options } from "got";
 import PerformanceTestException from "../exceptions/performance-test-exception";
-import { GotHttpResponse, JesCheckpointSpace, JesPurgeJobOutputResponse, JesSpoolStatus, JesSystemActivity } from "../types";
+import { CeaSummary, GotHttpResponse, JesCheckpointSpace, JesPurgeJobOutputResponse, JesSpoolStatus, JesSystemActivity } from "../types";
 import { DEFAULT_JES_MINIMAL_FREE_BERTS_PERCENT, DEFAULT_JES_MINIMAL_FREE_SPOOL_PERCENT, DEFAULT_JES_MINIMAL_FREE_TS_USERS_PERCENT } from "../constants";
 import { getBasicAuthorizationHeaderValue, httpRequest } from "../utils";
 
@@ -189,7 +189,7 @@ export const getJesCheckpointSpace = async (): Promise<JesCheckpointSpace> => {
 };
 
 /**
- * Return system activity (JOBS)
+ * Return system activity - time-sharing users (D TS)
  */
 export const getSystemActivity = async (): Promise<JesSystemActivity> => {
   // would like to run D TS,ALL to list all TSO address spaces
@@ -242,6 +242,58 @@ export const getSystemActivity = async (): Promise<JesSystemActivity> => {
         response.maxTsUsersUnderTso = parseInt(m[7], 10);
         response.ussAddressSpaces = parseInt(m[8], 10);
       }
+    }
+  });
+
+  return response;
+};
+
+/**
+ * Return Common Event Adapter (CEA) environment (F CEA,D,S)
+ */
+export const getCeaSummary = async (): Promise<CeaSummary> => {
+  const text = await tsoCommand('F CEA,D,S');
+  /**
+    CEA0004I COMMON EVENT ADAPTER     896            
+    STATUS: ACTIVE-FULL      CLIENTS: 0  INTERNAL: 0 
+    EVENTS BY TYPE:  #WTO: 0  #ENF: 0  #PGM: 0       
+    TSOASMGR:     ALLOWED: 50  IN USE: 0 HIGHCNT: 50 
+   */
+
+  const lines = text.split(/\n|\r/);
+  const response: CeaSummary = {
+    status: {
+      text: null,
+      clients: null,
+      internal: null,
+    },
+    events: {
+      wto: null,
+      enf: null,
+      pgm: null,
+    },
+    tsoAddressSpaceManager: {
+      allowed: null,
+      inUse: null,
+      highCount: null,
+    },
+  };
+  lines.forEach(line => {
+    line = line.trim();
+    let m;
+
+    if (m = line.match(/^STATUS:\s+(.+)\s+CLIENTS:\s+([0-9]+)\s+INTERNAL:\s+([0-9]+)$/)) {
+      response.status.text = m[1];
+      response.status.clients = parseInt(m[2], 10);
+      response.status.internal = parseInt(m[3], 10);
+    } else if (m = line.match(/^EVENTS BY TYPE:\s+#WTO:\s+([0-9]+)\s+#ENF:\s+([0-9]+)\s+#PGM:\s+([0-9]+)$/)) {
+      response.events.wto = parseInt(m[1], 10);
+      response.events.enf = parseInt(m[2], 10);
+      response.events.pgm = parseInt(m[3], 10);
+    } else if (m = line.match(/^TSOASMGR:\s+ALLOWED:\s+([0-9]+)\s+IN USE:\s+([0-9]+)\s+HIGHCNT:\s+([0-9]+)$/)) {
+      response.tsoAddressSpaceManager.allowed = parseInt(m[1], 10);
+      response.tsoAddressSpaceManager.inUse = parseInt(m[2], 10);
+      response.tsoAddressSpaceManager.highCount = parseInt(m[3], 10);
     }
   });
 
@@ -390,6 +442,14 @@ export const recommendedJesChecksBeforeTest = async (): Promise<void> => {
   // we want to cleanup job outputs before and after test
   // cleanup job outputs before test
   await purgeJobOutputsWithoutFailure('TSU');
+  // display CEA summary
+  try {
+    const ceaSummary = await getCeaSummary();
+    debug(`CEA TSOASMGR.ALLOWED: ${ceaSummary.tsoAddressSpaceManager.allowed}`);
+    debug(`CEA TSOASMGR.IN-USE: ${ceaSummary.tsoAddressSpaceManager.inUse}`);
+  } catch (e) {
+    debug(`Display CEA summary failed: ${e}`);
+  }
   // validate if JES spool percentage and free BERTs are good for test
   await validateFreeBerts();
   await validateJesSpool();
@@ -400,6 +460,6 @@ export const recommendedJesChecksBeforeTest = async (): Promise<void> => {
  * Recommended JES checks after test
  */
 export const recommendedJesChecksAfterTest = async (): Promise<void> => {
+  // cleanup job outputs after test
   await purgeJobOutputsWithoutFailure('TSU');
 };
-

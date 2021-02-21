@@ -225,3 +225,20 @@ export interface JesSystemActivity {
   initiators: number;
   ussAddressSpaces: number;
 }
+export interface CeaSummary {
+  status: {
+    text: string;
+    clients: number;
+    internal: number;
+  };
+  events: {
+    wto: number;
+    enf: number;
+    pgm: number;
+  };
+  tsoAddressSpaceManager: {
+    allowed: number;
+    inUse: number;
+    highCount: number;
+  };
+}

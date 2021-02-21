@@ -116,3 +116,42 @@ Depends on the purpose of the test, you may extend your test case from one of be
 - `WrkTestCase`: This is basic API test which you can test one endpoint. For example, [src/__tests__/examples/api-get/data-set-content.ts](src/__tests__/examples/api-get/data-set-content.ts).
 - `WrkSequentialEndpointsTestCase`: This is API test which you can define multiple endpoints and make requests one by one. For example, [src/__tests__/examples/api-multiple/sequential-endpoints.ts](src/__tests__/examples/api-multiple/sequential-endpoints.ts).
 - `WrkWeightedEndpointsTestCase`: This is API test which you can define multiple endpoints with weight. The test will randomly pick one of them based on the weight and make request to your target server. For example, [src/__tests__/examples/api-multiple/weighted-endpoints.ts](src/__tests__/examples/api-multiple/weighted-endpoints.ts).
+
+## Troubleshooting Failures
+
+In test reports, there are several sections you should pay attention for failures:
+
+- `summary.failed`: This indicates there are failures in some tests if it's not `0`.
+- `tests.*.result.failed_requests`: Even though your all tests passed, some tests may not be trustworthy if this value exists and is not `0`. Normally you can enable `debug` mode by setting the `debug = true;` for the test case to find where the failures come from. Another good source is checking `SDSF.LOG` panel.
+
+### $HASP690 COMMAND REJECTED - SOURCE OF COMMAND HAS IMPROPER AUTHORITY
+
+If you see this error message in the console log of your test, that means the user doesn't have enough authority to run certain operator commands from TSO. This could be `$PO TSU1-9999` command we are trying to run.
+
+To fix this error, you need to permit `UPDATE` for your user to `OPERCMDS JES%.**` profile. These commands may help you:
+
+```
+SETR GENERIC(OPERCMDS)
+RDEFINE OPERCMDS JES%.** UACC(UPDATE)
+PERMIT JES%.** CL(OPERCMDS) ID(IBMUSER) ACCESS(UPDATE)
+SETROPTS RACLIST(OPERCMDS) REFRESH
+```
+
+### IEE345I MODIFY   AUTHORITY INVALID, FAILED BY MVS
+
+If you see this error message in the console log of your test, that means the user doesn't have enough authority to run certain operator commands from TSO. This could be the `F CEA,D,S` command we are trying to run.
+
+### CEA0403I in SDSF.LOG panel
+
+If you see error message `CEA0403I` like this in `SDSF.LOG` panel,
+
+```
+M 4040000 TIVLP46  21052 14:32:33.17 STC00815 00000090  CEA0403I A USER REQUEST TO CREATE A TSO ADDRESS SPACE HAS BEEN DECLINED
+S                                                       886                                                                    
+D                                         886 00000090  BECAUSE THE MAXIMUM NUMBER OF SESSIONS HAS BEEN REACHED ON THIS SYSTEM.
+E                                         886 00000090  CEAPRMXX STATEMENT MAXSESSIONS MUST BE INCREASED TO ALLOW THIS REQUEST.
+```
+
+That means the CEA parameter MAXSESSIONS is not good enough for your test. Check more details from the error code page here (https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.ieam400/msg-CEA0403I.htm)[https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.ieam400/msg-CEA0403I.htm].
+
+To fix this error, increase `MAXSESSIONS` until you don't see failures during your test. To manually check current CEA parameters, run `F CEA,D,PARMS` command.
