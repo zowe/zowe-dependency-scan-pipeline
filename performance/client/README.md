@@ -141,6 +141,15 @@ SETROPTS RACLIST(OPERCMDS) REFRESH
 
 If you see this error message in the console log of your test, that means the user doesn't have enough authority to run certain operator commands from TSO. This could be the `F CEA,D,S` command we are trying to run.
 
+To fix this error, you need to permit `UPDATE` for your user to `OPERCMDS MVS.MODIFY.**` profile. These commands may help you:
+
+```
+SETR GENERIC(OPERCMDS)
+RDEFINE OPERCMDS MVS.MODIFY.** UACC(UPDATE)
+PERMIT MVS.MODIFY.** CL(OPERCMDS) ID(IBMUSER) ACCESS(UPDATE)
+SETROPTS RACLIST(OPERCMDS) REFRESH
+```
+
 ### CEA0403I in SDSF.LOG panel
 
 If you see error message `CEA0403I` like this in `SDSF.LOG` panel,
@@ -154,4 +163,4 @@ E                                         886 00000090  CEAPRMXX STATEMENT MAXSE
 
 That means the CEA parameter MAXSESSIONS is not good enough for your test. Check more details from the error code page here (https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.ieam400/msg-CEA0403I.htm)[https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.ieam400/msg-CEA0403I.htm].
 
-To fix this error, increase `MAXSESSIONS` until you don't see failures during your test. To manually check current CEA parameters, run `F CEA,D,PARMS` command.
+To fix this error, increase `MAXSESSIONS` until you don't see failures during your test. You may find the parameter in `SYS1.PARMLIB(CEAPRM00)`, but still depends on how your system is configured. To manually check current CEA parameters, run `F CEA,D,PARMS` command.

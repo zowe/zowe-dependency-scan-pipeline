@@ -279,11 +279,11 @@ export const getCeaSummary = async (): Promise<CeaSummary> => {
     },
   };
   lines.forEach(line => {
-    line = line.trim();
+    line = line.trim().replace(/\u0000/g, '');
     let m;
 
     if (m = line.match(/^STATUS:\s+(.+)\s+CLIENTS:\s+([0-9]+)\s+INTERNAL:\s+([0-9]+)$/)) {
-      response.status.text = m[1];
+      response.status.text = m[1].trim();
       response.status.clients = parseInt(m[2], 10);
       response.status.internal = parseInt(m[3], 10);
     } else if (m = line.match(/^EVENTS BY TYPE:\s+#WTO:\s+([0-9]+)\s+#ENF:\s+([0-9]+)\s+#PGM:\s+([0-9]+)$/)) {
@@ -434,6 +434,19 @@ export const purgeJobOutputsWithoutFailure = async (jobClass = 'TSU'): Promise<J
 };
 
 /**
+ * Display CEA summary without throwing any failures
+ */
+export const displayCeaSummaryWithoutFailure = async (): Promise<void> => {
+  try {
+    const cs = await getCeaSummary();
+    debug(`CEA TSOASMGR.ALLOWED: ${cs.tsoAddressSpaceManager.allowed}`);
+    debug(`CEA TSOASMGR.IN-USE: ${cs.tsoAddressSpaceManager.inUse}`);
+  } catch (e) {
+    debug(`Display CEA summary failed: ${e}`);
+  }
+};
+
+/**
  * Recommended JES checks before test
  */
 export const recommendedJesChecksBeforeTest = async (): Promise<void> => {
@@ -443,13 +456,7 @@ export const recommendedJesChecksBeforeTest = async (): Promise<void> => {
   // cleanup job outputs before test
   await purgeJobOutputsWithoutFailure('TSU');
   // display CEA summary
-  try {
-    const ceaSummary = await getCeaSummary();
-    debug(`CEA TSOASMGR.ALLOWED: ${ceaSummary.tsoAddressSpaceManager.allowed}`);
-    debug(`CEA TSOASMGR.IN-USE: ${ceaSummary.tsoAddressSpaceManager.inUse}`);
-  } catch (e) {
-    debug(`Display CEA summary failed: ${e}`);
-  }
+  await displayCeaSummaryWithoutFailure();
   // validate if JES spool percentage and free BERTs are good for test
   await validateFreeBerts();
   await validateJesSpool();
@@ -462,4 +469,6 @@ export const recommendedJesChecksBeforeTest = async (): Promise<void> => {
 export const recommendedJesChecksAfterTest = async (): Promise<void> => {
   // cleanup job outputs after test
   await purgeJobOutputsWithoutFailure('TSU');
+  // display CEA summary
+  await displayCeaSummaryWithoutFailure();
 };
