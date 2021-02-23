@@ -164,3 +164,47 @@ E                                         886 00000090  CEAPRMXX STATEMENT MAXSE
 That means the CEA parameter MAXSESSIONS is not good enough for your test. Check more details from the error code page here (https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.ieam400/msg-CEA0403I.htm)[https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.ieam400/msg-CEA0403I.htm].
 
 To fix this error, increase `MAXSESSIONS` until you don't see failures during your test. You may find the parameter in `SYS1.PARMLIB(CEAPRM00)`, but still depends on how your system is configured. To manually check current CEA parameters, run `F CEA,D,PARMS` command.
+
+### $HASP050 JES2 RESOURCE SHORTAGE OF BERT
+
+If you see error messages like this,
+
+```
+<host>  : H *$HASP050 JES2 RESOURCE SHORTAGE OF BERT - 100% UTILIZATION REACHED,
+<host>  : H *$HASP052 JES2 BERT resource shortage is critical --,
+<host>  : H           IMMEDIATE action required,
+<host>  : H           DO NOT TERMINATE JES2 OR IPL.  Doing so may result in a COLD,
+<host>  : H           start.,
+<host>  : H           CURRENT BERTNUM=1600, Free BERTs=0,
+<host>  : H           Correct BERT shortage by --,
+<host>  : H             - $T CKPTSPACE,BERTNUM=nnnn (increase BERTs),
+<host>  : H             - $P Jnnnn (purge pre-execution jobs),
+```
+
+### HASP050 JES2 RESOURCE SHORTAGE OF JOES (or JQES)
+
+If you see error messages like this,
+
+```
+N 4040000 TIVLP46  21053 21:16:20.82          00000090 *$HASP050 JES2 RESOURCE SHORTAGE OF JQES - 100% UTILIZATION REACHED 
+N 4040000 TIVLP46  21053 21:16:44.82          00000090 *$HASP050 JES2 RESOURCE SHORTAGE OF JOES - 99% UTILIZATION REACHED  
+```
+
+At this time,
+
+```
+$DSPL                                                              
+$HASP893 VOLUME(LP4601)  STATUS=ACTIVE,PERCENT=58                  
+$HASP893 VOLUME(LP460S)  STATUS=ACTIVE,PERCENT=17                  
+$HASP646 24.9105 PERCENT SPOOL UTILIZATION                         
+$D JOBDEF                                                          
+$HASP835 JOBDEF 577                                                
+$HASP835 JOBDEF  ACCTFLD=OPTIONAL,BAD_JOBNAME_CHAR=?,              
+$HASP835         CNVT_ENQ=FAIL,DEF_CLASS=A,INTERPRET=INIT,         
+$HASP835         CISUB_PER_AS=5,CNVT_SCHENV=IGNORE,JNUMBASE=1027,  
+$HASP835         JNUMFREE=7999,JNUMWARN=80,JOBFREE=0,JOBNUM=2000,  
+$HASP835         JOBWARN=80,PRTYHIGH=10,PRTYJECL=YES,PRTYJOB=NO,   
+$HASP835         PRTYLOW=1,PRTYRATE=1,RANGE=(1,9999),RASSIGN=YES,  
+$HASP835         JOBRBLDQ=NONE,DUPL_JOB=DELAY,LOGMSG=ASIS,         
+$HASP835         SUP_EVENTLOG_SMF=NO                               
+```
