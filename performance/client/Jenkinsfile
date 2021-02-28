@@ -22,6 +22,8 @@ node('zowe-jenkins-agent-dind') {
     'marist': [
       ssh_hostport     : 'ssh-marist-server-zzow01-hostport',
       ssh_userpass     : 'ssh-marist-server-zzow01',
+      zosmf_port       : '10443',
+      zosmf_credential : 'ssh-marist-server-zzow01',
       tmp_dir          : '/ZOWE/tmp',
       zms_dir          : '/ZOWE/tmp/zms',
       zms_credential   : 'ssh-marist-server-zzow01',
@@ -31,6 +33,8 @@ node('zowe-jenkins-agent-dind') {
     'marist-2': [
       ssh_hostport     : 'ssh-marist-server-zzow02-hostport',
       ssh_userpass     : 'ssh-marist-server-zzow02',
+      zosmf_port       : '10443',
+      zosmf_credential : 'ssh-marist-server-zzow02',
       tmp_dir          : '/ZOWE/tmp',
       zms_dir          : '/ZOWE/tmp/zms',
       zms_credential   : 'ssh-marist-server-zzow02',
@@ -40,6 +44,8 @@ node('zowe-jenkins-agent-dind') {
     'marist-3': [
       ssh_hostport     : 'ssh-marist-server-zzow03-hostport',
       ssh_userpass     : 'ssh-marist-server-zzow03',
+      zosmf_port       : '10443',
+      zosmf_credential : 'ssh-marist-server-zzow03',
       tmp_dir          : '/ZOWE/tmp',
       zms_dir          : '/ZOWE/tmp/zms',
       zms_credential   : 'ssh-marist-server-zzow03',
@@ -136,6 +142,11 @@ node('zowe-jenkins-agent-dind') {
           credentialsId: TEST_SERVERS[params.TEST_SERVER]['zms_credential'],
           passwordVariable: "RMF_DDS_PASSWORD",
           usernameVariable: "RMF_DDS_USERNAME"
+        ),
+        usernamePassword(
+          credentialsId: TEST_SERVERS[params.TEST_SERVER]['zosmf_credential'],
+          passwordVariable: "ZOSMF_AUTH_PASSWORD",
+          usernameVariable: "ZOSMF_AUTH_USER"
         )
       ]) {
         def remote = [:]
@@ -220,6 +231,8 @@ node('zowe-jenkins-agent-dind') {
               "DEBUG=${params.PERFORMANCE_TEST_DEBUG_INFORMATION}".toString(),
               "ZMS_HOST=${SSH_HOST}".toString(),
               "ZMS_PORT=${DEFAULT_ZMS_PORT}".toString(),
+              "ZOSMF_HOST=${SSH_HOST}".toString(),
+              "ZOSMF_PORT=${TEST_SERVERS[params.TEST_SERVER]['zosmf_port']}".toString(),
               "TARGET_HOST=${SSH_HOST}".toString(),
               "TARGET_PORT=${params.TEST_PORT}".toString(),
               "TEST_AUTH_USER=${SSH_USER}".toString(),
