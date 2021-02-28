@@ -10,7 +10,7 @@
 
 import WrkWeightedEndpointsTestCase from "../../../testcase/wrk-weighted-endpoints";
 import { WeightedHttpRequest } from "../../../types";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
 
 class ExampleWrkWeightedEndpointsTest extends WrkWeightedEndpointsTestCase {
   // name/purpose of the test
@@ -30,7 +30,7 @@ class ExampleWrkWeightedEndpointsTest extends WrkWeightedEndpointsTestCase {
   // endpoints we want to test
   endpoints = [
     {
-      endpoint : "/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content",
+      endpoint : "/api/v2/datasets/SYS1.PARMLIB(ERBRMF00)/content",
       // weight can be 0 (zero) which will make this endpoint not possible to be selected
       weight   : 1,
     },
@@ -67,7 +67,7 @@ class ExampleWrkWeightedEndpointsTest extends WrkWeightedEndpointsTestCase {
     await super.before();
  
     // this test requires authentication header
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 }
 

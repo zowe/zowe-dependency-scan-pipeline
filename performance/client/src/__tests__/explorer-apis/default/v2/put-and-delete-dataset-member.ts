@@ -10,8 +10,8 @@
 
 import WrkSequentialEndpointsTestCase from "../../../../testcase/wrk-sequential-endpoints";
 import { SequentialHttpRequest } from "../../../../types";
-import { createTestDataset, cleanupTestDataset } from "../../../../utils/zowe";
-import { getBasicAuthorizationHeader } from "../../../../utils";
+import { getApimlAuthenticationCookieHeader, createTestDataset, cleanupTestDataset } from "../../../../utils/zowe";
+import { recommendedJesChecksBeforeTest, recommendedJesChecksAfterTest } from "../../../../utils/zosmf";
 
 class ExplorerApiPutAndDeleteDatasetMemberTest extends WrkSequentialEndpointsTestCase {
   fetchZoweVersions = true;
@@ -42,16 +42,17 @@ class ExplorerApiPutAndDeleteDatasetMemberTest extends WrkSequentialEndpointsTes
 
   async before(): Promise<void> {
     await super.before();
-
+    await recommendedJesChecksBeforeTest();
     await createTestDataset(this.targetHost, this.targetPort, "TEST.TESTDS", "PO");
 
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 
   async after(): Promise<void> {
     await super.after();
 
     await cleanupTestDataset(this.targetHost, this.targetPort, "TEST.TESTDS");
+    await recommendedJesChecksAfterTest();
   }
 }
 

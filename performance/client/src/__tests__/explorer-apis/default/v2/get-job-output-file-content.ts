@@ -9,8 +9,7 @@
  */
 
 import WrkTestCase from "../../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../../utils";
-import { getJobId, getFileId } from "../../../../utils/zowe";
+import { getApimlAuthenticationCookieHeader, getJobId, getFileId } from "../../../../utils/zowe";
 import PerformanceTestException from "../../../../exceptions/performance-test-exception";
 
 class ExplorerApiJobOutputFileContentTest extends WrkTestCase {
@@ -42,7 +41,7 @@ class ExplorerApiJobOutputFileContentTest extends WrkTestCase {
     this.endpoint = this.endpoint.replace("{fileId}", fileId);
     this.fullUrl = `https://${this.targetHost}:${this.targetPort}${this.endpoint}`;
 
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 }
 

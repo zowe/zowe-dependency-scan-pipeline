@@ -161,6 +161,24 @@ export default class BaseTestCase implements PerformanceTestCase {
     this._init();
 
     beforeAll(async () => {
+      // delete these file if exists
+      if (fs.existsSync(PERFORMANCE_TEST_CONTEXT_FILE)) {
+        fs.unlinkSync(PERFORMANCE_TEST_CONTEXT_FILE);
+      }
+      expect(fs.existsSync(PERFORMANCE_TEST_CONTEXT_FILE)).toBe(false);
+      if (fs.existsSync(PERFORMANCE_TEST_RESULT_FILE)) {
+        fs.unlinkSync(PERFORMANCE_TEST_RESULT_FILE);
+      }
+      expect(fs.existsSync(PERFORMANCE_TEST_RESULT_FILE)).toBe(false);
+      if (fs.existsSync(PERFORMANCE_TEST_METRICS_ZMS_FILE)) {
+        fs.unlinkSync(PERFORMANCE_TEST_METRICS_ZMS_FILE);
+      }
+      expect(fs.existsSync(PERFORMANCE_TEST_METRICS_ZMS_FILE)).toBe(false);
+      if (fs.existsSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE)) {
+        fs.unlinkSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE);
+      }
+      expect(fs.existsSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE)).toBe(false);
+
       let targetZoweVersions: unknown = null;
       if (this.fetchZoweVersions) {
         debug("Fetching Zowe version ...");
@@ -177,17 +195,6 @@ export default class BaseTestCase implements PerformanceTestCase {
         parameters: this._getParameters(),
         zoweVersions: targetZoweVersions,
       }));
-
-      // delete these file if exists
-      if (fs.existsSync(PERFORMANCE_TEST_RESULT_FILE)) {
-        fs.unlinkSync(PERFORMANCE_TEST_RESULT_FILE);
-      }
-      if (fs.existsSync(PERFORMANCE_TEST_METRICS_ZMS_FILE)) {
-        fs.unlinkSync(PERFORMANCE_TEST_METRICS_ZMS_FILE);
-      }
-      if (fs.existsSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE)) {
-        fs.unlinkSync(PERFORMANCE_TEST_METRICS_CLIENT_FILE);
-      }
     });
 
     beforeEach(async () => {

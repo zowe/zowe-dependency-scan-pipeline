@@ -10,6 +10,7 @@
 
 import WrkTestCase from "../../../../testcase/wrk";
 import { getBasicAuthorizationHeader } from "../../../../utils";
+import { recommendedJesChecksBeforeTest, recommendedJesChecksAfterTest } from "../../../../utils/zosmf";
 
 class ExplorerApiDatasetListByFilterTest extends WrkTestCase {
   fetchZoweVersions = true;
@@ -23,7 +24,13 @@ class ExplorerApiDatasetListByFilterTest extends WrkTestCase {
 
   async before(): Promise<void> {
     await super.before();
+    await recommendedJesChecksBeforeTest();
     this.headers.push(getBasicAuthorizationHeader());
+  }
+
+  async after(): Promise<void> {
+    await super.after();
+    await recommendedJesChecksAfterTest();
   }
 }
 

@@ -9,8 +9,7 @@
  */
 
 import WrkTestCase from "../../../../testcase/wrk";
-import { createTestUnixFile, cleanupTestUnixFile } from "../../../../utils/zowe";
-import { getBasicAuthorizationHeader, sleep } from "../../../../utils";
+import { getApimlAuthenticationCookieHeader } from "../../../../utils/zowe";
 import { HttpRequestMethod } from "../../../../types";
 
 class ExplorerApiPostJobStringTest extends WrkTestCase {
@@ -33,13 +32,8 @@ class ExplorerApiPostJobStringTest extends WrkTestCase {
 
   async before(): Promise<void> {
     await super.before();
-    this.headers.push(getBasicAuthorizationHeader());
-  }
 
-  async after(): Promise<void> {
-    await super.after();
-
-    //TODO: await purgeJobOutputsWithoutFailure("JOB");
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 }
 

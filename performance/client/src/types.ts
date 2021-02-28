@@ -8,6 +8,8 @@
  * Copyright IBM Corporation 2020
  */
 
+import { IncomingHttpHeaders } from "http2";
+
 export interface PerformanceTestCase {
   // test case name
   name: string;
@@ -104,6 +106,8 @@ export type PerformanceTestCaseReport = {
     end?: number;
   };
   path: string;
+  status: string;
+  failureMessages?: string[];
   environments: {[key: string]: unknown};
   parameters: {[key: string]: unknown};
   zoweVersions?: unknown;
@@ -117,6 +121,13 @@ export type PerformanceTestReport = {
   timestamps: {
     start: number;
     end?: number;
+  };
+  summary: {
+    total: number;
+    passed: number;
+    failed: number;
+    pending: number;
+    todo: number;
   };
   tests?: PerformanceTestCaseReport[];
 };
@@ -169,4 +180,65 @@ export interface SequentialWrkHttpRequest extends WrkHttpRequest {
   // how many milliseconds to delay before next request
   // 2 numbers represent minimum and maximum time period
   delay?: [number, number];
+}
+
+export interface GotHttpResponse {
+  statusCode: number;
+  headers: IncomingHttpHeaders;
+  // eslint-disable-next-line
+  body: any;
+}
+
+export interface JesSpoolStatus {
+  utilization?: number;
+  volumes: {
+    [key: string]: {
+      [key: string]: string;
+    };
+  };
+}
+
+export interface JesCheckpointSpace {
+  bertNum: number;
+  bertFree: number;
+  bertWarn: number;
+  checkpoints: {
+    [key: string]: {
+      [key: string]: string;
+    };
+  };
+}
+
+export interface JesPurgeJobOutputResponse {
+  rc: number;
+  count: number;
+  message?: string;
+}
+
+export interface JesSystemActivity {
+  jobs: number;
+  startedTasks: number;
+  tsUsers: number;
+  tsUsersUnderTso: number;
+  maxTsUsersUnderTso: number;
+  systemAddressSpaces: number;
+  initiators: number;
+  ussAddressSpaces: number;
+}
+export interface CeaSummary {
+  status: {
+    text: string;
+    clients: number;
+    internal: number;
+  };
+  events: {
+    wto: number;
+    enf: number;
+    pgm: number;
+  };
+  tsoAddressSpaceManager: {
+    allowed: number;
+    inUse: number;
+    highCount: number;
+  };
 }

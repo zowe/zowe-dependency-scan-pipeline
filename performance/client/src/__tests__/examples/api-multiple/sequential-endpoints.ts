@@ -10,7 +10,7 @@
 
 import WrkSequentialEndpointsTestCase from "../../../testcase/wrk-sequential-endpoints";
 import { SequentialHttpRequest } from "../../../types";
-import { getBasicAuthorizationHeader } from "../../../utils";
+import { getApimlAuthenticationCookieHeader } from "../../../utils/zowe";
 
 class ExampleWrkSequentialEndpointsTest extends WrkSequentialEndpointsTestCase {
   // name/purpose of the test
@@ -41,11 +41,11 @@ class ExampleWrkSequentialEndpointsTest extends WrkSequentialEndpointsTestCase {
     {
       // wait for few seconds before sending this request
       delay    : [100, 500],
-      endpoint : "/api/v1/datasets/SYS1.PARMLIB",
+      endpoint : "/api/v2/datasets/SYS1.PARMLIB",
       sequence : 10,
     },
     {
-      endpoint : "/api/v1/datasets/SYS1.PARMLIB(ERBRMF00)/content",
+      endpoint : "/api/v2/datasets/SYS1.PARMLIB(ERBRMF00)/content",
       sequence : 20,
     },
   ] as SequentialHttpRequest[];
@@ -70,7 +70,7 @@ class ExampleWrkSequentialEndpointsTest extends WrkSequentialEndpointsTestCase {
     await super.before();
  
     // this test requires authentication header
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 }
 

@@ -19,6 +19,7 @@ import {
   PERFORMANCE_TEST_DEBUG_CONSOLE_LOG,
   DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION,
   DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY,
+  MAXIMUM_PERFORMANCE_TEST_DEBUG_DURATION,
 } from "../constants";
 
 import Debug from 'debug';
@@ -74,24 +75,27 @@ export default class WrkBaseTestCase extends BaseTestCase {
 
     if (this.debug) {
       // for debugging purpose, always set to 1
-      debug(`Running in debug mode, concurrency/threads are set to ${DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY}, duration is set to ${DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION}`);
       this.concurrency = DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY;
       // we assume DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY shouldn't be too big, usually it should be 1
       this.threads = DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY;
-      this.duration = DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION;
+      if (!this.duration || this.duration > MAXIMUM_PERFORMANCE_TEST_DEBUG_DURATION) {
+        this.duration = DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION;
+      }
+      debug(`Running in debug mode, concurrency/threads are set to ${this.concurrency}/${this.threads}, duration is set to ${this.duration}`);
     }
   }
 
   async before(): Promise<void> {
     await super.before();
 
-    // make sure image is already pulled to local before we start test
-    await spawnPromise("docker", ["pull", this.dockerImage]);
-    debug(`Docker image ${this.dockerImage} is prepared.`)
-
     if (fs.existsSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG)) {
       fs.unlinkSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG);
     }
+    expect(fs.existsSync(PERFORMANCE_TEST_DEBUG_CONSOLE_LOG)).toBe(false);
+
+    // make sure image is already pulled to local before we start test
+    await spawnPromise("docker", ["pull", this.dockerImage]);
+    debug(`Docker image ${this.dockerImage} is prepared.`)
   }
 
   async run(): Promise<void> {

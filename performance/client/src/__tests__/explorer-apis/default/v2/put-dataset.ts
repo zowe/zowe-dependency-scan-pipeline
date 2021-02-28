@@ -9,8 +9,8 @@
  */
 
 import WrkTestCase from "../../../../testcase/wrk";
-import { createTestDataset, cleanupTestDataset } from "../../../../utils/zowe";
-import { getBasicAuthorizationHeader, sleep } from "../../../../utils";
+import { getApimlAuthenticationCookieHeader, createTestDataset, cleanupTestDataset } from "../../../../utils/zowe";
+import { recommendedJesChecksBeforeTest, recommendedJesChecksAfterTest } from "../../../../utils/zosmf";
 import { HttpRequestMethod } from "../../../../types";
 
 class ExplorerApiPutDatasetTest extends WrkTestCase {
@@ -33,16 +33,17 @@ class ExplorerApiPutDatasetTest extends WrkTestCase {
 
   async before(): Promise<void> {
     await super.before();
-
+    await recommendedJesChecksBeforeTest();
     createTestDataset(this.targetHost, this.targetPort, "TEST.TESTDS", "PS");
 
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 
   async after(): Promise<void> {
     await super.after();
 
     cleanupTestDataset(this.targetHost, this.targetPort, "TEST.TESTDS");
+    await recommendedJesChecksAfterTest();
   }
 }
 

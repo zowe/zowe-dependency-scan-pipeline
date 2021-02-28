@@ -9,8 +9,8 @@
  */
 
 import WrkTestCase from "../../../../testcase/wrk";
-import { createTestUnixFile, cleanupTestUnixFile } from "../../../../utils/zowe";
-import { getBasicAuthorizationHeader, sleep } from "../../../../utils";
+import { getApimlAuthenticationCookieHeader, createTestUnixFile, cleanupTestUnixFile } from "../../../../utils/zowe";
+import { recommendedJesChecksBeforeTest, recommendedJesChecksAfterTest } from "../../../../utils/zosmf";
 import { HttpRequestMethod } from "../../../../types";
 
 class ExplorerApiPutUnixFileTest extends WrkTestCase {
@@ -33,17 +33,17 @@ class ExplorerApiPutUnixFileTest extends WrkTestCase {
 
   async before(): Promise<void> {
     await super.before();
-
+    await recommendedJesChecksBeforeTest();
     await createTestUnixFile(this.targetHost, this.targetPort, "tmp/zowe-performance-test-file", "/tmp");
 
-    this.headers.push(getBasicAuthorizationHeader());
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 
   async after(): Promise<void> {
     await super.after();
 
     await cleanupTestUnixFile(this.targetHost, this.targetPort, "tmp/zowe-performance-test-file", "/tmp");
-    
+    await recommendedJesChecksAfterTest();
   }
 }
 

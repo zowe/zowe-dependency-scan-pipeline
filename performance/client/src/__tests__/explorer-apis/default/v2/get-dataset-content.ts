@@ -9,7 +9,8 @@
  */
 
 import WrkTestCase from "../../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../../utils";
+import { getApimlAuthenticationCookieHeader } from "../../../../utils/zowe";
+import { recommendedJesChecksBeforeTest, recommendedJesChecksAfterTest } from "../../../../utils/zosmf";
 
 class ExplorerApiDatasetContentTest extends WrkTestCase {
   fetchZoweVersions = true;
@@ -23,7 +24,13 @@ class ExplorerApiDatasetContentTest extends WrkTestCase {
 
   async before(): Promise<void> {
     await super.before();
-    this.headers.push(getBasicAuthorizationHeader());
+    await recommendedJesChecksBeforeTest();
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
+  }
+
+  async after(): Promise<void> {
+    await super.after();
+    await recommendedJesChecksAfterTest();
   }
 }
 

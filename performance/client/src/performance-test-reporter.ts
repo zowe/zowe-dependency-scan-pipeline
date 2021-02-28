@@ -15,6 +15,7 @@ import type { AggregatedResult, TestResult } from "@jest/test-result";
 import type { Config } from '@jest/types';
 import type { Context, ReporterOnStartOptions, Test } from "@jest/reporters";
 import { dump, load } from 'js-yaml';
+import stripAnsi = require('strip-ansi');
 
 import PerformanceTestException from "./exceptions/performance-test-exception";
 import {
@@ -75,6 +76,13 @@ export default class PerformanceTestReporter extends BaseReporter {
       timestamps: {
         start: (new Date()).getTime(),
       },
+      summary: {
+        total: 0,
+        passed: 0,
+        failed: 0,
+        pending: 0,
+        todo: 0,
+      },
       tests: [],
     };
   }
@@ -87,6 +95,7 @@ export default class PerformanceTestReporter extends BaseReporter {
   ): void {
     // debug('onTestResult(_test):', _test);
     // debug('onTestResult(_testResult):', _testResult);
+    // debug('onTestResult(_testResult.testResults[0]):', _testResult.testResults[0]);
     // debug('onTestResult(_results):', _results);
 
     // _testResult.testResults should only have one element because the way how
@@ -186,6 +195,8 @@ export default class PerformanceTestReporter extends BaseReporter {
         start: _testResult.perfStats.start,
         end: _testResult.perfStats.end,
       },
+      status: _testResult.testResults[0].status,
+      failureMessages: _testResult && _testResult.testResults && _testResult.testResults[0] && _testResult.testResults[0].failureMessages && _testResult.testResults[0].failureMessages.map(stripAnsi),
       environments: testEnv,
       parameters: testParameters,
       zoweVersions: zoweVersions,
@@ -194,7 +205,7 @@ export default class PerformanceTestReporter extends BaseReporter {
       consoleLog,
       result: testResult,
     };
-    debug('onTestResult(testCaseReport):', testCaseReport);
+    // debug('onTestResult(testCaseReport):', testCaseReport);
     this.report.tests.push(testCaseReport);
   }
 
@@ -213,8 +224,13 @@ export default class PerformanceTestReporter extends BaseReporter {
     // debug('onRunComplete(_aggregatedResults):', _aggregatedResults);
 
     this.report.timestamps.end = (new Date()).getTime();
+    this.report.summary.total = _aggregatedResults.numTotalTests;
+    this.report.summary.passed = _aggregatedResults.numPassedTests;
+    this.report.summary.failed = _aggregatedResults.numFailedTests;
+    this.report.summary.pending = _aggregatedResults.numPendingTests;
+    this.report.summary.todo = _aggregatedResults.numTodoTests;
 
-    debug('onRunComplete(report):', this.report);
+    // debug('onRunComplete(report):', this.report);
     
     const reportFile = `test-report-${new Date().toISOString().replace(/[:\-]/g, "")}.${this.options.format}`;
     debug('report file:', reportFile);

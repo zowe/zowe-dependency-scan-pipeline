@@ -13,6 +13,8 @@ Perform performance test on the target server.
 - **ZMS_HOST** and **ZMS_PORT**: Optional. If you want to collect server side metrics, you need to specify where is the Zowe Metrics Server started. Usually it should has same value as your target test server. **ZMS_PORT** is optional and has default value `19000`, which is the default port of Zowe Metrics Server.
 - **TARGET_HOST** and **TARGET_PORT**: This is required for `WrkTestCase`. It's the test server and port you want to test. **TARGET_PORT** is optional, and has default value `7554`, which is the default Zowe API Mediation Layer Gateway port.
 - **TEST_AUTH_USER** and **TEST_AUTH_PASSWORD**: Many `WrkTestCase` will require authentication. These are the username and password to call the API you want to test.
+- **ZOSMF_HOST** and **ZOSMF_PORT** z/OSMF host name and port. Default value of `ZOSMF_HOST` is same as `TARGET_HOST`, and default value of `ZOSMF_PORT` is `443`. Correct z/OSMF information is required if your test needs to communicate with z/OSMF. It could be used to cleanup JES job outputs, run TSO command on the server, etc.
+- **ZOSMF_AUTH_USER** and **ZOSMF_AUTH_PASSWORD**: z/OSMF authentication user and password. Default value is same as `TEST_AUTH_USER` and `TEST_AUTH_PASSWORD`.
 
 ## Run Test Cases with Docker
 
@@ -108,154 +110,101 @@ The process of running a test can be illustrated with these steps:
 
 ## Write Test Cases
 
-Currently we support 2 type of test cases: `BaseTestCase` and `WrkTestCase`. They are defined in `src/testcase` folder. `WrkTestCase` is inherited from `BaseTestCase`.
+Depends on the purpose of the test, you may extend your test case from one of below base test cases.
 
-### Define a Generic Test Case
+- `BaseTestCase`: This is generic test which you can customize how to run your test. For example, [src/__tests__/examples/idle/index.ts](src/__tests__/examples/idle/index.ts).
+- `WrkTestCase`: This is basic API test which you can test one endpoint. For example, [src/__tests__/examples/api-get/data-set-content.ts](src/__tests__/examples/api-get/data-set-content.ts).
+- `WrkSequentialEndpointsTestCase`: This is API test which you can define multiple endpoints and make requests one by one. For example, [src/__tests__/examples/api-multiple/sequential-endpoints.ts](src/__tests__/examples/api-multiple/sequential-endpoints.ts).
+- `WrkWeightedEndpointsTestCase`: This is API test which you can define multiple endpoints with weight. The test will randomly pick one of them based on the weight and make request to your target server. For example, [src/__tests__/examples/api-multiple/weighted-endpoints.ts](src/__tests__/examples/api-multiple/weighted-endpoints.ts).
 
-We can extend from `BaseTestCase` to define a generic test. When we extend, we have option to customize what you want to do before, during and after the test.
+## Troubleshooting Failures
 
-Here is an example to define a generic test case.
+In test reports, there are several sections you should pay attention for failures:
 
-```typescript
-// depends on your relative folder from where "testcase/base" is located
-import BaseTestCase from "../../../testcase/base";
+- `summary.failed`: This indicates there are failures in some tests if it's not `0`.
+- `tests.*.result.failed_requests`: Even though your all tests passed, some tests may not be trustworthy if this value exists and is not `0`. Normally you can enable `debug` mode by setting the `debug = true;` for the test case to find where the failures come from. Another good source is checking `SDSF.LOG` panel.
 
-class MyTest extends BaseTestCase {
-  // name/purpose of the test
-  name = "I have a special purpose for this test";
+### $HASP690 COMMAND REJECTED - SOURCE OF COMMAND HAS IMPROPER AUTHORITY
 
-  // fetch Zowe instance version information
-  // this can be turned on if TARGET_PORT is Zowe APIML Gateway port
-  fetchZoweVersions = true;
+If you see this error message in the console log of your test, that means the user doesn't have enough authority to run certain operator commands from TSO. This could be `$PO TSU1-9999` command we are trying to run.
 
-  // test will last 10 minutes
-  duration = 600;
+To fix this error, you need to permit `UPDATE` for your user to `OPERCMDS JES%.**` profile. These commands may help you:
 
-  // my custom property
-  myTestOption: string = "value";
-
-  async before(): Promise<void> {
-    // call parent
-    await super.before();
-
-    // prepare my environment before I start
-    await howToPrepareMyTest(this.myTestOption);
-  }
-
-  async after(): Promise<void> {
-    // call parent
-    await super.after();
-
-    // clean up my environment after my test
-    await howToCleanup(this.myTestOption);
-  }
-
-  async run(): Promise<void> {
-    // I simply do nothing, just collecting metrics
-    await sleep(this.duration * 1000);
-  }
-};
-
-// init test case, this is required
-new MyTest().init();
+```
+SETR GENERIC(OPERCMDS)
+RDEFINE OPERCMDS JES%.** UACC(UPDATE)
+PERMIT JES%.** CL(OPERCMDS) ID(IBMUSER) ACCESS(UPDATE)
+SETROPTS RACLIST(OPERCMDS) REFRESH
 ```
 
-### Define an API Test Case
+### IEE345I MODIFY   AUTHORITY INVALID, FAILED BY MVS
 
-We can extend from `WrkTestCase` to define a customized API test. This is an example to test Zowe explorer data set API endpoint.
+If you see this error message in the console log of your test, that means the user doesn't have enough authority to run certain operator commands from TSO. This could be the `F CEA,D,S` command we are trying to run.
 
-```typescript
-// depends on your relative folder from where "testcase/base" is located
-import WrkTestCase from "../../../testcase/wrk";
-import { getBasicAuthorizationHeader } from "../../../utils";
-import { DEFAULT_CLIENT_METRICS } from "../../../constants";
-import { HttpRequestMethod } from "../../../types";
+To fix this error, you need to permit `UPDATE` for your user to `OPERCMDS MVS.MODIFY.**` profile. These commands may help you:
 
-class ExplorerApiDatasetContentTest extends WrkTestCase {
-  // name/purpose of the test
-  name = "Test explorer data sets api endpoint /datasets/{ds}/content";
+```
+SETR GENERIC(OPERCMDS)
+RDEFINE OPERCMDS MVS.MODIFY.** UACC(UPDATE)
+PERMIT MVS.MODIFY.** CL(OPERCMDS) ID(IBMUSER) ACCESS(UPDATE)
+SETROPTS RACLIST(OPERCMDS) REFRESH
+```
 
-  // fetch Zowe instance version information
-  // this can be turned on if TARGET_PORT is Zowe APIML Gateway port
-  fetchZoweVersions = true;
+### CEA0403I in SDSF.LOG panel
 
-  // example: 15 minutes
-  duration = 15 * 60;
+If you see error message `CEA0403I` like this in `SDSF.LOG` panel,
 
-  // required. endpoint we want to test
-  endpoint = '/api/v1/datasets/MYUSER.MYDS(MYMEMBER)/content';
+```
+M 4040000 TIVLP46  21052 14:32:33.17 STC00815 00000090  CEA0403I A USER REQUEST TO CREATE A TSO ADDRESS SPACE HAS BEEN DECLINED
+S                                                       886                                                                    
+D                                         886 00000090  BECAUSE THE MAXIMUM NUMBER OF SESSIONS HAS BEEN REACHED ON THIS SYSTEM.
+E                                         886 00000090  CEAPRMXX STATEMENT MAXSESSIONS MUST BE INCREASED TO ALLOW THIS REQUEST.
+```
 
-  // http method. Default value is GET.
-  // You can change to POST, PUT, DELETE, etc.
-  // method = "POST" as HttpRequestMethod;
+That means the CEA parameter MAXSESSIONS is not good enough for your test. Check more details from the error code page here (https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.ieam400/msg-CEA0403I.htm)[https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.3.0/com.ibm.zos.v2r3.ieam400/msg-CEA0403I.htm].
 
-  // endpoint we want to test
-  endpoint = '/api/v1/gateway/auth/login';
+To fix this error, increase `MAXSESSIONS` until you don't see failures during your test. You may find the parameter in `SYS1.PARMLIB(CEAPRM00)`, but still depends on how your system is configured. To manually check current CEA parameters, run `F CEA,D,PARMS` command.
 
-  // body of post request in string format
-  // body = JSON.stringify({
-  //   username: process.env.TEST_AUTH_USER,
-  //   password: process.env.TEST_AUTH_PASSWORD,
-  // });
+### $HASP050 JES2 RESOURCE SHORTAGE OF BERT
 
-  // enable debug mode?
-  // Enabling debug mode will log every request/response sent to or received from
-  // the target server. If this is true, these properties will be automatically
-  // reset to these values to avoid excessive logs:
-  // - duration: DEFAULT_PERFORMANCE_TEST_DEBUG_DURATION
-  // - concurrency: DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY
-  // - threads: DEFAULT_PERFORMANCE_TEST_DEBUG_CONCURRENCY
-  // Enabling debug mode will also show the log in test report as `consoleLog`.
-  debug = true;
+If you see error messages like this,
 
-  // optional. example to overwrite default collector options
-  serverMetricsCollectorOptions = {
-    // interval 0 will disable server side metrics collecting
-    // this value 10 means we poll server metrics every 10 seconds
-    interval: 10,
+```
+<host>  : H *$HASP050 JES2 RESOURCE SHORTAGE OF BERT - 100% UTILIZATION REACHED,
+<host>  : H *$HASP052 JES2 BERT resource shortage is critical --,
+<host>  : H           IMMEDIATE action required,
+<host>  : H           DO NOT TERMINATE JES2 OR IPL.  Doing so may result in a COLD,
+<host>  : H           start.,
+<host>  : H           CURRENT BERTNUM=1600, Free BERTs=0,
+<host>  : H           Correct BERT shortage by --,
+<host>  : H             - $T CKPTSPACE,BERTNUM=nnnn (increase BERTs),
+<host>  : H             - $P Jnnnn (purge pre-execution jobs),
+```
 
-    // example to define customized metrics
-    metrics: [
-      // my special metrics
-      "my-special-metric-a", "my-special-metric-b",
-      // example to collect CPU time for processes matching "MY*"
-      // this is regular expression, please be aware of the special escape characters
-      "cpu\\{source=\"rmf.dds\",item=\"MY.*\".+\\}",
-    ],
-    // also customize what metrics will be used for cpu time calculation
-    cputimeMetrics: [
-      "cpu\\{source=\"rmf.dds\",item=\"MY.*\".+\\}",
-    ],
-  };
+### HASP050 JES2 RESOURCE SHORTAGE OF JOES (or JQES)
 
-  // optional. example to overwrite default collector options
-  clientMetricsCollectorOptions = {
-    // interval 0 will disable server side metrics collecting
-    interval: 0,
+If you see error messages like this,
 
-    // example to define customized metrics
-    metrics: [
-      ...DEFAULT_CLIENT_METRICS,
-      // I also want to collect memory usage
-      "memory.heapTotal", "memory.heapUsed",
-    ],
-  };
+```
+N 4040000 TIVLP46  21053 21:16:20.82          00000090 *$HASP050 JES2 RESOURCE SHORTAGE OF JQES - 100% UTILIZATION REACHED 
+N 4040000 TIVLP46  21053 21:16:44.82          00000090 *$HASP050 JES2 RESOURCE SHORTAGE OF JOES - 99% UTILIZATION REACHED  
+```
 
-  // optional. we can add customized headers
-  headers: string[] = [
-    "X-Special-Header: value"
-    // useful if you are testing POST/PUT with json body
-    // "Content-Type: application/json",
-  ];
+At this time,
 
-  async before(): Promise<void> {
-    await super.before();
-
-    // this test requires authentication header
-    this.headers.push(getBasicAuthorizationHeader());
-  }
-};
-
-// init test case, this is required
-new ExplorerApiDatasetContentTest().init();
+```
+$DSPL                                                              
+$HASP893 VOLUME(LP4601)  STATUS=ACTIVE,PERCENT=58                  
+$HASP893 VOLUME(LP460S)  STATUS=ACTIVE,PERCENT=17                  
+$HASP646 24.9105 PERCENT SPOOL UTILIZATION                         
+$D JOBDEF                                                          
+$HASP835 JOBDEF 577                                                
+$HASP835 JOBDEF  ACCTFLD=OPTIONAL,BAD_JOBNAME_CHAR=?,              
+$HASP835         CNVT_ENQ=FAIL,DEF_CLASS=A,INTERPRET=INIT,         
+$HASP835         CISUB_PER_AS=5,CNVT_SCHENV=IGNORE,JNUMBASE=1027,  
+$HASP835         JNUMFREE=7999,JNUMWARN=80,JOBFREE=0,JOBNUM=2000,  
+$HASP835         JOBWARN=80,PRTYHIGH=10,PRTYJECL=YES,PRTYJOB=NO,   
+$HASP835         PRTYLOW=1,PRTYRATE=1,RANGE=(1,9999),RASSIGN=YES,  
+$HASP835         JOBRBLDQ=NONE,DUPL_JOB=DELAY,LOGMSG=ASIS,         
+$HASP835         SUP_EVENTLOG_SMF=NO                               
 ```

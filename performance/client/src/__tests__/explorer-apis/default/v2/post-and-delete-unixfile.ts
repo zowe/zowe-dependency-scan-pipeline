@@ -10,8 +10,8 @@
 
 import WrkSequentialEndpointsTestCase from "../../../../testcase/wrk-sequential-endpoints";
 import { SequentialHttpRequest } from "../../../../types";
-import { cleanupTestUnixFile } from "../../../../utils/zowe";
-import { getBasicAuthorizationHeader } from "../../../../utils";
+import { getApimlAuthenticationCookieHeader, cleanupTestUnixFile } from "../../../../utils/zowe";
+import { recommendedJesChecksBeforeTest, recommendedJesChecksAfterTest } from "../../../../utils/zosmf";
 
 class ExplorerApiPostAndDeleteUnixFileTest extends WrkSequentialEndpointsTestCase {
   fetchZoweVersions = true;
@@ -42,14 +42,15 @@ class ExplorerApiPostAndDeleteUnixFileTest extends WrkSequentialEndpointsTestCas
 
   async before(): Promise<void> {
     await super.before();
-
-    this.headers.push(getBasicAuthorizationHeader());
+    await recommendedJesChecksBeforeTest();
+    this.headers.push(await getApimlAuthenticationCookieHeader(this.targetHost, this.targetPort));
   }
 
   async after(): Promise<void> {
     await super.after();
 
     await cleanupTestUnixFile(this.targetHost, this.targetPort, "tmp/zowe-performance-test-file", "/tmp");
+    await recommendedJesChecksAfterTest();
   }
 }
 

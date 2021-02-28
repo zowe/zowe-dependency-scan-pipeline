@@ -71,6 +71,8 @@ export default class ZMSMetricsCollector extends BaseMetricsCollector {
       const ts = new Date().getTime();
       const content: string[] = [];
 
+      let lineCount = 0;
+      const maxLines = 3;
       body.split("\n").forEach(line => {
         line = line.trim();
         if (!line) {
@@ -82,7 +84,12 @@ export default class ZMSMetricsCollector extends BaseMetricsCollector {
           const t = kv[2] || ts;
 
           if (kv[0].match(re)) {
-            debug(`- [${t}] ${kv[0]} = ${kv[1]}`);
+            if (lineCount < maxLines) {
+              debug(`- [${t}] ${kv[0]} = ${kv[1]}`);
+            } else if (lineCount === maxLines) {
+              debug('- (... skipped)');
+            }
+            lineCount ++;
 
             content.push(`- timestamp: ${t}`);
             content.push(`  name: ${kv[0]}`);
