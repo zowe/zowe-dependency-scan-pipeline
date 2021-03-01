@@ -18,7 +18,7 @@ node('zowe-jenkins-agent') {
   pipeline.admins.add("jackjia")
 
   // usually nightly build will end before 3am
-  // pipeline.addBuildOption(pipelineTriggers([cron("TZ=America/New_York\nH 6 * * 0")]))
+  pipeline.addBuildOption(pipelineTriggers([cron("TZ=America/New_York\nH 6 * * 0")]))
 
   pipeline.setup()
 
