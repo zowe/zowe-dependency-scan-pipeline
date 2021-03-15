@@ -266,7 +266,7 @@ node('zowe-jenkins-agent-dind') {
       } // end of withCredentials
     },
     allowMissingJunit : true,
-    timeout           : [time: 4, unit: 'HOURS']
+    timeout           : [time: 6, unit: 'HOURS']
   )
 
   // define we need publish stage
