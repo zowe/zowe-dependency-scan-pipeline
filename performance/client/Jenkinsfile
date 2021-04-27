@@ -1,0 +1,323 @@
+#!groovy
+
+/**
+ * This program and the accompanying materials are made available under the terms of the
+ * Eclipse Public License v2.0 which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-v20.html
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Copyright IBM Corporation 2020
+ */
+
+
+node('zowe-jenkins-agent-dind') {
+  def PROJECT_BASE_DIR = "performance/client"
+  def DEFAULT_ZMS_PORT = 19000
+
+  // Test server configurations:
+  // - credential id for ssh server hostname and port
+  // - credential id for ssh username and password
+  Map TEST_SERVERS = [
+    'marist': [
+      ssh_hostport     : 'ssh-marist-server-zzow01-hostport',
+      ssh_userpass     : 'ssh-marist-server-zzow01',
+      zosmf_port       : '10443',
+      zosmf_credential : 'ssh-marist-server-zzow01',
+      tmp_dir          : '/ZOWE/tmp',
+      zms_dir          : '/ZOWE/tmp/zms',
+      zms_credential   : 'ssh-marist-server-zzow01',
+      // ZMS requires node v10+
+      node_home        : '/ZOWE/node/node-v12.16.1-os390-s390x',
+    ],
+    'marist-2': [
+      ssh_hostport     : 'ssh-marist-server-zzow02-hostport',
+      ssh_userpass     : 'ssh-marist-server-zzow02',
+      zosmf_port       : '10443',
+      zosmf_credential : 'ssh-marist-server-zzow02',
+      tmp_dir          : '/ZOWE/tmp',
+      zms_dir          : '/ZOWE/tmp/zms',
+      zms_credential   : 'ssh-marist-server-zzow02',
+      // ZMS requires node v10+
+      node_home        : '/ZOWE/node/node-v12.16.1-os390-s390x',
+    ],
+    'marist-3': [
+      ssh_hostport     : 'ssh-marist-server-zzow03-hostport',
+      ssh_userpass     : 'ssh-marist-server-zzow03',
+      zosmf_port       : '10443',
+      zosmf_credential : 'ssh-marist-server-zzow03',
+      tmp_dir          : '/ZOWE/tmp',
+      zms_dir          : '/ZOWE/tmp/zms',
+      zms_credential   : 'ssh-marist-server-zzow03',
+      // ZMS requires node v10+
+      node_home        : '/ZOWE/node/node-v12.16.1-os390-s390x',
+    ]
+  ];
+
+  def lib = library("jenkins-library").org.zowe.jenkins_shared_library
+
+  def pipeline = lib.pipelines.nodejs.NodeJSPipeline.new(this)
+
+  pipeline.admins.add("jackjia")
+
+  // we have extra parameters for integration test
+  pipeline.addBuildParameters(
+    // >>>>>>>> parameters of where and what to test
+    choice(
+      name: 'TEST_SERVER',
+      choices: TEST_SERVERS.keySet().collect(),
+      description: 'Choose which server to run test'
+    ),
+    string(
+      name: 'TEST_PORT',
+      description: 'Service port to be tested. By default, this will be Zowe APIML Gateway port.',
+      defaultValue: '7554',
+      trim: true
+    ),
+    string(
+      name: 'TEST_SCOPE',
+      description: 'Test cases to be executed',
+      defaultValue: 'dist/__tests__/examples/idle/',
+      trim: true
+    ),
+    booleanParam(
+      name: 'UPDATE_PLOTS',
+      description: 'If we should update dashboard plots.',
+      defaultValue: false
+    ),
+    // >>>>>>>> parameters of artifactory
+    string(
+      name: 'ZMS_ARTIFACTORY_PATTERN',
+      description: 'Zowe metrics server artifactory download pattern',
+      defaultValue: 'libs-snapshot-local/org/zowe/metrics-server/*.pax',
+      trim: true
+    ),
+    string(
+      name: 'ZMS_ARTIFACTORY_BUILD',
+      description: 'Zowe artifactory download build',
+      defaultValue: 'Zowe Performance - Metrics Server :: master',
+      trim: true
+    ),
+    string(
+      name: 'REPORT_NAME',
+      description: 'Report name published to Artifactory',
+      defaultValue: 'report',
+      trim: true
+    ),
+    // >>>>>>>> parametters for test cases
+    string(
+      name: 'PERFORMANCE_TEST_DEBUG_INFORMATION',
+      description: 'How to show debug logging for running performance test cases.',
+      defaultValue: 'zowe-performance-test:*',
+      trim: true
+    )
+  )
+
+  pipeline.setup(
+    packageName    : 'org.zowe.performance-test-reports',
+    baseDirectory  : PROJECT_BASE_DIR,
+    nodeJsVersion  : 'v12.18.3',
+    initWithColor  : true,
+    auditWithColor : true,
+    lintWithColor  : true
+  )
+
+  pipeline.build(displayAnsiColor: true)
+
+  pipeline.test(
+    name          : 'Performance',
+    operation     : {
+      withCredentials([
+        usernamePassword(
+          credentialsId: TEST_SERVERS[params.TEST_SERVER]['ssh_hostport'],
+          passwordVariable: "SSH_PORT",
+          usernameVariable: "SSH_HOST"
+        ),
+        usernamePassword(
+          credentialsId: TEST_SERVERS[params.TEST_SERVER]['ssh_userpass'],
+          passwordVariable: "SSH_PASSWORD",
+          usernameVariable: "SSH_USER"
+        ),
+        usernamePassword(
+          credentialsId: TEST_SERVERS[params.TEST_SERVER]['zms_credential'],
+          passwordVariable: "RMF_DDS_PASSWORD",
+          usernameVariable: "RMF_DDS_USERNAME"
+        ),
+        usernamePassword(
+          credentialsId: TEST_SERVERS[params.TEST_SERVER]['zosmf_credential'],
+          passwordVariable: "ZOSMF_AUTH_PASSWORD",
+          usernameVariable: "ZOSMF_AUTH_USER"
+        )
+      ]) {
+        def remote = [:]
+        remote.name = params.TEST_SERVER
+        remote.host = SSH_HOST
+        remote.port = SSH_PORT
+        remote.user = SSH_USER
+        remote.password = SSH_PASSWORD
+        remote.allowAnyHosts = true
+
+        // download ZMS
+        echo "Downloading ZMS ..."
+        pipeline.artifactory.download(
+          specContent : "{\n" +
+                        "  \"files\": [{\n" +
+                        "    \"pattern\": \"${params.ZMS_ARTIFACTORY_PATTERN}\",\n" +
+                        "    \"target\": \".tmp/zms.pax\",\n" +
+                        "    \"flat\": \"true\",\n" +
+                        "    \"build\": \"${params.ZMS_ARTIFACTORY_BUILD}\"\n" +
+                        "  }]\n" +
+                        "}",
+          expected    : 1
+        )
+
+        lock("performance-test-${params.TEST_SERVER}") {
+          try {
+            // prepare remote folders
+            echo "Preparing remote folders ..."
+            // sshCommand remote: remote, command: "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}"
+            // sshCommand remote: remote, command: "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}"
+            sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
+               "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}\n" +
+               "rm -fr ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+               "mkdir -p ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+               "exit 0\n" +
+               "EOF"
+
+            // transfer to the server
+            echo "Uploading ZMS to ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']} ..."
+            // sshPut remote: remote, from: '.tmp/zms.pax', into: TEST_SERVERS[params.TEST_SERVER]['tmp_dir']
+            sh "SSHPASS=${remote.password} sshpass -e sftp -o BatchMode=no -o StrictHostKeyChecking=no -P ${remote.port} -b - ${remote.user}@${remote.host} << EOF\n" +
+               "put .tmp/zms.pax ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}\n" +
+               "EOF"
+
+            // extract ZMS
+            // use SDSF metrics temporarily before RMF is configured
+            // sshCommand remote: remote, command: "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']} && pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax && echo \"ls -la \$(pwd):\" && ls -la"
+            echo "Extracting ZMS ..."
+            //  "cp configs/sdsf-only.yaml configs/index.yaml\n" +
+            sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
+               "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+               "pax -rf ${TEST_SERVERS[params.TEST_SERVER]['tmp_dir']}/zms.pax\n" +
+               "echo \"ls -la \\\$(pwd):\"\n" +
+               "ls -la\n" +
+               "exit 0\n" +
+               "EOF"
+
+            // start ZMS
+            echo "Starting ZMS ..."
+            sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
+               "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+               "ZWS_PID=\\\$(ps -elf | grep zms | grep -v grep | awk '{print \\\$2;}')\n" +
+               "[ -n \"\\\$ZWS_PID\" ] && echo \"Found ZMS PID: \\\${ZWS_PID}, send kill signal\" && kill -9 \\\$ZWS_PID\n" +
+               "[ -f ~/.profile ] && . ~/.profile\n" +
+               "export NODE_HOME=${TEST_SERVERS[params.TEST_SERVER]['node_home']}\n" +
+               "export _BPXK_AUTOCVT=ON\n" +
+               "export _CEE_RUNOPTS=\"FILETAG(AUTOCVT,AUTOTAG) POSIX(ON)\"\n" +
+               "export RMF_DDS_HOST=\"${remote.host}\"\n" +
+               "export RMF_DDS_USERNAME=\"${RMF_DDS_USERNAME}\"\n" +
+               "export RMF_DDS_PASSWORD=\"${RMF_DDS_PASSWORD}\"\n" +
+               "nohup ./bin/start.sh &\n" +
+               "exit 0\n" +
+               "EOF"
+
+            // wait for a minute to let system cool down
+            echo "Waiting for cool down ..."
+            sleep time: 1, unit: 'MINUTES'
+
+            // start test
+            def testEnvVars = [
+              "FORCE_COLOR=true",
+              "DEBUG=${params.PERFORMANCE_TEST_DEBUG_INFORMATION}".toString(),
+              "ZMS_HOST=${SSH_HOST}".toString(),
+              "ZMS_PORT=${DEFAULT_ZMS_PORT}".toString(),
+              "ZOSMF_HOST=${SSH_HOST}".toString(),
+              "ZOSMF_PORT=${TEST_SERVERS[params.TEST_SERVER]['zosmf_port']}".toString(),
+              "TARGET_HOST=${SSH_HOST}".toString(),
+              "TARGET_PORT=${params.TEST_PORT}".toString(),
+              "TEST_AUTH_USER=${SSH_USER}".toString(),
+              "TEST_AUTH_PASSWORD=${SSH_PASSWORD}".toString(),
+            ]
+            echo "Environment variables: ${testEnvVars}"
+            echo "Starting test ..."
+            withEnv(testEnvVars) {
+              ansiColor('xterm') {
+                pipeline.nvmShell("npm run test ${params.TEST_SCOPE}")
+              }
+            } // end of withEnv
+          } catch (ex) {
+            error "Test failed with error: ${ex}"
+          } finally {
+            // show what's in .tmp for debugging purpose
+            echo "Content of .tmp:"
+            sh 'ls -la .tmp'
+
+            // shutdown ZMS
+            echo "Shutting down ZMS ..."
+            sh "SSHPASS=${remote.password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -p ${remote.port} ${remote.user}@${remote.host} << EOF\n" +
+               "cd ${TEST_SERVERS[params.TEST_SERVER]['zms_dir']}\n" +
+               "[ -f nohup.out ] && chtag -tc819 nohup.out && echo \"Output of ZMS:\" && cat nohup.out\n" +
+               "ZWS_PID=\\\$(ps -elf | grep zms | grep -v grep | awk '{print \\\$2;}')\n" +
+               "[ -n \"\\\$ZWS_PID\" ] && echo \"Found ZMS PID: \\\${ZWS_PID}, send kill signal\" && kill -9 \\\$ZWS_PID\n" +
+               "exit 0\n" +
+               "EOF"
+          }
+        } // end of lock
+      } // end of withCredentials
+    },
+    allowMissingJunit : true,
+    timeout           : [time: 6, unit: 'HOURS']
+  )
+
+  // define we need publish stage
+  pipeline.publish(
+    name: "Test Report",
+    shouldExecute: {
+      // FIXME: shouldExecute closure doesn't take global baseDirectory
+      dir(PROJECT_BASE_DIR) {
+        sh "ls -la reports"
+        def reports = findFiles(glob: "reports/*.yaml")
+        if (reports.length <= 0) {
+          echo "No reports found"
+          return false
+        } else if (reports.length > 1) {
+          echo "More than 1 report found"
+          return false
+        } else {
+          // rename
+          sh "mv ${reports[0].toString()} reports/${params.REPORT_NAME}.yaml"
+          return true
+        }
+      }
+    },
+    operation: {
+      echo "Default npm publish will be skipped."
+    },
+    artifacts: [
+      "reports/*.yaml"
+    ]
+  )
+
+  pipeline.createStage(
+    name: "Chart Report",
+    isSkippable: false,
+    baseDirectory  : PROJECT_BASE_DIR,
+    stage: {
+      echo "Content of reports/:"
+      sh "ls -la reports/"
+
+      def reportTool = lib.performance.PerformanceTestReport.new(this)
+      def reports = findFiles(glob: "reports/*.yaml")
+      if (reports.length == 1) {
+        reportFile = reports[0]
+
+        reportTool.generateCpuChartHtmlReport(reportFile.toString())
+        if (params.UPDATE_PLOTS) {
+          reportTool.updatePlot(reportFile.toString())
+        }
+      } // end of if reports.length == 1
+    } // end of stage
+  )
+
+  pipeline.end()
+}

@@ -1,0 +1,36 @@
+{
+  "name": "zowe-metric-server",
+  "version": "0.6.0",
+  "description": "A metrics collecting service running on z/OS.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zowe/zowe-dependency-scan-pipeline"
+  },
+  "license": "EPL-2.0",
+  "scripts": {
+    "build": "tsc --resolveJsonModule",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint . --ext .ts,.js",
+    "prestart": "npm run build",
+    "start": "node dist/app.js"
+  },
+  "dependencies": {
+    "@types/cors": "^2.8.7",
+    "@types/node-cron": "^2.0.3",
+    "@types/xml2js": "^0.4.5",
+    "express": "^4.17.1",
+    "got": "^11.5.2",
+    "js-yaml": "^3.14.0",
+    "winston": "^3.3.3",
+    "xml2js": "^0.4.23"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.7",
+    "@types/js-yaml": "^3.12.5",
+    "@types/node": "^14.6.0",
+    "@typescript-eslint/eslint-plugin": "^3.9.1",
+    "@typescript-eslint/parser": "^3.9.1",
+    "eslint": "^7.7.0",
+    "typescript": "^3.9.7"
+  }
+}

@@ -1,0 +1,67 @@
+server:
+  http:
+    enabled: true
+    port: 19001
+  https:
+    enabled: true
+    port: 19000
+    key: sslcert/server.key
+    cert: sslcert/server.cert
+metrics:
+  # - name: dummy
+  #   worker: shell
+  #   options:
+  #     interval: 10
+  #     # command base dir is "src/collectors"
+  #     command: metrics/dummy.sh
+  #     outputFormat: json
+  - name: sdsf.sys
+    # estimated overhead 0.7%
+    worker: shell
+    options:
+      interval: 10
+      # command base dir is "src/collectors"
+      command: metrics/sysagg.rexx
+      outputFormat: json
+  # - name: sdsf.da
+  #   # estimated overhead 0.8%
+  #   worker: shell
+  #   options:
+  #     interval: 10
+  #     # command base dir is "src/collectors"
+  #     command: metrics/da.rexx
+  #     outputFormat: json
+  - name: rmf.dds
+    # estimated overhead 0.4%
+    worker: rmf.dds
+    options:
+      interval: 10
+      # --- optional to overwrite DEFAULT_RMF_DDS_OPTIONS
+      # rmfDdsOptions:
+      #   protocol: http
+      #   host: <your-host>
+      #   port: 8803
+      #   username:
+      #   password:
+      # --- RMF DDS options can also be passed with environment variables
+      # - RMF_DDS_PROTOCOL
+      # - RMF_DDS_HOST
+      # - RMF_DDS_PORT
+      # - RMF_DDS_USERNAME
+      # - RMF_DDS_PASSWORD
+      # --- optional to overwrite DEFAULT_RMF_DDS_METRICS
+      # metrics:
+      #   cpu:
+      #     - PROCESSOR.8D49E0
+## TODO: collecting logs and push to logstash
+# logstash:
+#   server:
+#   port:
+#   max_lines: 2000
+#   program: node
+# logs:
+#   - name: zosmf-logs
+#     source: /var/zosmf/data/logs/IZUG0.log
+#     script: push-zosmf-log.js
+#     max_lines: 1000
+#     offset: 514171

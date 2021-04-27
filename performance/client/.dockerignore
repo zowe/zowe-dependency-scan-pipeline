@@ -1,0 +1,16 @@
+# CICD files
+Jenkinsfil*
+Dockerfile
+.eslint*
+.editorconfig
+.dockerignore
+.gitignore
+.git
+
+# application temp folders and build result
+.tmp
+dist
+reports
+
+# node.js modules
+node_modules
