@@ -14,7 +14,7 @@
 node('zowe-dependency-scanning-rev2') {
 
   def ZOWE_BRANCH = "master"
-  def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
+  def DEPENDENCY_SCAN_HOME = "/home/jenkins/licenses/dependency-scan"
   def PENDING_APPROVAL_REPORT_NAME = "dependency_approval_action_aggregates.json"
   def MARKDOWN_REPORT_NAME = "markdown_dependency_report.md"
   def NOTICES_AGGREGATE_FILE = "notices_aggregate.txt"
@@ -37,6 +37,10 @@ node('zowe-dependency-scanning-rev2') {
     github: [
       email                      : lib.Constants.DEFAULT_GITHUB_ROBOT_EMAIL,
       usernamePasswordCredential : lib.Constants.DEFAULT_GITHUB_ROBOT_CREDENTIAL,
+    ],
+    artifactory: [
+      url                        : lib.Constants.DEFAULT_LFJ_ARTIFACTORY_URL,
+      usernamePasswordCredential : lib.Constants.DEFAULT_LFJ_ARTIFACTORY_ROBOT_CREDENTIAL,
     ]
   );
 
@@ -56,68 +60,31 @@ node('zowe-dependency-scanning-rev2') {
             sh "cd build && zip -r logs.zip logs/"
             sh "cd build && zip -r license_reports.zip license_reports/"
             sh "cd build && zip -r notice_reports.zip notice_reports/"
+            sh "mkdir -p zowe_licenses"
+            sh "cp ../resources/* zowe_licenses/"
+            sh "cp build/notice_reports/${NOTICES_AGGREGATE_FILE}.txt zowe_licenses/zowe_full_notices.txt"
+            sh "cp build/license_reports/${MARKDOWN_REPORT_NAME} zowe_licenses/zowe_full_dependency_list.md"
+            sh "cd build && zip -r zowe_licenses_full.zip zowe_licenses/"
         }
     }
   )
 
   pipeline.createStage(
-      name: "Publish Approvals Required",
-      stage: {
-          dir("${DEPENDENCY_SCAN_HOME}/build") {
-            publishHTML(target: [
-                reportName: "Pending Approvals Required",
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: "license_reports",
-                reportFiles: "${PENDING_APPROVAL_REPORT_NAME}"
-            ])
-          }
-      }
-  )
-
-  pipeline.createStage(
-      name: "Publish Dependency Attribution Markdown File",
-      stage: {
-          dir("${DEPENDENCY_SCAN_HOME}/build") {
-            publishHTML(target: [
-                reportName: "Pending Dependency Attribution Markdown File",
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: "license_reports",
-                reportFiles: "${MARKDOWN_REPORT_NAME}"
-            ])
-          }
-      }
-  )
-
-  pipeline.createStage(
-      name: "Publish Notices File Required",
-      stage: {
-          dir("${DEPENDENCY_SCAN_HOME}/build") {
-            publishHTML(target: [
-                reportName: "Notices",
-                allowMissing: true,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: "notice_reports",
-                reportFiles: "${NOTICES_AGGREGATE_FILE}"
-            ])
-          }
-      }
-  )
-
-
-  pipeline.createStage(
-      name: "Publish Logs",
+      name: "Archive Logs",
       stage: {
           dir("${DEPENDENCY_SCAN_HOME}/build") {
             archiveArtifacts artifacts: "logs.zip"
             archiveArtifacts artifacts: "license_reports.zip"
             archiveArtifacts artifacts: "notice_reports.zip"
+            archiveArtifacts artifacts: "zowe_licenses_full.zip"
           }
       }
+  )
+
+  pipeline.publish(
+    artifacts: [
+      "${DEPENDENCY_SCAN_HOME}/zowe_licenses_full.zip"
+    ]
   )
 
   pipeline.end()
