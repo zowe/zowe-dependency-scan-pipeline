@@ -11,17 +11,40 @@
  */
 
 
-node('zowe-dependency-scanning-rev2') {
+node('zowe-dependency-scanning-revs') {
+  def lib = library("jenkins-library").org.zowe.jenkins_shared_library
+
+  def pipeline = lib.pipelines.generic.GenericPipeline.new(this)
+
+  pipeline.addBuildParameters(
+    booleanParam(
+      name: 'PUBLISH_RELEASE',
+      description: 'If we want to publish the licenses as a release.',
+      defaultValue: false
+    )
+  )   
 
   def ZOWE_BRANCH = "master"
-  def DEPENDENCY_SCAN_HOME = "/home/jenkins/licenses/dependency-scan"
+  def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
   def PENDING_APPROVAL_REPORT_NAME = "dependency_approval_action_aggregates.json"
   def MARKDOWN_REPORT_NAME = "markdown_dependency_report.md"
   def NOTICES_AGGREGATE_FILE = "notices_aggregate.txt"
 
-  def lib = library("jenkins-library").org.zowe.jenkins_shared_library
+  def ARTIFACT_REPO= "libs-snapshot-local"
+  def VERSION = "1.22.0"
+  def ARTIFACT_VERSION = "${VERSION}-SNAPSHOT"
+  def ARTIFACT_NAME = "zowe_licenses_full-SNAPSHOT.zip"
 
-  def pipeline = lib.pipelines.generic.GenericPipeline.new(this)
+    // if we're publishing a release, change the default repo, version string, and artifact name
+  if (params.PUBLISH_RELEASE) {
+      ARTIFACT_REPO = "libs-release-local"
+      ARTIFACT_VERSION = "${VERSION}"
+      ARTIFACT_NAME = "zowe_licenses_full.zip"
+  }
+
+  def FULL_ARTIFACT_PATH = "${ARTIFACT_REPO}/org/zowe/licenses/${ARTIFACT_VERSION}/"
+
+
 
   pipeline.admins.add("markackert")
 
@@ -34,6 +57,8 @@ node('zowe-dependency-scanning-rev2') {
   registry.login();
 
   pipeline.setup(
+    packageName: 'org.zowe',
+    version: "${ARTIFACT_VERSION}",
     github: [
       email                      : lib.Constants.DEFAULT_GITHUB_ROBOT_EMAIL,
       usernamePasswordCredential : lib.Constants.DEFAULT_GITHUB_ROBOT_CREDENTIAL,
@@ -61,30 +86,43 @@ node('zowe-dependency-scanning-rev2') {
             sh "cd build && zip -r license_reports.zip license_reports/"
             sh "cd build && zip -r notice_reports.zip notice_reports/"
             sh "mkdir -p zowe_licenses"
+            sh "ls -lask"
+            sh "ls -lask ../"
             sh "cp ../resources/* zowe_licenses/"
             sh "cp build/notice_reports/${NOTICES_AGGREGATE_FILE}.txt zowe_licenses/zowe_full_notices.txt"
             sh "cp build/license_reports/${MARKDOWN_REPORT_NAME} zowe_licenses/zowe_full_dependency_list.md"
-            sh "cd build && zip -r zowe_licenses_full.zip zowe_licenses/"
+            sh "zip -j ${ARTIFACT_NAME} zowe_licenses/*"
         }
     }
   )
-
+  
   pipeline.createStage(
       name: "Archive Logs",
       stage: {
           dir("${DEPENDENCY_SCAN_HOME}/build") {
-            archiveArtifacts artifacts: "logs.zip"
-            archiveArtifacts artifacts: "license_reports.zip"
-            archiveArtifacts artifacts: "notice_reports.zip"
-            archiveArtifacts artifacts: "zowe_licenses_full.zip"
-          }
+ //           archiveArtifacts artifacts: "logs.zip"
+  //          archiveArtifacts artifacts: "license_reports.zip"
+//            archiveArtifacts artifacts: "notice_reports.zip"
+    }  
+      dir("${DEPENDENCY_SCAN_HOME}"){
+              archiveArtifacts artifacts: "${ARTIFACT_NAME}"
       }
+    }
   )
 
-  pipeline.publish(
-    artifacts: [
-      "${DEPENDENCY_SCAN_HOME}/zowe_licenses_full.zip"
-    ]
+  pipeline.createStage(
+    name: "Publish Licenses",
+    stage: {
+      dir("${DEPENDENCY_SCAN_HOME}"){
+        def uploadSpec = """{
+        "files": [{
+          "pattern": "${ARTIFACT_NAME}",
+          "target": "${FULL_ARTIFACT_PATH}"
+        }]
+        }"""
+        pipeline.artifactory.upload([specContent: uploadSpec])
+      }
+    }
   )
 
   pipeline.end()
