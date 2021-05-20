@@ -21,6 +21,11 @@ node('zowe-dependency-scanning-revs') {
       name: 'PUBLISH_RELEASE',
       description: 'If we want to publish the licenses as a release.',
       defaultValue: false
+    ),
+    booleanParam(
+      name: 'REPLACE',
+      description: 'If you want to overwrite an existing "release".',
+      defaultValue: false
     )
   )   
 
@@ -34,12 +39,17 @@ node('zowe-dependency-scanning-revs') {
   def VERSION = "1.22.0"
   def ARTIFACT_VERSION = "${VERSION}-SNAPSHOT"
   def ARTIFACT_NAME = "zowe_licenses_full-SNAPSHOT.zip"
+  def ARTIFACTORY_USER = lib.Constants.DEFAULT_LFJ_ARTIFACTORY_ROBOT_CREDENTIAL
 
     // if we're publishing a release, change the default repo, version string, and artifact name
   if (params.PUBLISH_RELEASE) {
       ARTIFACT_REPO = "libs-release-local"
       ARTIFACT_VERSION = "${VERSION}"
       ARTIFACT_NAME = "zowe_licenses_full.zip"
+  }
+
+  if (params.REPLACE) {
+    ARTIFACTORY_USER = "ZoweJfrogDANGEROUS"
   }
 
   def FULL_ARTIFACT_PATH = "${ARTIFACT_REPO}/org/zowe/licenses/${ARTIFACT_VERSION}/"
@@ -65,7 +75,7 @@ node('zowe-dependency-scanning-revs') {
     ],
     artifactory: [
       url                        : lib.Constants.DEFAULT_LFJ_ARTIFACTORY_URL,
-      usernamePasswordCredential : lib.Constants.DEFAULT_LFJ_ARTIFACTORY_ROBOT_CREDENTIAL,
+      usernamePasswordCredential : ARTIFACTORY_USER,
     ]
   );
 
@@ -89,7 +99,7 @@ node('zowe-dependency-scanning-revs') {
             sh "ls -lask"
             sh "ls -lask ../"
             sh "cp ../resources/* zowe_licenses/"
-            sh "cp build/notice_reports/${NOTICES_AGGREGATE_FILE}.txt zowe_licenses/zowe_full_notices.txt"
+            sh "cp build/notice_reports/${NOTICES_AGGREGATE_FILE} zowe_licenses/zowe_full_notices.txt"
             sh "cp build/license_reports/${MARKDOWN_REPORT_NAME} zowe_licenses/zowe_full_dependency_list.md"
             sh "zip -j ${ARTIFACT_NAME} zowe_licenses/*"
         }
