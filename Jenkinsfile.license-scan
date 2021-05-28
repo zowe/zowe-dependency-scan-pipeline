@@ -29,17 +29,17 @@ node('zowe-dependency-scanning-revs') {
     )
   )   
 
-  def ZOWE_BRANCH = "master"
+  def ZOWE_BRANCH = "rc"
   def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
   def PENDING_APPROVAL_REPORT_NAME = "dependency_approval_action_aggregates.json"
   def MARKDOWN_REPORT_NAME = "markdown_dependency_report.md"
   def NOTICES_AGGREGATE_FILE = "notices_aggregate.txt"
 
   def ARTIFACT_REPO= "libs-snapshot-local"
-  def VERSION = "1.22.0"
+  def ARTIFACT_PATH= "org/zowe/licenses"
+  def VERSION = "0.0.1"
   def ARTIFACT_VERSION = "${VERSION}-SNAPSHOT"
   def ARTIFACT_NAME = "zowe_licenses_full-SNAPSHOT.zip"
-  def ARTIFACTORY_USER = lib.Constants.DEFAULT_LFJ_ARTIFACTORY_ROBOT_CREDENTIAL
 
     // if we're publishing a release, change the default repo, version string, and artifact name
   if (params.PUBLISH_RELEASE) {
@@ -48,13 +48,7 @@ node('zowe-dependency-scanning-revs') {
       ARTIFACT_NAME = "zowe_licenses_full.zip"
   }
 
-  if (params.REPLACE) {
-    ARTIFACTORY_USER = "ZoweJfrogDANGEROUS"
-  }
-
-  def FULL_ARTIFACT_PATH = "${ARTIFACT_REPO}/org/zowe/licenses/${ARTIFACT_VERSION}/"
-
-
+  def FULL_ARTIFACT_PATH = "${ARTIFACT_REPO}/${ARTIFACT_PATH}/${ARTIFACT_VERSION}/"
 
   pipeline.admins.add("markackert")
 
@@ -75,7 +69,7 @@ node('zowe-dependency-scanning-revs') {
     ],
     artifactory: [
       url                        : lib.Constants.DEFAULT_LFJ_ARTIFACTORY_URL,
-      usernamePasswordCredential : ARTIFACTORY_USER,
+      usernamePasswordCredential : lib.Constants.DEFAULT_LFJ_ARTIFACTORY_ROBOT_CREDENTIAL,
     ]
   );
 
@@ -96,8 +90,6 @@ node('zowe-dependency-scanning-revs') {
             sh "cd build && zip -r license_reports.zip license_reports/"
             sh "cd build && zip -r notice_reports.zip notice_reports/"
             sh "mkdir -p zowe_licenses"
-            sh "ls -lask"
-            sh "ls -lask ../"
             sh "cp ../resources/* zowe_licenses/"
             sh "cp build/notice_reports/${NOTICES_AGGREGATE_FILE} zowe_licenses/zowe_full_notices.txt"
             sh "cp build/license_reports/${MARKDOWN_REPORT_NAME} zowe_licenses/zowe_full_dependency_list.md"
@@ -109,20 +101,26 @@ node('zowe-dependency-scanning-revs') {
   pipeline.createStage(
       name: "Archive Logs",
       stage: {
-          dir("${DEPENDENCY_SCAN_HOME}/build") {
- //           archiveArtifacts artifacts: "logs.zip"
-  //          archiveArtifacts artifacts: "license_reports.zip"
-//            archiveArtifacts artifacts: "notice_reports.zip"
-    }  
-      dir("${DEPENDENCY_SCAN_HOME}"){
-              archiveArtifacts artifacts: "${ARTIFACT_NAME}"
-      }
+        dir("${DEPENDENCY_SCAN_HOME}"){
+          archiveArtifacts artifacts: "${ARTIFACT_NAME}"
+        }
     }
   )
 
   pipeline.createStage(
     name: "Publish Licenses",
     stage: {
+      if (params.REPLACE) {
+        def jfrog = lib.artifact.JFrogArtifactory.new(this)
+        jfrog.init(
+            url: lib.Constants.DEFAULT_LFJ_ARTIFACTORY_URL,
+            usernamePasswordCredential: "ZoweJfrogDANGEROUS"
+        ) 
+        def ret = jfrog.delete(
+            pattern: "${FULL_ARTIFACT_PATH}${ARTIFACT_NAME}"
+        )
+        sh "echo ${ret} artifacts deleted"
+      }
       dir("${DEPENDENCY_SCAN_HOME}"){
         def uploadSpec = """{
         "files": [{
