@@ -37,7 +37,7 @@ node('zowe-dependency-scanning-revs') {
 
   def ARTIFACT_REPO= "libs-snapshot-local"
   def ARTIFACT_PATH= "org/zowe/licenses"
-  def VERSION = "0.0.1"
+  def VERSION = "1.23.0"
   def ARTIFACT_VERSION = "${VERSION}-SNAPSHOT"
   def ARTIFACT_NAME = "zowe_licenses_full-SNAPSHOT.zip"
 
