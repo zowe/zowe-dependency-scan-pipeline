@@ -109,7 +109,7 @@ EOF"""
                     )
                 ]) {
                     def Z_SERVER = [
-                        name         : "${ZHOST}",
+                        name         : "${host}",
                         host         : "${ZHOST}",
                         port         : 22,
                         user         : "${ZUSER}",
