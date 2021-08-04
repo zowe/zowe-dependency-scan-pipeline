@@ -53,7 +53,7 @@ node('zowe-jenkins-agent') {
     )
 
     pipeline.createStage(
-        name          : "Marist",
+        name          : "Marist z/OS",
         isSkippable   : true,
         stage         : {
             def serverCredentials = [
@@ -75,10 +75,44 @@ node('zowe-jenkins-agent') {
                         usernameVariable: "SSH_USER"
                     )
                 ]) {
-                    sh "sshpass -p \"${SSH_PASSWORD}\" scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o PubkeyAuthentication=no scripts/cleanup.sh ${SSH_USER}@${SSH_HOST}:/tmp/cleanup.sh"
+                    sh "sshpass -p \"${SSH_PASSWORD}\" scp -P ${SSH_PORT} -o StrictHostKeyChecking=no -o PubkeyAuthentication=no scripts/cleanup-zos.sh ${SSH_USER}@${SSH_HOST}:/tmp/cleanup-zos.sh"
 
                     sh """SSHPASS=${SSH_PASSWORD} sshpass -e ssh -tt -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p ${SSH_PORT} ${SSH_USER}@${SSH_HOST} << EOF
-cd /tmp && chmod +x cleanup.sh && ./cleanup.sh
+cd /tmp && chmod +x cleanup-zos.sh && ./cleanup-zos.sh
+echo "done" && exit 0
+EOF"""
+                }
+            }
+        },
+        timeout: [time: 20, unit: 'MINUTES']
+    )
+
+    pipeline.createStage(
+        name          : "Marist zLinux",
+        isSkippable   : true,
+        stage         : {
+            def serverCredentials = [
+                'zlinux-1': ['zlinux-host', 'zlinux-docker'],
+            ]
+            
+            serverCredentials.each { host, creds ->
+                withCredentials([
+                    string(
+                        credentialsId: creds[0],
+                        variable: 'SSH_HOST'
+                    ),
+                    sshUserPrivateKey(
+                        credentialsId: creds[1],
+                        keyFileVariable: 'SSH_KEYFILE',
+                        usernameVariable: 'SSH_USER',
+                        passphraseVariable: 'SSH_PASSPHRASE'
+                    )
+                ]) {
+
+                    sh "SSHPASS=${SSH_PASSPHRASE} sshpass -e -P 'passphrase for key' scp -P 22 -o StrictHostKeyChecking=no -o LogLevel=QUIET -i '${SSH_KEYFILE}' scripts/cleanup-zlinux.sh ${SSH_USER}@${SSH_HOST}:/tmp/cleanup-zlinux.sh"
+
+                    sh """SSHPASS=${SSH_PASSPHRASE} sshpass -e -P 'passphrase for key' ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET -p 22 -i '${SSH_KEYFILE}' ${SSH_USER}@${SSH_HOST} << EOF
+cd /tmp && chmod +x cleanup-zlinux.sh && ./cleanup-zlinux.sh
 echo "done" && exit 0
 EOF"""
                 }
