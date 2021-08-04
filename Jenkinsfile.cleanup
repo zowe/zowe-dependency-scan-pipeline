@@ -99,32 +99,22 @@ EOF"""
                 withCredentials([
                     string(
                         credentialsId: creds[0],
-                        variable: 'ZHOST'
+                        variable: 'SSH_HOST'
                     ),
                     sshUserPrivateKey(
                         credentialsId: creds[1],
-                        keyFileVariable: 'KEYFILE',
-                        usernameVariable: 'ZUSER',
-                        passphraseVariable: 'PASSPHRASE'
+                        keyFileVariable: 'SSH_KEYFILE',
+                        usernameVariable: 'SSH_USER',
+                        passphraseVariable: 'SSH_PASSPHRASE'
                     )
                 ]) {
-                    def Z_SERVER = [
-                        name         : "${host}",
-                        host         : "${ZHOST}",
-                        port         : 22,
-                        user         : "${ZUSER}",
-                        identityFile : "${KEYFILE}",
-                        passphrase   : "${PASSPHRASE}",
-                        allowAnyHosts: true
-                    ]
 
-                    sshPut remote: Z_SERVER, from: "scripts/cleanup-zlinux.sh", into: "/tmp/cleanup-zlinux.sh"
+                    sh "SSHPASS=${SSH_PASSPHRASE} sshpass -e -P 'passphrase for key' scp -P 22 -o StrictHostKeyChecking=no -o LogLevel=QUIET -i '${SSH_KEYFILE}' scripts/cleanup-zlinux.sh ${SSH_USER}@${SSH_HOST}:/tmp/cleanup-zlinux.sh"
 
-                    sshCommand remote: Z_SERVER, command: \
-                        """
-                        cd /tmp && chmod +x cleanup-zlinux.sh && ./cleanup-zlinux.sh
-                        echo "done" && exit 0
-                        """
+                    sh """SSHPASS=${SSH_PASSPHRASE} sshpass -e -P 'passphrase for key' ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET -p 22 -i '${SSH_KEYFILE}' ${SSH_USER}@${SSH_HOST} << EOF
+cd /tmp && chmod +x cleanup-zlinux.sh && ./cleanup-zlinux.sh
+echo "done" && exit 0
+EOF"""
                 }
             }
         },
