@@ -27,7 +27,7 @@ node('zowe-dependency-scanning-revs') {
       description: 'If you want to overwrite an existing "release".',
       defaultValue: false
     )
-  )   
+  )
 
   def ZOWE_BRANCH = "rc"
   def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
@@ -37,7 +37,7 @@ node('zowe-dependency-scanning-revs') {
 
   def ARTIFACT_REPO= "libs-snapshot-local"
   def ARTIFACT_PATH= "org/zowe/licenses"
-  def VERSION = "1.23.0"
+  def VERSION = "1.24.0"
   def ARTIFACT_VERSION = "${VERSION}-SNAPSHOT"
   def ARTIFACT_NAME = "zowe_licenses_full-SNAPSHOT.zip"
 
@@ -97,7 +97,7 @@ node('zowe-dependency-scanning-revs') {
         }
     }
   )
-  
+
   pipeline.createStage(
       name: "Archive Logs",
       stage: {
@@ -115,7 +115,7 @@ node('zowe-dependency-scanning-revs') {
         jfrog.init(
             url: lib.Constants.DEFAULT_LFJ_ARTIFACTORY_URL,
             usernamePasswordCredential: "ZoweJfrogDANGEROUS"
-        ) 
+        )
         def ret = jfrog.delete(
             pattern: "${FULL_ARTIFACT_PATH}${ARTIFACT_NAME}"
         )
