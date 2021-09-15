@@ -91,11 +91,15 @@ export class NoticeReportAction implements IAction {
                         const parser = new xml2js.Parser();
                         fs.readFile(licenseXmlFile, (error, fileData) => {
                             parser.parseString(fileData, (err: any, result: any) => {
-                                result.licenses.license.forEach((license: any) => {
-                                    fs.appendFileSync(aggregateNoticesFile, "The following software may be included in this product: "
-                                         + JSON.stringify(license.dependency) + ". This software contains the following license(s):\n\n");
-                                    fs.appendFileSync(aggregateNoticesFile, license.$.name + ": " + license.$.url + "\n\n\n");
-                                });
+                                if (result && result.licenses && result.licenses.license && Array.isArray(result.licenses.license)) {
+                                    result.licenses.license.forEach((license: any) => {
+                                        fs.appendFileSync(aggregateNoticesFile, "The following software may be included in this product: "
+                                            + JSON.stringify(license.dependency) + ". This software contains the following license(s):\n\n");
+                                        fs.appendFileSync(aggregateNoticesFile, license.$.name + ": " + license.$.url + "\n\n\n");
+                                    });
+                                } else {
+                                    console.log(`WARNING: result.licenses.license is empty: %j`, result);
+                                }
                             });
                         });
                     }
