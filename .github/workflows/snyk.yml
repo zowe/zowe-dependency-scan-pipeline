@@ -5,7 +5,7 @@ on:
   push:
 
 jobs:
-  snyk:
+  snyk-node:
     strategy:
       matrix:
         repository:
@@ -14,7 +14,7 @@ jobs:
           # - data-sets
           # - explorer-api-common
           # - explorer-ip
-          - explorer-jes node
+          - explorer-jes
           # - explorer-mvs
           # - explorer-ui-server
           # - explorer-uss
@@ -59,10 +59,8 @@ jobs:
       - name: Parse repository definition
         run:
           SCAN_REPOSITORY=$(echo "${{ matrix.repository }}" | awk '{print $1}')
-          SCAN_PROJECT_TYPE=$(echo "${{ matrix.repository }}" | awk '{print $2}')
           SCAN_BRANCH=$(echo "${{ matrix.repository }}" | awk '{print $3}')
           echo "SCAN_REPOSITORY=${SCAN_REPOSITORY}" >> $GITHUB_ENV
-          echo "SCAN_PROJECT_TYPE=${SCAN_PROJECT_TYPE}" >> $GITHUB_ENV
           echo "SCAN_BRANCH=${SCAN_BRANCH}" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
@@ -74,7 +72,88 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
-        uses: snyk/actions/${{ env.SCAN_PROJECT_TYPE }}@master
+        uses: snyk/actions/node@master
+        with:
+          # command: monitor
+          command: test
+          args: --sarif-file-output=snyk.sarif
+
+      - name: Show report
+        run:
+          cat snyk.sarif
+      # - name: Upload result to GitHub Code Scanning
+      #   uses: github/codeql-action/upload-sarif@v1
+      #   with:
+      #     sarif_file: snyk.sarif
+
+  snyk-gradle:
+    strategy:
+      matrix:
+        repository:
+          - api-layer
+          # - common-java
+          # - data-sets
+          # - explorer-api-common
+          # - explorer-ip
+          # - explorer-jes
+          # - explorer-mvs
+          # - explorer-ui-server
+          # - explorer-uss
+          # - imperative
+          # - jobs
+          # - keyring-utilities
+          # - launcher
+          # - orion-editor-component
+          # - perf-timing
+          # - sample-angular-app
+          # - sample-iframe-app
+          # - sample-react-app
+          # - tn3270-ng2
+          # - vscode-extension-for-zowe
+          # - vt-ng2
+          # - zlux-app-manager
+          # - zlux-app-server
+          # - zlux-build
+          # - zlux-editor
+          # - zlux-file-explorer
+          # - zlux-grid
+          # - zlux-platform
+          # - zlux-server-framework
+          # - zlux-shared
+          # - zlux-widgets
+          # - zlux-workflow
+          # - zosmf-auth
+          # - zowe-cli
+          # - zowe-cli-cics-plugin
+          # - zowe-cli-db2-plugin
+          # - zowe-cli-ftp-plugin
+          # - zowe-cli-ims-plugin
+          # - zowe-cli-mq-plugin
+          # - zowe-cli-scs-plugin
+          # - zowe-common-c
+          # - zowe-install-packaging-tools
+          # - zss
+          # - zss-auth
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Parse repository definition
+        run:
+          SCAN_REPOSITORY=$(echo "${{ matrix.repository }}" | awk '{print $1}')
+          SCAN_BRANCH=$(echo "${{ matrix.repository }}" | awk '{print $3}')
+          echo "SCAN_REPOSITORY=${SCAN_REPOSITORY}" >> $GITHUB_ENV
+          echo "SCAN_BRANCH=${SCAN_BRANCH}" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v2
+        with:
+          repository: zowe/${{ env.SCAN_REPOSITORY }}
+          ref: ${{ env.SCAN_BRANCH }}
+
+      - name: Run Snyk to check Docker image for vulnerabilities
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+        uses: snyk/actions/gradle@master
         with:
           # command: monitor
           command: test
