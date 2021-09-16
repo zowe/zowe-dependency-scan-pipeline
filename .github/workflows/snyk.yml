@@ -18,7 +18,7 @@ jobs:
           # - explorer-mvs
           # - explorer-ui-server
           # - explorer-uss
-          # - imperative
+          - imperative
           # - jobs
           # - keyring-utilities
           # - launcher
@@ -92,7 +92,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: snyk-report
-          path: ${{ env.SCAN_REPORT_DIR }}
+          path: .snyk-reports/
 
       # - name: Upload result to GitHub Code Scanning
       #   uses: github/codeql-action/upload-sarif@v1
@@ -137,3 +137,17 @@ jobs:
   #     #   uses: github/codeql-action/upload-sarif@v1
   #     #   with:
   #     #     sarif_file: snyk.sarif
+
+  upload-reports:
+    needs:
+      - snyk-node
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk-report
+          path: .snyk-reports/
+
+      - name: Show report
+        run: |
+          find .
