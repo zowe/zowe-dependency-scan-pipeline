@@ -116,7 +116,7 @@ jobs:
           echo "${package_jsons}"
           echo
           while read -r line; do
-            package_json_path=$(dirname ${line})
+            package_json_path=$(dirname "${line}")
             echo ">>>>>>>>>>>>>>>>>>>>>>> npm install on ${package_json_path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
             cd "${root_dir}"
             cd "${package_json_path}"
@@ -181,7 +181,7 @@ jobs:
           echo "${package_jsons}"
           echo
           while read -r line; do
-            package_json_path=$(dirname ${line})
+            package_json_path=$(dirname "${line}")
             echo ">>>>>>>>>>>>>>>>>>>>>>> npm install on ${package_json_path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
             cd "${root_dir}"
             cd "${package_json_path}"
