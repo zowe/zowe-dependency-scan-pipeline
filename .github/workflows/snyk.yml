@@ -1,4 +1,4 @@
-name: Snyk Container
+name: Snyk Scan
 
 on: 
   workflow_dispatch:
