@@ -118,8 +118,8 @@ jobs:
           while read -r line; do
             package_json_path=$(dirname ${line})
             echo ">>>>>>>>>>>>>>>>>>>>>>> npm install on ${package_json_path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-            cd ${root_dir}
-            cd ${package_json_path}
+            cd "${root_dir}"
+            cd "${package_json_path}"
             npm install --no-audit --ignore-scripts || true
           done <<EOF
           $(echo "${package_jsons}")
@@ -183,8 +183,8 @@ jobs:
           while read -r line; do
             package_json_path=$(dirname ${line})
             echo ">>>>>>>>>>>>>>>>>>>>>>> npm install on ${package_json_path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-            cd ${root_dir}
-            cd ${package_json_path}
+            cd "${root_dir}"
+            cd "${package_json_path}"
             npm install --no-audit --ignore-scripts || true
           done <<EOF
           $(echo "${package_jsons}")
