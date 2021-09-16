@@ -61,7 +61,7 @@ jobs:
           repository: zowe/${{ matrix.repository }}
 
       - name: Prepare report directory
-        run:
+        run: |
           echo "pwd=$(pwd)"
           ls -la
           echo "--------------------------------------"
