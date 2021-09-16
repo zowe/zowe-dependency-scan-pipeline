@@ -62,9 +62,15 @@ jobs:
 
       - name: Prepare report directory
         run:
+          echo "pwd=$(pwd)"
+          ls -la
+          echo "--------------------------------------"
           BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          echo "BRANCH=${BRANCH}"
           COMMIT_HASH=$(git rev-parse --verify HEAD)
+          echo "COMMIT_HASH=${COMMIT_HASH}"
           SCAN_REPORT_DIR=.snyk-reports/${{ matrix.repository }}.${BRANCH}
+          echo "SCAN_REPORT_DIR=${SCAN_REPORT_DIR}"
           mkdir -p ${SCAN_REPORT_DIR}
           echo "${COMMIT_HASH}" > ${SCAN_REPORT_DIR}/COMMIT
           echo "SCAN_REPORT_DIR=${SCAN_REPORT_DIR}" >> $GITHUB_ENV
