@@ -139,40 +139,60 @@ jobs:
           name: snyk-report
           path: .snyk-reports/
 
-  # snyk-gradle:
-  #   strategy:
-  #     matrix:
-  #       repository:
-  #         # - api-layer
-  #         # - common-java
-  #         # - data-sets
-  #         # - explorer-api-common
-  #         - jobs
-  #         # - keyring-utilities
-  #         # - launcher
-  #         # - zowe-common-c
-  #         # - zowe-install-packaging-tools
-  #         # - zss
+  snyk-gradle:
+    strategy:
+      matrix:
+        repository:
+          # - api-layer
+          # - common-java
+          # - data-sets
+          # - explorer-api-common
+          - jobs
+          # - keyring-utilities
+          # - launcher
+          # - zowe-common-c
+          # - zowe-install-packaging-tools
+          # - zss
 
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #       with:
-  #         repository: zowe/${{ matrix.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: zowe/${{ matrix.repository }}
 
-  #     - name: Run Snyk to check Docker image for vulnerabilities
-  #       env:
-  #         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-  #       continue-on-error: true
-  #       uses: snyk/actions/gradle@master
-  #       with:
-  #         # command: monitor
-  #         command: test
-  #         args: --sarif-file-output=snyk.sarif --all-projects
+      - name: Prepare report directory
+        run: |
+          echo "pwd=$(pwd)"
+          ls -la
+          echo "--------------------------------------"
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          echo "BRANCH=${BRANCH}"
+          COMMIT_HASH=$(git rev-parse --verify HEAD)
+          echo "COMMIT_HASH=${COMMIT_HASH}"
+          SCAN_REPORT_DIR=.snyk-reports/${{ matrix.repository }}.${BRANCH}
+          echo "SCAN_REPORT_DIR=${SCAN_REPORT_DIR}"
+          mkdir -p ${SCAN_REPORT_DIR}
+          echo "${COMMIT_HASH}" > ${SCAN_REPORT_DIR}/COMMIT
+          echo "SCAN_REPORT_DIR=${SCAN_REPORT_DIR}" >> $GITHUB_ENV
+
+      - name: Run Snyk to check Docker image for vulnerabilities
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+        uses: snyk/actions/gradle@master
+        with:
+          command: ${{ env.SNYK_SCAN_COMMAND }}
+          args: --sarif-file-output=${{ env.SCAN_REPORT_DIR }}/snyk.sarif --all-projects
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snyk-report
+          path: .snyk-reports/
 
   upload-reports:
     needs:
       - snyk-node
+      - snyk-gradle
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -190,5 +210,6 @@ jobs:
            git config --global user.name ${{ secrets.ZOWE_ROBOT_USER }}
            git config --global user.email ${{ secrets.ZOWE_ROBOT_EMAIL }}
            git add Snyk/
-           git commit -s -m "Committing Snyk reports from scan #${GITHUB_RUN_NUMBER}"
+           git commit -s -m "Committing Snyk reports from scan ${GITHUB_RUN_NUMBER}"
+           git status
            git push
