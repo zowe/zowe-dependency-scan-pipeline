@@ -3,6 +3,8 @@ name: Snyk Container
 on: 
   workflow_dispatch:
   push:
+  schedule:
+    - cron:  '30 5 * * 6'
 
 env:
   SNYK_SCAN_COMMAND: test
@@ -101,6 +103,22 @@ jobs:
         with:
           repository: zowe/${{ matrix.repository }}
 
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      
+      - name: Run npm install
+        continue-on-error: true
+        run: |
+          root_dir=$(pwd)
+          for one in `find . -name package.json` ; do
+              package_json_path=$(dirname ${one})
+              echo ">>>>>>>>>>>>>>>>>>>>>>> npm install on ${package_json_path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+              cd ${root_dir}
+              cd ${package_json_path}
+              npm install || true
+          done
+
       - name: Prepare report directory
         run: |
           echo "pwd=$(pwd)"
@@ -146,6 +164,22 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: zowe/${{ matrix.repository }}
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      
+      - name: Run npm install
+        continue-on-error: true
+        run: |
+          root_dir=$(pwd)
+          for one in `find . -name package.json` ; do
+              package_json_path=$(dirname ${one})
+              echo ">>>>>>>>>>>>>>>>>>>>>>> npm install on ${package_json_path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+              cd ${root_dir}
+              cd ${package_json_path}
+              npm install || true
+          done
 
       - name: Prepare report directory
         run: |
