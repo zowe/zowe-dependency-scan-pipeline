@@ -68,7 +68,7 @@ jobs:
         with:
           # command: monitor
           command: test
-          args: --sarif-file-output=snyk.sarif
+          args: --sarif-file-output=snyk.sarif --all-projects
 
       - name: Show report
         run:
@@ -141,7 +141,7 @@ jobs:
         with:
           # command: monitor
           command: test
-          args: --sarif-file-output=snyk.sarif
+          args: --sarif-file-output=snyk.sarif --all-projects
 
       - name: Show report
         run:
