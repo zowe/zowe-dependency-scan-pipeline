@@ -1,0 +1,242 @@
+name: Snyk Container
+
+on: 
+  workflow_dispatch:
+  # push:
+  schedule:
+    - cron:  '30 5 * * 6'
+
+env:
+  # SNYK_SCAN_COMMAND: test
+  SNYK_SCAN_COMMAND: monitor
+
+# full repository list from Zowe manifest.json sourceDependencies
+# - api-layer
+# - common-java
+# - data-sets
+# - explorer-api-common
+# - explorer-ip
+# - explorer-jes
+# - explorer-mvs
+# - explorer-ui-server
+# - explorer-uss
+# - imperative
+# - jobs
+# - keyring-utilities
+# - launcher ?
+# - orion-editor-component
+# - perf-timing
+# - sample-angular-app
+# - sample-iframe-app
+# - sample-react-app
+# - tn3270-ng2
+# - vscode-extension-for-zowe
+# - vt-ng2
+# - zlux-app-manager
+# - zlux-app-server
+# - zlux-build
+# - zlux-editor
+# - zlux-file-explorer
+# - zlux-grid
+# - zlux-platform
+# - zlux-server-framework
+# - zlux-shared
+# - zlux-widgets
+# - zlux-workflow
+# - zosmf-auth
+# - zowe-cli
+# - zowe-cli-cics-plugin
+# - zowe-cli-db2-plugin
+# - zowe-cli-ftp-plugin
+# - zowe-cli-ims-plugin
+# - zowe-cli-mq-plugin
+# - zowe-cli-scs-plugin
+# - zowe-common-c ?
+# - zowe-install-packaging-tools
+# - zss ?
+# - zss-auth
+
+jobs:
+  snyk-node:
+    strategy:
+      matrix:
+        repository:
+          - explorer-ip
+          - explorer-jes
+          - explorer-mvs
+          - explorer-ui-server
+          - explorer-uss
+          - imperative
+          - keyring-utilities
+          - orion-editor-component
+          - perf-timing
+          - sample-angular-app
+          - sample-iframe-app
+          - sample-react-app
+          - tn3270-ng2
+          - vscode-extension-for-zowe
+          - vt-ng2
+          - zlux-app-manager
+          - zlux-app-server
+          - zlux-build
+          - zlux-editor
+          - zlux-file-explorer
+          - zlux-grid
+          - zlux-platform
+          - zlux-server-framework
+          - zlux-shared
+          - zlux-widgets
+          - zlux-workflow
+          - zosmf-auth
+          - zowe-cli
+          - zowe-cli-cics-plugin
+          - zowe-cli-db2-plugin
+          - zowe-cli-ftp-plugin
+          - zowe-cli-ims-plugin
+          - zowe-cli-mq-plugin
+          - zowe-cli-scs-plugin
+          - zss-auth
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: zowe/${{ matrix.repository }}
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      
+      - name: Run npm install
+        continue-on-error: true
+        run: |
+          root_dir=$(pwd)
+          package_jsons=$(find . -name package.json)
+          echo "package.json in ${root_dir}:"
+          echo "${package_jsons}"
+          echo
+          while read -r line; do
+            package_json_path=$(dirname "${line}")
+            echo ">>>>>>>>>>>>>>>>>>>>>>> npm install on ${package_json_path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+            cd "${root_dir}"
+            cd "${package_json_path}"
+            npm install --no-audit --ignore-scripts || true
+          done <<EOF
+          $(echo "${package_jsons}")
+          EOF
+
+      - name: Prepare report directory
+        run: |
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          echo "BRANCH=${BRANCH}"
+          COMMIT_HASH=$(git rev-parse --verify HEAD)
+          echo "COMMIT_HASH=${COMMIT_HASH}"
+          SCAN_REPORT_DIR=.snyk-reports/${{ matrix.repository }}.${BRANCH}
+          echo "SCAN_REPORT_DIR=${SCAN_REPORT_DIR}"
+          mkdir -p ${SCAN_REPORT_DIR}
+          echo "${COMMIT_HASH}" > ${SCAN_REPORT_DIR}/COMMIT
+          echo "SCAN_REPORT_DIR=${SCAN_REPORT_DIR}" >> $GITHUB_ENV
+
+      - name: Run Snyk to check Docker image for vulnerabilities
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+        uses: snyk/actions/node@master
+        with:
+          command: ${{ env.SNYK_SCAN_COMMAND }}
+          args: --sarif-file-output=${{ env.SCAN_REPORT_DIR }}/snyk.sarif --all-projects
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snyk-report
+          path: .snyk-reports/
+
+  snyk-gradle:
+    strategy:
+      matrix:
+        repository:
+          - api-layer
+          - common-java
+          - data-sets
+          - explorer-api-common
+          - jobs
+          - zowe-install-packaging-tools
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: zowe/${{ matrix.repository }}
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      
+      - name: Run npm install
+        continue-on-error: true
+        run: |
+          root_dir=$(pwd)
+          package_jsons=$(find . -name package.json)
+          echo "package.json in ${root_dir}:"
+          echo "${package_jsons}"
+          echo
+          while read -r line; do
+            package_json_path=$(dirname "${line}")
+            echo ">>>>>>>>>>>>>>>>>>>>>>> npm install on ${package_json_path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+            cd "${root_dir}"
+            cd "${package_json_path}"
+            npm install --no-audit --ignore-scripts || true
+          done <<EOF
+          $(echo "${package_jsons}")
+          EOF
+
+      - name: Prepare report directory
+        run: |
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          echo "BRANCH=${BRANCH}"
+          COMMIT_HASH=$(git rev-parse --verify HEAD)
+          echo "COMMIT_HASH=${COMMIT_HASH}"
+          SCAN_REPORT_DIR=.snyk-reports/${{ matrix.repository }}.${BRANCH}
+          echo "SCAN_REPORT_DIR=${SCAN_REPORT_DIR}"
+          mkdir -p ${SCAN_REPORT_DIR}
+          echo "${COMMIT_HASH}" > ${SCAN_REPORT_DIR}/COMMIT
+          echo "SCAN_REPORT_DIR=${SCAN_REPORT_DIR}" >> $GITHUB_ENV
+
+      - name: Run Snyk to check Docker image for vulnerabilities
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+        uses: snyk/actions/gradle@master
+        with:
+          command: ${{ env.SNYK_SCAN_COMMAND }}
+          args: --sarif-file-output=${{ env.SCAN_REPORT_DIR }}/snyk.sarif --all-projects
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snyk-report
+          path: .snyk-reports/
+
+  upload-reports:
+    needs:
+      - snyk-node
+      - snyk-gradle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: zowe/security-reports
+          token: ${{ secrets.ZOWE_ROBOT_TOKEN }}
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: snyk-report
+          path: Snyk/
+
+      - name: Upload reports
+        run: |
+           git config --global user.name ${{ secrets.ZOWE_ROBOT_USER }}
+           git config --global user.email ${{ secrets.ZOWE_ROBOT_EMAIL }}
+           git add Snyk/
+           git commit -s -m "Committing Snyk reports from scan ${GITHUB_RUN_NUMBER}"
+           git status
+           git push
