@@ -21,7 +21,7 @@ env:
 # - imperative
 # - jobs
 # - keyring-utilities
-# - launcher
+# - launcher ?
 # - orion-editor-component
 # - perf-timing
 # - sample-angular-app
@@ -49,9 +49,9 @@ env:
 # - zowe-cli-ims-plugin
 # - zowe-cli-mq-plugin
 # - zowe-cli-scs-plugin
-# - zowe-common-c
+# - zowe-common-c ?
 # - zowe-install-packaging-tools
-# - zss
+# - zss ?
 # - zss-auth
 
 jobs:
@@ -59,50 +59,41 @@ jobs:
     strategy:
       matrix:
         repository:
-          # - api-layer
-          # - common-java
-          # - data-sets
-          # - explorer-api-common
-          # - explorer-ip
+          - explorer-ip
           - explorer-jes
-          # - explorer-mvs
-          # - explorer-ui-server
-          # - explorer-uss
+          - explorer-mvs
+          - explorer-ui-server
+          - explorer-uss
           - imperative
-          # - jobs
-          # - keyring-utilities
-          # - launcher
-          # - orion-editor-component
-          # - perf-timing
-          # - sample-angular-app
-          # - sample-iframe-app
-          # - sample-react-app
-          # - tn3270-ng2
-          # - vscode-extension-for-zowe
-          # - vt-ng2
-          # - zlux-app-manager
-          # - zlux-app-server
-          # - zlux-build
-          # - zlux-editor
-          # - zlux-file-explorer
-          # - zlux-grid
-          # - zlux-platform
-          # - zlux-server-framework
-          # - zlux-shared
-          # - zlux-widgets
-          # - zlux-workflow
-          # - zosmf-auth
-          # - zowe-cli
-          # - zowe-cli-cics-plugin
-          # - zowe-cli-db2-plugin
-          # - zowe-cli-ftp-plugin
-          # - zowe-cli-ims-plugin
-          # - zowe-cli-mq-plugin
-          # - zowe-cli-scs-plugin
-          # - zowe-common-c
-          # - zowe-install-packaging-tools
-          # - zss
-          # - zss-auth
+          - keyring-utilities
+          - orion-editor-component
+          - perf-timing
+          - sample-angular-app
+          - sample-iframe-app
+          - sample-react-app
+          - tn3270-ng2
+          - vscode-extension-for-zowe
+          - vt-ng2
+          - zlux-app-manager
+          - zlux-app-server
+          - zlux-build
+          - zlux-editor
+          - zlux-file-explorer
+          - zlux-grid
+          - zlux-platform
+          - zlux-server-framework
+          - zlux-shared
+          - zlux-widgets
+          - zlux-workflow
+          - zosmf-auth
+          - zowe-cli
+          - zowe-cli-cics-plugin
+          - zowe-cli-db2-plugin
+          - zowe-cli-ftp-plugin
+          - zowe-cli-ims-plugin
+          - zowe-cli-mq-plugin
+          - zowe-cli-scs-plugin
+          - zss-auth
 
     runs-on: ubuntu-latest
     steps:
@@ -143,16 +134,12 @@ jobs:
     strategy:
       matrix:
         repository:
-          # - api-layer
-          # - common-java
-          # - data-sets
-          # - explorer-api-common
+          - api-layer
+          - common-java
+          - data-sets
+          - explorer-api-common
           - jobs
-          # - keyring-utilities
-          # - launcher
-          # - zowe-common-c
-          # - zowe-install-packaging-tools
-          # - zss
+          - zowe-install-packaging-tools
 
     runs-on: ubuntu-latest
     steps:
