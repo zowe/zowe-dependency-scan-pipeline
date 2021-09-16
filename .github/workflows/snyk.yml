@@ -111,6 +111,7 @@ jobs:
         continue-on-error: true
         run: |
           root_dir=$(pwd)
+          echo "Current directory: ${root_dir}"
           for one in `find . -name package.json` ; do
               package_json_path=$(dirname ${one})
               echo ">>>>>>>>>>>>>>>>>>>>>>> npm install on ${package_json_path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
@@ -121,9 +122,6 @@ jobs:
 
       - name: Prepare report directory
         run: |
-          echo "pwd=$(pwd)"
-          ls -la
-          echo "--------------------------------------"
           BRANCH=$(git rev-parse --abbrev-ref HEAD)
           echo "BRANCH=${BRANCH}"
           COMMIT_HASH=$(git rev-parse --verify HEAD)
