@@ -1,8 +1,58 @@
 name: Snyk Container
 
 on: 
-  # workflow_dispatch:
+  workflow_dispatch:
   push:
+
+env:
+  SNYK_SCAN_COMMAND: test
+  # SNYK_SCAN_COMMAND: monitor
+
+# full repository list from Zowe manifest.json sourceDependencies
+# - api-layer
+# - common-java
+# - data-sets
+# - explorer-api-common
+# - explorer-ip
+# - explorer-jes
+# - explorer-mvs
+# - explorer-ui-server
+# - explorer-uss
+# - imperative
+# - jobs
+# - keyring-utilities
+# - launcher
+# - orion-editor-component
+# - perf-timing
+# - sample-angular-app
+# - sample-iframe-app
+# - sample-react-app
+# - tn3270-ng2
+# - vscode-extension-for-zowe
+# - vt-ng2
+# - zlux-app-manager
+# - zlux-app-server
+# - zlux-build
+# - zlux-editor
+# - zlux-file-explorer
+# - zlux-grid
+# - zlux-platform
+# - zlux-server-framework
+# - zlux-shared
+# - zlux-widgets
+# - zlux-workflow
+# - zosmf-auth
+# - zowe-cli
+# - zowe-cli-cics-plugin
+# - zowe-cli-db2-plugin
+# - zowe-cli-ftp-plugin
+# - zowe-cli-ims-plugin
+# - zowe-cli-mq-plugin
+# - zowe-cli-scs-plugin
+# - zowe-common-c
+# - zowe-install-packaging-tools
+# - zss
+# - zss-auth
 
 jobs:
   snyk-node:
@@ -81,23 +131,13 @@ jobs:
         continue-on-error: true
         uses: snyk/actions/node@master
         with:
-          # command: monitor
-          command: test
+          command: ${{ env.SNYK_SCAN_COMMAND }}
           args: --sarif-file-output=${{ env.SCAN_REPORT_DIR }}/snyk.sarif --all-projects
 
-      - name: Show report
-        run:
-          cat ${{ env.SCAN_REPORT_DIR }}/snyk.sarif
-      
       - uses: actions/upload-artifact@v2
         with:
           name: snyk-report
           path: .snyk-reports/
-
-      # - name: Upload result to GitHub Code Scanning
-      #   uses: github/codeql-action/upload-sarif@v1
-      #   with:
-      #     sarif_file: snyk.sarif
 
   # snyk-gradle:
   #   strategy:
@@ -130,14 +170,6 @@ jobs:
   #         command: test
   #         args: --sarif-file-output=snyk.sarif --all-projects
 
-  #     - name: Show report
-  #       run:
-  #         cat snyk.sarif
-  #     # - name: Upload result to GitHub Code Scanning
-  #     #   uses: github/codeql-action/upload-sarif@v1
-  #     #   with:
-  #     #     sarif_file: snyk.sarif
-
   upload-reports:
     needs:
       - snyk-node
@@ -153,6 +185,10 @@ jobs:
           name: snyk-report
           path: Snyk/
 
-      - name: Show report
+      - name: Upload reports
         run: |
-          find .
+           git config --global user.name ${{ secrets.ZOWE_ROBOT_USER }}
+           git config --global user.email ${{ secrets.ZOWE_ROBOT_EMAIL }}
+           git add Snyk/
+           git commit -s -m "Committing Snyk reports from scan #${GITHUB_RUN_NUMBER}"
+           git push
