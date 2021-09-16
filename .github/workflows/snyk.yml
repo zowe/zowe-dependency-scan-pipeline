@@ -143,10 +143,15 @@ jobs:
       - snyk-node
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: zowe/security-reports
+          token: ${{ secrets.ZOWE_ROBOT_TOKEN }}
+
       - uses: actions/download-artifact@v2
         with:
           name: snyk-report
-          path: .snyk-reports/
+          path: Snyk/
 
       - name: Show report
         run: |
