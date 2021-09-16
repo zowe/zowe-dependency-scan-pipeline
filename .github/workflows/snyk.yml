@@ -58,7 +58,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          repository: https://github.com/zowe/${{ matrix.repository }}
+          repository: zowe/${{ matrix.repository }}
 
       - name: Run Snyk to check Docker image for vulnerabilities
         env:
