@@ -111,14 +111,19 @@ jobs:
         continue-on-error: true
         run: |
           root_dir=$(pwd)
-          echo "Current directory: ${root_dir}"
-          for one in `find . -name package.json` ; do
-              package_json_path=$(dirname ${one})
-              echo ">>>>>>>>>>>>>>>>>>>>>>> npm install on ${package_json_path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-              cd ${root_dir}
-              cd ${package_json_path}
-              npm install || true
-          done
+          package_jsons=$(find . -name package.json)
+          echo "package.json in ${root_dir}:"
+          echo "${package_jsons}"
+          echo
+          while read -r line; do
+            package_json_path=$(dirname ${line})
+            echo ">>>>>>>>>>>>>>>>>>>>>>> npm install on ${package_json_path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+            cd ${root_dir}
+            cd ${package_json_path}
+            npm install --no-audit --ignore-scripts || true
+          done <<EOF
+          $(echo "${package_jsons}")
+          EOF
 
       - name: Prepare report directory
         run: |
@@ -171,19 +176,22 @@ jobs:
         continue-on-error: true
         run: |
           root_dir=$(pwd)
-          for one in `find . -name package.json` ; do
-              package_json_path=$(dirname ${one})
-              echo ">>>>>>>>>>>>>>>>>>>>>>> npm install on ${package_json_path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-              cd ${root_dir}
-              cd ${package_json_path}
-              npm install || true
-          done
+          package_jsons=$(find . -name package.json)
+          echo "package.json in ${root_dir}:"
+          echo "${package_jsons}"
+          echo
+          while read -r line; do
+            package_json_path=$(dirname ${line})
+            echo ">>>>>>>>>>>>>>>>>>>>>>> npm install on ${package_json_path} >>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+            cd ${root_dir}
+            cd ${package_json_path}
+            npm install --no-audit --ignore-scripts || true
+          done <<EOF
+          $(echo "${package_jsons}")
+          EOF
 
       - name: Prepare report directory
         run: |
-          echo "pwd=$(pwd)"
-          ls -la
-          echo "--------------------------------------"
           BRANCH=$(git rev-parse --abbrev-ref HEAD)
           echo "BRANCH=${BRANCH}"
           COMMIT_HASH=$(git rev-parse --verify HEAD)
