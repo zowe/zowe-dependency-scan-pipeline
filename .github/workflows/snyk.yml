@@ -14,7 +14,7 @@ jobs:
           # - data-sets
           # - explorer-api-common
           # - explorer-ip
-          - explorer-jes
+          - explorer-jes node
           # - explorer-mvs
           # - explorer-ui-server
           # - explorer-uss
@@ -56,15 +56,25 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
+      - name: Parse repository definition
+        run:
+          SCAN_REPOSITORY=$(echo "${{ matrix.repository }}" | awk '{print $1}')
+          SCAN_PROJECT_TYPE=$(echo "${{ matrix.repository }}" | awk '{print $2}')
+          SCAN_BRANCH=$(echo "${{ matrix.repository }}" | awk '{print $3}')
+          echo "SCAN_REPOSITORY=${SCAN_REPOSITORY}" >> $GITHUB_ENV
+          echo "SCAN_PROJECT_TYPE=${SCAN_PROJECT_TYPE}" >> $GITHUB_ENV
+          echo "SCAN_BRANCH=${SCAN_BRANCH}" >> $GITHUB_ENV
+
       - uses: actions/checkout@v2
         with:
-          repository: zowe/${{ matrix.repository }}
+          repository: zowe/${{ env.SCAN_REPOSITORY }}
+          ref: ${{ env.SCAN_BRANCH }}
 
       - name: Run Snyk to check Docker image for vulnerabilities
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
-        uses: snyk/actions/node@master
+        uses: snyk/actions/${{ env.SCAN_PROJECT_TYPE }}@master
         with:
           # command: monitor
           command: test
