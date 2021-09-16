@@ -60,6 +60,15 @@ jobs:
         with:
           repository: zowe/${{ matrix.repository }}
 
+      - name: Prepare report directory
+        run:
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          COMMIT_HASH=$(git rev-parse --verify HEAD)
+          SCAN_REPORT_DIR=.snyk-reports/${{ matrix.repository }}.${BRANCH}
+          mkdir -p ${SCAN_REPORT_DIR}
+          echo "${COMMIT_HASH}" > ${SCAN_REPORT_DIR}/COMMIT
+          echo "SCAN_REPORT_DIR=${SCAN_REPORT_DIR}" >> $GITHUB_ENV
+
       - name: Run Snyk to check Docker image for vulnerabilities
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -68,85 +77,57 @@ jobs:
         with:
           # command: monitor
           command: test
-          args: --sarif-file-output=snyk.sarif --all-projects
+          args: --sarif-file-output=${{ env.SCAN_REPORT_DIR }}/snyk.sarif --all-projects
 
       - name: Show report
         run:
-          cat snyk.sarif
+          cat ${{ env.SCAN_REPORT_DIR }}/snyk.sarif
+      
+      - uses: actions/upload-artifact@v2
+        with:
+          name: snyk-report
+          path: ${{ env.SCAN_REPORT_DIR }}
+
       # - name: Upload result to GitHub Code Scanning
       #   uses: github/codeql-action/upload-sarif@v1
       #   with:
       #     sarif_file: snyk.sarif
 
-  snyk-gradle:
-    strategy:
-      matrix:
-        repository:
-          - api-layer
-          # - common-java
-          # - data-sets
-          # - explorer-api-common
-          # - explorer-ip
-          # - explorer-jes
-          # - explorer-mvs
-          # - explorer-ui-server
-          # - explorer-uss
-          # - imperative
-          # - jobs
-          # - keyring-utilities
-          # - launcher
-          # - orion-editor-component
-          # - perf-timing
-          # - sample-angular-app
-          # - sample-iframe-app
-          # - sample-react-app
-          # - tn3270-ng2
-          # - vscode-extension-for-zowe
-          # - vt-ng2
-          # - zlux-app-manager
-          # - zlux-app-server
-          # - zlux-build
-          # - zlux-editor
-          # - zlux-file-explorer
-          # - zlux-grid
-          # - zlux-platform
-          # - zlux-server-framework
-          # - zlux-shared
-          # - zlux-widgets
-          # - zlux-workflow
-          # - zosmf-auth
-          # - zowe-cli
-          # - zowe-cli-cics-plugin
-          # - zowe-cli-db2-plugin
-          # - zowe-cli-ftp-plugin
-          # - zowe-cli-ims-plugin
-          # - zowe-cli-mq-plugin
-          # - zowe-cli-scs-plugin
-          # - zowe-common-c
-          # - zowe-install-packaging-tools
-          # - zss
-          # - zss-auth
+  # snyk-gradle:
+  #   strategy:
+  #     matrix:
+  #       repository:
+  #         # - api-layer
+  #         # - common-java
+  #         # - data-sets
+  #         # - explorer-api-common
+  #         - jobs
+  #         # - keyring-utilities
+  #         # - launcher
+  #         # - zowe-common-c
+  #         # - zowe-install-packaging-tools
+  #         # - zss
 
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          repository: zowe/${{ matrix.repository }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         repository: zowe/${{ matrix.repository }}
 
-      - name: Run Snyk to check Docker image for vulnerabilities
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        continue-on-error: true
-        uses: snyk/actions/gradle@master
-        with:
-          # command: monitor
-          command: test
-          args: --sarif-file-output=snyk.sarif --all-projects
+  #     - name: Run Snyk to check Docker image for vulnerabilities
+  #       env:
+  #         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  #       continue-on-error: true
+  #       uses: snyk/actions/gradle@master
+  #       with:
+  #         # command: monitor
+  #         command: test
+  #         args: --sarif-file-output=snyk.sarif --all-projects
 
-      - name: Show report
-        run:
-          cat snyk.sarif
-      # - name: Upload result to GitHub Code Scanning
-      #   uses: github/codeql-action/upload-sarif@v1
-      #   with:
-      #     sarif_file: snyk.sarif
+  #     - name: Show report
+  #       run:
+  #         cat snyk.sarif
+  #     # - name: Upload result to GitHub Code Scanning
+  #     #   uses: github/codeql-action/upload-sarif@v1
+  #     #   with:
+  #     #     sarif_file: snyk.sarif
