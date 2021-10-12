@@ -14,6 +14,7 @@ import * as path from "path";
 import { isNullOrUndefined } from "util";
 import { TYPES } from "../constants/Types";
 import { RepositoryInfo } from "./RepositoryInfo";
+import { ReportInfo } from "./RepositoryReportDest";
 
 @injectable()
 export class RepositoryRules {
@@ -63,10 +64,17 @@ export class RepositoryRules {
      * 
      * @param project 
      */
-    public getExtraPathForRepositories(repoInfo: RepositoryInfo[]): string[] {
-        let extraPaths: string[] = [];
+    public getExtraPathForRepositories(repoInfo: RepositoryInfo[]): ReportInfo[] {
+        let extraPaths: ReportInfo[] = [];
         repoInfo.forEach((repo) => {
-            extraPaths = extraPaths.concat(this.getExtraPathForRepository(repo));
+            let reports: string[] = this.getExtraPathForRepository(repo)
+            reports.forEach((reportN) => {
+                let reportDest: ReportInfo = {
+                    destinations: repo.destinations,
+                    reportName: reportN,
+                }
+                extraPaths = extraPaths.concat(reportDest)
+            })
         });
         return extraPaths;
     }

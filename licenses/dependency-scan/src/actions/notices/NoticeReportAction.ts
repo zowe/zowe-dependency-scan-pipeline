@@ -19,6 +19,7 @@ import * as rimraf from "rimraf";
 import * as xml2js from "xml2js";
 import { Constants } from "../../constants/Constants";
 import { TYPES } from "../../constants/Types";
+import { ReportInfo } from "../../repos/RepositoryReportDest";
 import { ZoweManifest } from "../../repos/ZoweManifest";
 import { ZoweManifestSourceDependency } from "../../repos/ZoweManifestSourceDependency";
 import { Logger } from "../../utils/Logger";
@@ -74,17 +75,26 @@ export class NoticeReportAction implements IAction {
 
             const sourceDependencies: ZoweManifestSourceDependency[] = this.zoweManifest.sourceDependencies;
             const aggregateNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_aggregate.txt");
+            const cliNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_cli.txt");
+            const zosNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_zos.txt");
             (sourceDependencies).forEach((dependency: ZoweManifestSourceDependency) => {
-                const notices = (dependency.entries.map((depEntry) => depEntry.repository))
+                const notices = (dependency.entries.map((depEntry): ReportInfo => {
+                    return { destinations: depEntry.destinations, reportName: depEntry.repository }
+                }))
                     .concat((this.repoRules.getExtraPathForRepositories(dependency.entries)));
 
-                notices.forEach((noticeInstance: string) => {
-                    const noticeDestinationDir = path.join(Constants.NOTICE_REPORTS_DIR, noticeInstance);
+                notices.forEach((noticeInstance: ReportInfo) => {
+                    const noticeDestinationDir = path.join(Constants.NOTICE_REPORTS_DIR, noticeInstance.reportName);
                     // check if we have notices.txt (yarn) or license-dependency.xml (gradle)
                     const noticesTxtFile = path.join(noticeDestinationDir, "notices.txt");
                     const licenseXmlFile = path.join(noticeDestinationDir, "license-dependency.xml");
                     if (fs.existsSync(noticesTxtFile)) {
                         fs.appendFileSync(aggregateNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
+                        if (noticeInstance.destinations.join(",").includes("CLI")) {
+                            fs.appendFileSync(cliNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
+                        } else {
+                            fs.appendFileSync(zosNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
+                        }
                     }
                     else if (fs.existsSync(licenseXmlFile)) {
                         console.log(licenseXmlFile);
@@ -93,8 +103,18 @@ export class NoticeReportAction implements IAction {
                             parser.parseString(fileData, (err: any, result: any) => {
                                 result.licenses.license.forEach((license: any) => {
                                     fs.appendFileSync(aggregateNoticesFile, "The following software may be included in this product: "
-                                         + JSON.stringify(license.dependency) + ". This software contains the following license(s):\n\n");
+                                        + JSON.stringify(license.dependency) + ". This software contains the following license(s):\n\n");
                                     fs.appendFileSync(aggregateNoticesFile, license.$.name + ": " + license.$.url + "\n\n\n");
+
+                                    if (noticeInstance.destinations.join(",").includes("CLI")) {
+                                        fs.appendFileSync(cliNoticesFile, "The following software may be included in this product: "
+                                            + JSON.stringify(license.dependency) + ". This software contains the following license(s):\n\n");
+                                        fs.appendFileSync(cliNoticesFile, license.$.name + ": " + license.$.url + "\n\n\n");
+                                    } else {
+                                        fs.appendFileSync(zosNoticesFile, "The following software may be included in this product: "
+                                            + JSON.stringify(license.dependency) + ". This software contains the following license(s):\n\n");
+                                        fs.appendFileSync(zosNoticesFile, license.$.name + ": " + license.$.url + "\n\n\n");
+                                    }
                                 });
                             });
                         });

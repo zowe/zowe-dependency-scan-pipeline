@@ -18,6 +18,7 @@ import "reflect-metadata";
 import * as rimraf from "rimraf";
 import { Constants } from "../../constants/Constants";
 import { TYPES } from "../../constants/Types";
+import { ReportInfo } from "../../repos/RepositoryReportDest";
 import { ZoweManifest } from "../../repos/ZoweManifest";
 import { ZoweManifestSourceDependency } from "../../repos/ZoweManifestSourceDependency";
 import { Logger } from "../../utils/Logger";
@@ -35,7 +36,10 @@ export class LicenseReportAction implements IAction {
     private readonly TABLE_HEADER =
         `| Component | Third-party Software | Version | License | GitHub |\n` +
         `| ----------| -------------------- | --------| ------- | ------ |`;
-    private readonly REPORT_MARKDOWN_FILE = path.resolve(Constants.LICENSE_REPORTS_DIR, "markdown_dependency_report.md");
+    private readonly AGG_REPORT_MARKDOWN_FILE = path.resolve(Constants.LICENSE_REPORTS_DIR, "markdown_dependency_report.md");
+    private readonly CLI_REPORT_MARKDOWN_FILE = path.resolve(Constants.LICENSE_REPORTS_DIR, "cli_dependency_report.md")
+    private readonly ZOS_REPORT_MARKDOWN_FILE = path.resolve(Constants.LICENSE_REPORTS_DIR, "zos_dependency_report.md")
+
     private reportQueue: async.AsyncQueue<any> = async.queue(this.reportProject.bind(this), Constants.PARALLEL_REPORT_COUNT);
 
     constructor() {
@@ -79,31 +83,65 @@ export class LicenseReportAction implements IAction {
 
             const sourceDependencies: ZoweManifestSourceDependency[] = this.zoweManifest.sourceDependencies;
 
-            const reportFile = fs.createWriteStream(this.REPORT_MARKDOWN_FILE, { flags: "a" });
-            reportFile.write("# Zowe Third Party Library Usage\n\n");
-
+            const aggregateReportFile = fs.createWriteStream(this.AGG_REPORT_MARKDOWN_FILE, { flags: "a" });
+            const cliReportFile = fs.createWriteStream(this.CLI_REPORT_MARKDOWN_FILE)
+            const zosReportFile = fs.createWriteStream(this.ZOS_REPORT_MARKDOWN_FILE)
+            aggregateReportFile.write("# Zowe Third Party Library Usage\n\n");
+            cliReportFile.write("# Zowe CLI Third Party Library Usage\n\n");
+            zosReportFile.write("# Zowe z/OS Third Party Library Usage\n\n");
             (sourceDependencies).forEach((dependency) => {
-                reportFile.write("* [" + dependency.componentGroup + "](#" + dependency.componentGroup.replace(/\s/g, "-").toLowerCase()
+                aggregateReportFile.write("* [" + dependency.componentGroup + "](#" + dependency.componentGroup.replace(/\s/g, "-").toLowerCase()
                     + "-dependency-attributions)" + "\n");
+                if (dependency.entries.length > 0) {
+                    if (dependency.entries[0].destinations.join(",").includes("CLI")) {
+                        cliReportFile.write("* [" + dependency.componentGroup + "](#" + dependency.componentGroup.replace(/\s/g, "-").toLowerCase()
+                            + "-dependency-attributions)" + "\n");
+                    } else {
+                        zosReportFile.write("* [" + dependency.componentGroup + "](#" + dependency.componentGroup.replace(/\s/g, "-").toLowerCase()
+                            + "-dependency-attributions)" + "\n");
+                    }
+                }
             });
-            reportFile.write("\n");
+            aggregateReportFile.write("\n");
+            zosReportFile.write("\n");
+            cliReportFile.write("\n");
+
             (sourceDependencies).forEach((dependency: ZoweManifestSourceDependency) => {
-                const reports = (dependency.entries.map((depEntry) => depEntry.repository))
-                    .concat((this.repoRules.getExtraPathForRepositories(dependency.entries)
-                        .map((repoString: string) => repoString.replace(/[\\\/]/g, "-"))));
+                const reports: ReportInfo[] = (dependency.entries.map((depEntry): ReportInfo => {
+                    return { destinations: depEntry.destinations, reportName: depEntry.repository }
+                }))
+                    .concat((this.repoRules.getExtraPathForRepositories(dependency.entries)))
+
+                reports.forEach((repoReport: ReportInfo) => {
+                    repoReport.reportName = repoReport.reportName.replace(/[\\\/]/g, "-")
+                })
+
                 let totalDepCt = 0;
+                let cliDepCt = 0;
+                let zosDepCt = 0;
                 let missingReport: boolean = false;
                 let fullReportString = "### " + dependency.componentGroup + " Dependency Attributions " + "\n" + this.TABLE_HEADER + "\n";
-                reports.forEach((reportInstance: string) => {
+                let cliReportString = fullReportString
+                let zosReportString = fullReportString
+                reports.forEach((reportInstance: ReportInfo) => {
                     try {
-                        fs.statSync(path.join(Constants.LICENSE_REPORTS_DIR, `${reportInstance}.md`));
-                        const lines: string[] = fs.readFileSync(path.join(Constants.LICENSE_REPORTS_DIR, `${reportInstance}.md`), "utf-8")
+                        fs.statSync(path.join(Constants.LICENSE_REPORTS_DIR, `${reportInstance.reportName}.md`));
+                        const lines: string[] = fs.readFileSync(path.join(Constants.LICENSE_REPORTS_DIR, `${reportInstance.reportName}.md`), "utf-8")
                             .split("\n").filter(Boolean);
                         const reportDepCt = lines.length;
                         if (reportDepCt > 0) {
                             totalDepCt += reportDepCt;
                             fullReportString = fullReportString + lines.join("\n")
-                                .replace(new RegExp(reportInstance, "g"), dependency.componentGroup);
+                                .replace(new RegExp(reportInstance.reportName, "g"), dependency.componentGroup);
+                            if (reportInstance.destinations.join(",").includes("CLI")) {
+                                cliDepCt += reportDepCt
+                                cliReportString = cliReportString + lines.join("\n")
+                                    .replace(new RegExp(reportInstance.reportName, "g"), dependency.componentGroup);
+                            } else {
+                                zosDepCt += reportDepCt
+                                zosReportString = zosReportString + lines.join("\n")
+                                    .replace(new RegExp(reportInstance.reportName, "g"), dependency.componentGroup);
+                            }
                         }
                     }
                     catch {
@@ -112,8 +150,16 @@ export class LicenseReportAction implements IAction {
                     }
                 });
                 if (totalDepCt > 0) {
-                    reportFile.write(fullReportString);
-                    reportFile.write("\n\n");
+                    aggregateReportFile.write(fullReportString);
+                    aggregateReportFile.write("\n\n");
+                }
+                if (cliDepCt > 0) {
+                    cliReportFile.write(cliReportString);
+                    cliReportFile.write("\n\n")
+                }
+                if (zosDepCt > 0) {
+                    zosReportFile.write(zosReportString);
+                    zosReportFile.write("\n\n")
                 }
                 else if (!missingReport && totalDepCt <= 0) {
                     console.log(dependency.componentGroup + " is empty");
