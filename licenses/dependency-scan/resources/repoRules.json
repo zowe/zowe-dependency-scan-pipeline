@@ -4,8 +4,10 @@
 			"api-catalog-ui/frontend",
 			"helloworld-expressjs",
 			"apiml-auth"
-		],
-		"gradleArgs": ["-x", "bundle"]
+		]
+	},
+	"common-java": {
+		"gradleArgs": ["-x", "attls"]
 	},
 	"db-browser": {
 		"paths": ["webClient"]

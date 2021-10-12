@@ -9,8 +9,7 @@
 *                                                                                 *
 */
 
-export type RepositoryInfo = {
-    repository: string,
-    tag: string,
-    destinations?: string[]
-};
+export type ReportInfo = {
+    destinations: string[],
+    reportName: string,
+}
