@@ -33,19 +33,26 @@ node('zowe-dependency-scanning-rev-split') {
   def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
   def PENDING_APPROVAL_REPORT_NAME = "dependency_approval_action_aggregates.json"
   def MARKDOWN_REPORT_NAME = "markdown_dependency_report.md"
+  def MARKDOWN_CLI_REPORT = "cli_dependency_report.md"
+  def MARKDOWN_ZOS_REPORT = "zos_dependency_report.md"
   def NOTICES_AGGREGATE_FILE = "notices_aggregate.txt"
-
+  def NOTICES_CLI_FILE = "notices_cli.txt"
+  def NOTICES_ZOS_FILE = "notices_zos.txt"
   def ARTIFACT_REPO= "libs-snapshot-local"
   def ARTIFACT_PATH= "org/zowe/licenses"
   def VERSION = "1.24.0"
   def ARTIFACT_VERSION = "${VERSION}-SNAPSHOT"
-  def ARTIFACT_NAME = "zowe_licenses_full-SNAPSHOT.zip"
+  def AGG_ARTIFACT_NAME = "zowe_licenses_full-SNAPSHOT.zip"
+  def CLI_ARTIFACT_NAME = "zowe_licenses_cli-SNAPSHOT.zip"
+  def ZOS_ARTIFACT_NAME = "zowe_licenses_zos-SNAPSHOT.zip"
 
     // if we're publishing a release, change the default repo, version string, and artifact name
   if (params.PUBLISH_RELEASE) {
       ARTIFACT_REPO = "libs-release-local"
       ARTIFACT_VERSION = "${VERSION}"
-      ARTIFACT_NAME = "zowe_licenses_full.zip"
+      AGG_ARTIFACT_NAME = "zowe_licenses_full.zip"
+      CLI_ARTIFACT_NAME = "zowe_licenses_cli.zip"
+      ZOS_ARTIFACT_NAME = "zowe_licenses_zos.zip"
   }
 
   def FULL_ARTIFACT_PATH = "${ARTIFACT_REPO}/${ARTIFACT_PATH}/${ARTIFACT_VERSION}/"
@@ -90,10 +97,25 @@ node('zowe-dependency-scanning-rev-split') {
             sh "cd build && zip -r license_reports.zip license_reports/"
             sh "cd build && zip -r notice_reports.zip notice_reports/"
             sh "mkdir -p zowe_licenses"
+            sh "mkdir -p zowe_cli_licenses"
+            sh "mkdir -p zowe_zos_licenses"
             sh "cp ../resources/* zowe_licenses/"
+            sh "cp ../resources/* zowe_cli_licenses/"
+            sh "cp ../resources/* zowe_zos_licenses/"
+
+            // Aggregate
             sh "cp build/notice_reports/${NOTICES_AGGREGATE_FILE} zowe_licenses/zowe_full_notices.txt"
             sh "cp build/license_reports/${MARKDOWN_REPORT_NAME} zowe_licenses/zowe_full_dependency_list.md"
-            sh "zip -j ${ARTIFACT_NAME} zowe_licenses/*"
+            sh "zip -j ${AGG_ARTIFACT_NAME} zowe_licenses/*"
+
+            // CLI
+            sh "cp build/notice_reports/${NOTICES_CLI_FILE} zowe_cli_licenses/zowe_cli_notices.txt"
+            sh "cp build/license_reports/${MARKDOWN_CLI_REPORT} zowe_cli_licenses/zowe_cli_dependency_list.md"
+            sh "zip -j ${CLI_ARTIFACT_NAME} zowe_cli_licenses/*"
+            // z/OS
+            sh "cp build/notice_reports/${NOTICES_ZOS_FILE} zowe_zos_licenses/zowe_zos_notices.txt"
+            sh "cp build/license_reports/${MARKDOWN_ZOS_REPORT} zowe_zos_licenses/zowe_zos_dependency_list.md"
+            sh "zip -j ${ZOS_ARTIFACT_NAME} zowe_zos_licenses/*"
         }
     }
   )
@@ -102,7 +124,9 @@ node('zowe-dependency-scanning-rev-split') {
       name: "Archive Logs",
       stage: {
         dir("${DEPENDENCY_SCAN_HOME}"){
-          archiveArtifacts artifacts: "${ARTIFACT_NAME}"
+          archiveArtifacts artifacts: "${AGG_ARTIFACT_NAME}"
+          archiveArtifacts artifacts: "${CLI_ARTIFACT_NAME}"
+          archiveArtifacts artifacts: "${ZOS_ARTIFACT_NAME}"
         }
     }
   )
@@ -117,14 +141,26 @@ node('zowe-dependency-scanning-rev-split') {
             usernamePasswordCredential: "ZoweJfrogDANGEROUS"
         )
         def ret = jfrog.delete(
-            pattern: "${FULL_ARTIFACT_PATH}${ARTIFACT_NAME}"
+            pattern: "${FULL_ARTIFACT_PATH}${AGG_ARTIFACT_NAME}"
         )
-        sh "echo ${ret} artifacts deleted"
+        def retCli = jfrog.delete(
+            pattern: "${FULL_ARTIFACT_PATH}${CLI_ARTIFACT_NAME}"
+        )
+        def retZos = jfrog.delete(
+            pattern: "${FULL_ARTIFACT_PATH}${ZOS_ARTIFACT_NAME}"
+        )
+        sh "echo ${ret} ${retCli} ${retZos} artifacts deleted"
       }
       dir("${DEPENDENCY_SCAN_HOME}"){
         def uploadSpec = """{
         "files": [{
-          "pattern": "${ARTIFACT_NAME}",
+          "pattern": "${AGG_ARTIFACT_NAME}",
+          "target": "${FULL_ARTIFACT_PATH}"
+        },{
+          "pattern": "${CLI_ARTIFACT_NAME}",
+          "target": "${FULL_ARTIFACT_PATH}"
+        },{
+          "pattern": "${ZOS_ARTIFACT_NAME}",
           "target": "${FULL_ARTIFACT_PATH}"
         }]
         }"""
