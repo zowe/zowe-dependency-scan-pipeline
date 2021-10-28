@@ -27,7 +27,7 @@ node('zowe-jenkins-agent') {
     isSkippable: false,
     stage: {
       def testParameters = [
-        string(name: 'TEST_SERVER', value: 'marist'),
+        string(name: 'TEST_SERVER', value: 'marist-4'),
         string(name: 'TEST_PORT', value: '7554'),
         string(name: 'TEST_SCOPE', value: 'dist/__tests__/primary/'),
         string(name: 'REPORT_NAME', value: 'scheduled'),

@@ -57,9 +57,9 @@ node('zowe-jenkins-agent') {
         isSkippable   : true,
         stage         : {
             def serverCredentials = [
-                'marist-1': ['ssh-marist-server-zzow01-hostport', 'ssh-marist-server-zzow01'],
                 'marist-2': ['ssh-marist-server-zzow02-hostport', 'ssh-marist-server-zzow02'],
                 'marist-3': ['ssh-marist-server-zzow03-hostport', 'ssh-marist-server-zzow03'],
+                'marist-4': ['ssh-marist-server-zzow04-hostport', 'ssh-marist-server-credential'],
             ]
             
             serverCredentials.each { host, creds ->
