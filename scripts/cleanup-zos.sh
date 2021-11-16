@@ -57,6 +57,19 @@ done
 echo
 
 ################################################################################
+echo "[${SCRIPT_NAME}] deleting ~/zowe/logs"
+if [ -d ~/zowe/logs ]; then
+  cd ~/zowe/logs
+  for i in $(find . -type f -ctime +1); do
+    if [ -n "$i" ]; then
+      echo "[${SCRIPT_NAME}] - ~/zowe/logs/${i}"
+      echo "rm -fr ${i}" | su
+    fi
+  done
+fi
+echo
+
+################################################################################
 echo "[${SCRIPT_NAME}] deleting /tmp/tomcat*"
 cd /tmp
 echo "rm -fr tomcat.*" | su
