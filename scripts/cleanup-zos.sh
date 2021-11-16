@@ -35,6 +35,18 @@ for i in $(find . -type f -ctime +1 -name 'zowe-packaging*'); do
     echo "rm -fr ${i}" | su
   fi
 done
+for i in $(find . -type d -ctime +1 -name 'pax-packaging*'); do
+  if [ -n "$i" ]; then
+    echo "[${SCRIPT_NAME}] - /ZOWE/tmp/${i}"
+    echo "rm -fr ${i}" | su
+  fi
+done
+for i in $(find . -type f -ctime +1 -name 'pax-packaging*'); do
+  if [ -n "$i" ]; then
+    echo "[${SCRIPT_NAME}] - /ZOWE/tmp/${i}"
+    echo "rm -fr ${i}" | su
+  fi
+done
 # SMPE cannot handle lower case directory
 cd /ZOWE/TMP
 for i in $(find . -type d -ctime +1 -name 'ZOWE-PACKAGING*'); do
@@ -57,9 +69,45 @@ done
 echo
 
 ################################################################################
+echo "[${SCRIPT_NAME}] deleting ~/zowe/logs"
+if [ -d ~/zowe/logs ]; then
+  cd ~/zowe/logs
+  for i in $(find . -type f -ctime +1); do
+    if [ -n "$i" ]; then
+      echo "[${SCRIPT_NAME}] - ~/zowe/logs/${i}"
+      echo "rm -fr ${i}" | su
+    fi
+  done
+fi
+echo
+
+################################################################################
 echo "[${SCRIPT_NAME}] deleting /tmp/tomcat*"
 cd /tmp
 echo "rm -fr tomcat.*" | su
+echo "rm -fr tomcat-docbase.*" | su
+echo
+
+################################################################################
+echo "[${SCRIPT_NAME}] deleting /tmp/zowe-*.env"
+cd /tmp
+for i in $(find . -type f -ctime +1 -name 'zowe-*.env'); do
+  if [ -n "$i" ]; then
+    echo "[${SCRIPT_NAME}] - /tmp/${i}"
+    echo "rm -fr ${i}" | su
+  fi
+done
+echo
+
+################################################################################
+echo "[${SCRIPT_NAME}] deleting /tmp/*.jcl"
+cd /tmp
+for i in $(find . -type f -ctime +1 -name '*.jcl'); do
+  if [ -n "$i" ]; then
+    echo "[${SCRIPT_NAME}] - /tmp/${i}"
+    echo "rm -fr ${i}" | su
+  fi
+done
 echo
 
 ################################################################################
