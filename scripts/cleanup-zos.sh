@@ -85,6 +85,29 @@ echo
 echo "[${SCRIPT_NAME}] deleting /tmp/tomcat*"
 cd /tmp
 echo "rm -fr tomcat.*" | su
+echo "rm -fr tomcat-docbase.*" | su
+echo
+
+################################################################################
+echo "[${SCRIPT_NAME}] deleting /tmp/zowe-*.env"
+cd /tmp
+for i in $(find . -type f -ctime +1 -name 'zowe-*.env'); do
+  if [ -n "$i" ]; then
+    echo "[${SCRIPT_NAME}] - /tmp/${i}"
+    echo "rm -fr ${i}" | su
+  fi
+done
+echo
+
+################################################################################
+echo "[${SCRIPT_NAME}] deleting /tmp/*.jcl"
+cd /tmp
+for i in $(find . -type f -ctime +1 -name '*.jcl'); do
+  if [ -n "$i" ]; then
+    echo "[${SCRIPT_NAME}] - /tmp/${i}"
+    echo "rm -fr ${i}" | su
+  fi
+done
 echo
 
 ################################################################################
