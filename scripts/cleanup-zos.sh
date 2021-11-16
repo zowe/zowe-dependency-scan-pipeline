@@ -35,6 +35,18 @@ for i in $(find . -type f -ctime +1 -name 'zowe-packaging*'); do
     echo "rm -fr ${i}" | su
   fi
 done
+for i in $(find . -type d -ctime +1 -name 'pax-packaging*'); do
+  if [ -n "$i" ]; then
+    echo "[${SCRIPT_NAME}] - /ZOWE/tmp/${i}"
+    echo "rm -fr ${i}" | su
+  fi
+done
+for i in $(find . -type f -ctime +1 -name 'pax-packaging*'); do
+  if [ -n "$i" ]; then
+    echo "[${SCRIPT_NAME}] - /ZOWE/tmp/${i}"
+    echo "rm -fr ${i}" | su
+  fi
+done
 # SMPE cannot handle lower case directory
 cd /ZOWE/TMP
 for i in $(find . -type d -ctime +1 -name 'ZOWE-PACKAGING*'); do
