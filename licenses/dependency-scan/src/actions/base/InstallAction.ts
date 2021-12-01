@@ -81,7 +81,11 @@ export class InstallAction implements IAction {
                 fs.unlinkSync(path.join(absDir, "package-lock.json"));
             }
             if (fs.existsSync(path.join(absDir, "node_modules"))) {
-                rimraf.sync(path.join(absDir, "node_modules"));
+                try {
+                    rimraf.sync(path.join(absDir, "node_modules"), { maxRetries: 10});
+                } catch (rmErr) {
+                    console.log(`Issue cleaning node_modules prior to install, will try to continue... ${rmErr}`)
+                }
             }
 
             // skip-integrity-check is required to bypass some errors on build environment...
