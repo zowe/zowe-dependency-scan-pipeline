@@ -47,5 +47,8 @@
 	},
 	"zos-subsystems": {
 		"paths": ["webClient"]
+	},
+	"zowe-cli": {
+		"paths": ["zowex"]
 	}
 }
