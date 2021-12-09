@@ -85,4 +85,8 @@ export class Utilities {
     public static dirHasMavenProject(dir: string) {
         return fs.existsSync(path.join(dir, "pom.xml"));
     }
+
+    public static dirHasCargoProject(dir: string) {
+        return fs.existsSync(path.join(dir, "Cargo.toml"));
+    }
 }

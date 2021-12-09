@@ -14,6 +14,7 @@ import * as spawn from "cross-spawn";
 import * as fs from "fs-extra";
 import { inject, injectable } from "inversify";
 import * as path from "path";
+import * as toml from "toml";
 import "reflect-metadata";
 import * as rimraf from "rimraf";
 import * as xml2js from "xml2js";
@@ -170,6 +171,43 @@ export class NoticeReportAction implements IAction {
             processComplete.then((result) => {
                 fs.copySync(this.log.getLogFilepath(projectDir + "notices.txt", "notices_report"),
                     path.join(noticeDestinationDir, "notices.txt"));
+            }).catch((error) => {
+                console.log(error);
+            });
+        }
+        else if (Utilities.dirHasCargoProject(absProjectDir)) {
+            let processComplete: Promise<any>;
+
+            const noticeProcess = spawn("sh", ["-c", "cargo license --json | get-license-helper"], {
+                cwd: absProjectDir,
+                env: process.env,
+                shell: true
+            });
+            processComplete = this.log.logOutputAsync(noticeProcess, projectDir, "notices_report");
+            processPromises.push(processComplete);
+            processComplete.then((result) => {
+                const cargoContents = toml.parse(fs.readFileSync(path.join(projectDir, "Cargo.toml")).toString());
+                const productName = cargoContents.package.name;
+                const noticesDirectoryPath = path.join(projectDir, "library_licenses");
+                const noticesDestinationPath = path.join(noticeDestinationDir, "notices.txt");
+                const noticesDisclaimer = `THE FOLLOWINGS SETS FORTH ATTRIBUTION NOTICES FOR THIRD PARTY SOFTWARE THAT MAY BE CONTAINED IN PORTIONS OF ` +
+                `THE ${productName.toUpperCase()} PRODUCT.`;
+                const noticesIdentifierPre = "The following software may be included in this product: ";
+                const noticesIdentifierPost = ". This software contains the following license and notice below:\n\n";
+                const delimiter = "-----";
+
+                fs.writeFileSync(noticesDestinationPath, `${noticesDisclaimer}\n\n`);
+
+                for (const dirent of fs.readdirSync(noticesDirectoryPath, {withFileTypes: true})){
+                    if(dirent.isFile()){
+                        const filePath = path.join(noticesDirectoryPath, dirent.name);
+                        const contents = fs.readFileSync(filePath).toString();
+                        const splitIndex = path.basename(filePath).lastIndexOf("-LICENSE-");
+                        const pkgName = path.basename(filePath).slice(0, splitIndex);
+
+                        fs.appendFileSync(noticesDestinationPath, `${delimiter}\n\n${noticesIdentifierPre}${pkgName}${noticesIdentifierPost}${contents}\n\n`);
+                    }
+                }
             }).catch((error) => {
                 console.log(error);
             });
