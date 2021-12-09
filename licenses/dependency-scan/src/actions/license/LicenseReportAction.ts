@@ -145,7 +145,7 @@ export class LicenseReportAction implements IAction {
                         }
                     }
                     catch {
-                        console.log("INFO: Missing file " + reportInstance + ".md");
+                        console.log("INFO: Missing file " + reportInstance.reportName + ".md");
                         missingReport = true;
                     }
                 });
