@@ -17,6 +17,11 @@ node('zowe-dependency-scanning-rev-split') {
   def pipeline = lib.pipelines.generic.GenericPipeline.new(this)
 
   pipeline.addBuildParameters(
+    stringParam(
+      name: 'ZOWE_VERSION',
+      description: 'Version number of Zowe bundle',
+      defaultValue: '2.0.0'
+    ),
     booleanParam(
       name: 'PUBLISH_RELEASE',
       description: 'If we want to publish the licenses as a release.',
@@ -40,7 +45,7 @@ node('zowe-dependency-scanning-rev-split') {
   def NOTICES_ZOS_FILE = "notices_zos.txt"
   def ARTIFACT_REPO= "libs-snapshot-local"
   def ARTIFACT_PATH= "org/zowe/licenses"
-  def VERSION = "2.0.0-alpha"
+  def VERSION = "${params.ZOWE_VERSION}-next"
   def ARTIFACT_VERSION = "${VERSION}-SNAPSHOT"
   def AGG_ARTIFACT_NAME = "zowe_licenses_full-SNAPSHOT.zip"
   def CLI_ARTIFACT_NAME = "zowe_licenses_cli-SNAPSHOT.zip"
