@@ -178,7 +178,7 @@ export class NoticeReportAction implements IAction {
         else if (Utilities.dirHasCargoProject(absProjectDir)) {
             let processComplete: Promise<any>;
 
-            const noticeProcess = spawn('sh -c "cargo license --json | get-license-helper"', {
+            const noticeProcess = spawn('sh -c "cargo license --json > Cargo.json && get-license-helper Cargo.json"', {
                 cwd: absProjectDir,
                 env: process.env,
                 shell: true
@@ -186,6 +186,7 @@ export class NoticeReportAction implements IAction {
             processComplete = this.log.logOutputAsync(noticeProcess, projectDir, "notices_report");
             processPromises.push(processComplete);
             processComplete.then((result) => {
+                const cargoJson = JSON.parse(fs.readFileSync(path.join(absProjectDir, "Cargo.json")).toString());
                 const cargoContentsRaw = fs.readFileSync(path.join(absProjectDir, "Cargo.toml")).toString();
                 const cargoContents = toml.parse(cargoContentsRaw);
                 const productName = cargoContents.package.name;
@@ -193,8 +194,9 @@ export class NoticeReportAction implements IAction {
                 const noticesDestinationPath = path.join(noticeDestinationDir, "notices.txt");
                 const noticesDisclaimer = `THE FOLLOWINGS SETS FORTH ATTRIBUTION NOTICES FOR THIRD PARTY SOFTWARE THAT MAY BE CONTAINED IN PORTIONS OF ` +
                 `THE ${productName.toUpperCase()} PRODUCT.`;
-                const noticesIdentifierPre = "The following software may be included in this product: ";
-                const noticesIdentifierPost = ". This software contains the following license and notice below:\n\n";
+                const noticesIdentifierOne = "The following software may be included in this product: ";
+                const noticesIdentifierTwo = ". A copy of the source code may be downloaded from ";
+                const noticesIdentifierThree = ". This software contains the following license and notice below:\n\n";
                 const delimiter = "-----";
 
                 fs.writeFileSync(noticesDestinationPath, `${noticesDisclaimer}\n\n`);
@@ -205,8 +207,14 @@ export class NoticeReportAction implements IAction {
                         const contents = fs.readFileSync(filePath).toString();
                         const splitIndex = path.basename(filePath).lastIndexOf("-LICENSE-");
                         const pkgName = path.basename(filePath).slice(0, splitIndex);
+                        let repository = undefined;
+                        for(const pkg of cargoJson) {
+                            if (pkg.name === pkgName && pkg.repository != null) {repository = pkg.repository}
+                        }
 
-                        fs.appendFileSync(noticesDestinationPath, `${delimiter}\n\n${noticesIdentifierPre}${pkgName}${noticesIdentifierPost}${contents}\n\n`);
+                        fs.appendFileSync(noticesDestinationPath, `${delimiter}\n\n${noticesIdentifierOne}${pkgName}`);
+                        if (repository) { fs.appendFileSync(noticesDestinationPath, `${noticesIdentifierTwo}${repository}`);}
+                        fs.appendFileSync(noticesDestinationPath, `${noticesIdentifierThree}${contents}\n\n`);
                     }
                 }
             }).catch((error) => {
