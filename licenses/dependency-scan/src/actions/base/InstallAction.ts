@@ -102,7 +102,7 @@ export class InstallAction implements IAction {
         }
         if (Utilities.dirHasCargoProject(absDir)) {
             console.log("Issuing cargo install in " + absDir);
-            const installProcess = spawn("cargo", ["install", "--path", "."], { cwd: absDir, env: process.env });
+            const installProcess = spawn("cargo", ["install", "--path", ".", "--locked"], { cwd: absDir, env: process.env });
             processPromises.push(this.log.logOutputAsync(installProcess, projectDir, "install"));
         }
         Promise.all(processPromises).then((result) => {
