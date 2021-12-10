@@ -100,6 +100,11 @@ export class InstallAction implements IAction {
                 "--skip-integrity-check", "--network-concurrency", "5"], { cwd: absDir, env: process.env, shell: true });
             processPromises.push(this.log.logOutputAsync(installProcess, projectDir, "install"));
         }
+        if (Utilities.dirHasCargoProject(absDir)) {
+            console.log("Issuing cargo install in " + absDir);
+            const installProcess = spawn("cargo", ["install", "--path", ".", "--locked"], { cwd: absDir, env: process.env });
+            processPromises.push(this.log.logOutputAsync(installProcess, projectDir, "install"));
+        }
         Promise.all(processPromises).then((result) => {
             cb(null);
         }).catch((error) => {
