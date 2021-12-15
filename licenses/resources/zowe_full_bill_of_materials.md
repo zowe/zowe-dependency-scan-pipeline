@@ -92,13 +92,15 @@ The following materials are distributed with Zowe&trade; binaries:
 
 | File Path | Description | Source Location | Build Script(s) |
 | --------- | ----------- | --------------- | --------------- |
-| zowe-cli-package-1.9.0.zip | Zowe CLI Package containing the core Zowe CLI as well as Zowe CLI Plugins | Multiple open source repositories within [zowe](https://www.github.com/zowe) | [zowe-cli-standalone-package pipeline](https://github.com/zowe/zowe-cli-standalone-package/blob/master/Jenkinsfile) |
-| licenses/zowe_licenses_full.zip | License archive for Zowe third party dependencies | N/A | [Zowe License Scan Pipeline](https://github.com/zowe/zowe-dependency-scan-pipeline/blob/master/Jenkinsfile.license-scan) |
-| zowe-cli.tgz | Zowe CLI | [zowe-cli](https://github.com/zowe/zowe-cli/) | [zowe-cli pipeline](https://github.com/zowe/zowe-cli/blob/master/Jenkinsfile) |
-| cics-for-zowe-cli.tgz |  IBM® CICS® Plug-in for Zowe CLI | [zowe-cli-cics-plugin](https://github.com/zowe/zowe-cli-cics-plugin) | [zowe-cli-cics-plugin pipeline](https://github.com/zowe/zowe-cli-cics-plugin/blob/master/Jenkinsfile) |
-| db2-for-zowe-cli.tgz | IBM® Db2® for z/OS® Plug-in for Zowe CLI | [zowe-cli-db2-plugin](https://github.com/zowe/zowe-cli-db2-plugin) | [zowe-cli-db2-plugin pipeline](https://github.com/zowe/zowe-cli-db2-plugin/blob/master/Jenkinsfile) |
-| zos-ftp-for-zowe-cli.tgz | IBM® z/OS FTP Plug-in for Zowe CLI | [zowe-cli-ftp-plugin](https://github.com/zowe/zowe-cli-ftp-plugin) | [zowe-cli-ftp-plugin pipeline](https://github.com/zowe/zowe-cli-ftp-plugin/Jenkinsfile)  |
-| ims-for-zowe-cli.tgz | IBM® IMS™ Plug-in for Zowe CLI | [zowe-cli-ims-plugin](https://github.com/zowe/zowe-cli-ims-plugin) | [zowe-cli-ims-plugin pipeline](https://github.com/zowe/zowe-cli-ims-plugin/blob/master/Jenkinsfile) |
-| mq-for-zowe-cli.tgz | IBM® MQ Plug-in for Zowe CLI | [zowe-cli-mq-plugin](https://github.com/zowe/zowe-cli-mq-plugin) | [zowe-cli-mq-plugin pipeline](https://github.com/zowe/zowe-cli-mq-plugin/blob/master/Jenkinsfile) |
-| secure-credential-store-for-zowe-cli.tgz | Secure Credential Store for Zowe CLI | [zowe-cli-scs-plugin](https://github.com/zowe/zowe-cli-scs-plugin) | [zowe-cli-scs-plugin pipeline](https://github.com/zowe/zowe-cli-scs-plugin/blob/master/Jenkinsfile) |
-
+| zowe-cli-package-next.zip | Zowe CLI Package containing the core Zowe CLI as well as Daemon binaries | Multiple open source repositories within [zowe](https://www.github.com/zowe) | [zowe-cli-standalone-package pipeline](https://github.com/zowe/zowe-cli-standalone-package/blob/master/Jenkinsfile) |
+| zowe-cli-plugins-next.zip | Zowe CLI Package containing Zowe CLI Plugins | Multiple open source repositories within [zowe](https://www.github.com/zowe) | [zowe-cli-standalone-package pipeline](https://github.com/zowe/zowe-cli-standalone-package/blob/master/Jenkinsfile) |
+| licenses/zowe_licenses_full.zip | License archive for Zowe third party dependencies | N/A | [Zowe License Scan Pipeline](https://github.com/zowe/zowe-dependency-scan-pipeline/blob/v2/main/Jenkinsfile.license-scan) |
+| zowe-cli.tgz | Zowe CLI | [zowe-cli](https://github.com/zowe/zowe-cli/) | [zowe-cli pipeline](https://github.com/zowe/zowe-cli/blob/next/Jenkinsfile) |
+| cics-for-zowe-cli.tgz |  IBM® CICS® Plug-in for Zowe CLI | [zowe-cli-cics-plugin](https://github.com/zowe/zowe-cli-cics-plugin) | [zowe-cli-cics-plugin pipeline](https://github.com/zowe/zowe-cli-cics-plugin/blob/next/Jenkinsfile) |
+| db2-for-zowe-cli.tgz | IBM® Db2® for z/OS® Plug-in for Zowe CLI | [zowe-cli-db2-plugin](https://github.com/zowe/zowe-cli-db2-plugin) | [zowe-cli-db2-plugin pipeline](https://github.com/zowe/zowe-cli-db2-plugin/blob/next/Jenkinsfile) |
+| zos-ftp-for-zowe-cli.tgz | IBM® z/OS FTP Plug-in for Zowe CLI | [zowe-cli-ftp-plugin](https://github.com/zowe/zowe-cli-ftp-plugin) | [zowe-cli-ftp-plugin pipeline](https://github.com/zowe/zowe-cli-ftp-plugin/blob/master/Jenkinsfile)  |
+| ims-for-zowe-cli.tgz | IBM® IMS™ Plug-in for Zowe CLI | [zowe-cli-ims-plugin](https://github.com/zowe/zowe-cli-ims-plugin) | [zowe-cli-ims-plugin pipeline](https://github.com/zowe/zowe-cli-ims-plugin/blob/next/Jenkinsfile) |
+| mq-for-zowe-cli.tgz | IBM® MQ Plug-in for Zowe CLI | [zowe-cli-mq-plugin](https://github.com/zowe/zowe-cli-mq-plugin) | [zowe-cli-mq-plugin pipeline](https://github.com/zowe/zowe-cli-mq-plugin/blob/next/Jenkinsfile) |
+| zowe-windows.tgz | Windows Daemon for Zowe CLI | [zowe-windows](https://github.com/zowe/zowe-cli) | [zowe-windows pipeline](https://github.com/zowe/zowe-cli/blob/next/.github/workflows/rust-cli-publish.yml) |
+| zowe-linux.tgz | Linux Daemon for Zowe CLI | [zowe-linux](https://github.com/zowe/zowe-cli) | [zowe-linux pipeline](https://github.com/zowe/zowe-cli/blob/next/.github/workflows/rust-cli-publish.yml) |
+| zowe-macos.tgz | MacOS Daemon for Zowe CLI | [zowe-macos](https://github.com/zowe/zowe-cli) | [zowe-macos pipeline](https://github.com/zowe/zowe-cli/blob/next/.github/workflows/rust-cli-publish.yml) |
