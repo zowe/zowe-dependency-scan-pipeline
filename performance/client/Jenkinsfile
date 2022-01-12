@@ -19,17 +19,6 @@ node('zowe-jenkins-agent-dind') {
   // - credential id for ssh server hostname and port
   // - credential id for ssh username and password
   Map TEST_SERVERS = [
-    'marist': [
-      ssh_hostport     : 'ssh-marist-server-zzow01-hostport',
-      ssh_userpass     : 'ssh-marist-server-zzow01',
-      zosmf_port       : '10443',
-      zosmf_credential : 'ssh-marist-server-zzow01',
-      tmp_dir          : '/ZOWE/tmp',
-      zms_dir          : '/ZOWE/tmp/zms',
-      zms_credential   : 'ssh-marist-server-zzow01',
-      // ZMS requires node v10+
-      node_home        : '/ZOWE/node/node-v12.16.1-os390-s390x',
-    ],
     'marist-2': [
       ssh_hostport     : 'ssh-marist-server-zzow02-hostport',
       ssh_userpass     : 'ssh-marist-server-zzow02',
@@ -49,6 +38,17 @@ node('zowe-jenkins-agent-dind') {
       tmp_dir          : '/ZOWE/tmp',
       zms_dir          : '/ZOWE/tmp/zms',
       zms_credential   : 'ssh-marist-server-zzow03',
+      // ZMS requires node v10+
+      node_home        : '/ZOWE/node/node-v12.16.1-os390-s390x',
+    ],
+    'marist-4': [
+      ssh_hostport     : 'ssh-marist-server-zzow04-hostport',
+      ssh_userpass     : 'ssh-marist-server-credential',
+      zosmf_port       : '10443',
+      zosmf_credential : 'ssh-marist-server-credential',
+      tmp_dir          : '/ZOWE/tmp',
+      zms_dir          : '/ZOWE/tmp/zms',
+      zms_credential   : 'ssh-marist-server-credential',
       // ZMS requires node v10+
       node_home        : '/ZOWE/node/node-v12.16.1-os390-s390x',
     ]
