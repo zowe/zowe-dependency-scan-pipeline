@@ -24,7 +24,7 @@ RUN_PWD=$(pwd)
 DEFAULT_ARTIFACTORY_SERVER=zowe-jack
 OS_CATEGORY=$(uname)
 SNAPSHOT_BUILD_PATH_LIST=snapshots-paths.txt
-SNAPSHOT_BUILD_KEEP_PATTERN="^[0-9]+\.[0-9]+\.[0-9]+-(STAGING|SNAPSHOT|SNAPSHOTS|RC)\$"
+SNAPSHOT_BUILD_KEEP_PATTERN="^[0-9]+\.[0-9]+\.[0-9]+-([vV][0-9]+[\.\-][xX]-)?(STAGING|SNAPSHOT|SNAPSHOTS|RC)\$"
 SNAPSHOT_BUILD_KEEP_DAYS=30
 
 ################################################################################
