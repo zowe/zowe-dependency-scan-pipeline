@@ -45,7 +45,7 @@ jobs:
           npm run build
           ./bin/autoconv $PAX_BASE_DIR $PAX_CONV_DIR
       - name: Run Fossology Docker image
-        run: docker run -d -p 8081:80 -v $PAX_CONV_DIR:/tmp/zowe_pax zowe/local-fossology:latest
+        run: docker run -d -p 8081:80 -v ${{ env.PAX_CONV_DIR }}:/tmp/zowe_pax zowe/local-fossology:latest
       - name: Wait for Fossology to start
         run: wget http://localhost:8081/
       - name: Run Scans
@@ -66,7 +66,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Build docker container
         run: |
-          cd $GITHUB_WORKSPACE/.dockerfiles
+          cd .dockerfiles
           docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
       - name: Run Fossology Docker image
         run: docker run -d -p 8081:80 zowe/local-fossology:latest
@@ -75,7 +75,7 @@ jobs:
       - name: Run Scans
         run: |
           mkdir -p $REPORT_DIR
-          cd $GITHUB_WORKSPACE/license-scanning/zowe-dependency-scan-pipeline/licenses/sbom/fossology
+          cd $GITHUB_WORKSPACE/licenses/sbom/fossology
           ZOWE_SOURCES_VERSION=${{ env.ZOWE_RELEASE_BRANCH }} OUTPUT_DIR=$REPORT_DIR python3 sources.py
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
