@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
 
 env:
-    ZOWE_RELEASE_BRANCH: rc
-    REPORT_DIR: $GITHUB_WORKSPACE/reports
+  ZOWE_RELEASE_BRANCH: rc
+  REPORT_DIR: $GITHUB_WORKSPACE/reports
 
 jobs:
   pax-sbom:
@@ -46,12 +46,16 @@ jobs:
           ./bin/autoconv $PAX_BASE_DIR $PAX_CONV_DIR
       - name: Run Fossology Docker image
         run: docker run -d -p 8081:80 -v ${{ env.PAX_CONV_DIR }}:/tmp/zowe_pax zowe/local-fossology:latest
+      - name: Install Python3 and Pip
+        run: |
+          apt-get update && apt-get install -y python3 python3-pip
       - name: Wait for Fossology to start
         run: wget http://localhost:8081/
       - name: Run Scans
         run: |
-          cd $ZDS_REPO_BASE_DIR/licenses/sbom/fossology
-          OUTPUT_DIR=$REPORT_DIR python3 pax.py
+          cd $ZDS_REPO_BASE_DIR/licenses/sbom
+          pip3 install -r requirements.txt
+          OUTPUT_DIR=$REPORT_DIR python3 fossology/pax.py
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
@@ -70,13 +74,17 @@ jobs:
           docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
       - name: Run Fossology Docker image
         run: docker run -d -p 8081:80 zowe/local-fossology:latest
+      - name: Install Python3 and Pip
+        run: |
+          apt-get update && apt-get install -y python3 python3-pip
       - name: Wait for Fossology to start
         run: wget http://localhost:8081/
       - name: Run Scans
         run: |
           mkdir -p $REPORT_DIR
-          cd $GITHUB_WORKSPACE/licenses/sbom/fossology
-          ZOWE_SOURCES_VERSION=${{ env.ZOWE_RELEASE_BRANCH }} OUTPUT_DIR=$REPORT_DIR python3 sources.py
+          cd $GITHUB_WORKSPACE/licenses/sbom
+          pip3 install -r requirements.txt
+          ZOWE_SOURCES_VERSION=${{ env.ZOWE_RELEASE_BRANCH }} OUTPUT_DIR=$REPORT_DIR python3 fossology/sources.py
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
