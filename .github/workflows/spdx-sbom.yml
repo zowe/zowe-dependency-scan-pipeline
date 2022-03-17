@@ -43,7 +43,7 @@ jobs:
           cd $ZIP_REPO_BASE_DIR/containers/utils/autoconv/
           npm install
           npm run build
-          ./bin/autoconv $PAX_BASE_DIR $PAX_CONV_DIR
+          ./bin/autoconv ${{ env.PAX_BASE_DIR }} ${{ env.PAX_CONV_DIR }}
       - name: Run Fossology Docker image
         run: docker run -d -p 8081:80 -v ${{ env.PAX_CONV_DIR }}:/tmp/zowe_pax zowe/local-fossology:latest
       - name: Install Python3 and Pip
@@ -88,4 +88,4 @@ jobs:
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
-          path: $REPORT_DIR/
+          path: ${{ env.REPORT_DIR }}/
