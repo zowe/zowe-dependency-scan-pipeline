@@ -10,8 +10,8 @@ env:
 jobs:
   pax-sbom:
     env:
-      ZIP_REPO_BASE_DIR: $GITHUB_WORKSPACE/zip/
-      ZDS_REPO_BASE_DIR: $GITHUB_WORKSPACE/zds/
+      ZIP_REPO_BASE_DIR: $GITHUB_WORKSPACE/zip
+      ZDS_REPO_BASE_DIR: $GITHUB_WORKSPACE/zds
       PAX_BASE_DIR: $GITHUB_WORKSPACE/zowe_pax
       PAX_CONV_DIR: $GITHUB_WORKSPACE/zowe_pax_conv
     runs-on: ubuntu-latest
@@ -20,7 +20,7 @@ jobs:
       - name: Checkout current repo
         uses: actions/checkout@v2
         with:
-          path: ZDS_REPO_BASE_DIR
+          path: $ZDS_REPO_BASE_DIR
       - name: Checkout zowe-install-packaging (for autoconv)
         uses: actions/checkout@v2
         with:
@@ -29,7 +29,11 @@ jobs:
           path: $ZIP_REPO_BASE_DIR
       - name: Build docker container
         run: |
-          cd $ZDS_REPO_BASE_DIR/.dockerfiles
+          cd $ZDS_REPO_BASE_DIR
+          ls -lask
+          cd $ZDS_REPO_BASE_DIR/zowe-dependency-scan-pipeline/
+          ls -lask
+          cd $ZDS_REPO_BASE_DIR/zowe-dependency-scan-pipeline/.dockerfiles
           docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
       - name: Download and extract Zowe PAX
         run: |
@@ -68,7 +72,7 @@ jobs:
           path: license-scanning
       - name: Build docker container
         run: |
-          cd .dockerfiles
+          cd $GITHUB_WORKSPACE/zowe-dependency-scan-pipeline/.dockerfiles
           docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
       - name: Run Fossology Docker image
         run: docker run -d -p 8081:80 zowe/local-fossology:latest
@@ -77,7 +81,7 @@ jobs:
       - name: Run Scans
         run: |
           mkdir -p $REPORT_DIR
-          cd license-scanning/zowe-dependency-scan-pipeline/licenses/sbom/fossology
+          cd $GITHUB_WORKSPACE/zowe-dependency-scan-pipeline/license-scanning/zowe-dependency-scan-pipeline/licenses/sbom/fossology
           ZOWE_SOURCES_VERSION=${{ env.ZOWE_RELEASE_BRANCH }} OUTPUT_DIR=$REPORT_DIR python3 sources.py
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
