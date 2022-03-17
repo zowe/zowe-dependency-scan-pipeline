@@ -19,11 +19,13 @@ jobs:
       - name: Checkout zowe-install-packaging (for autoconv)
         uses: actions/checkout@v2
         with:
-          repository: "https://github.com/zowe/zowe-install-packaging"
+          repository: "zowe/zowe-install-packaging"
           ref: ${{ env.ZOWE_RELEASE_BRANCH }}
           path: zowe-install-packaging
       - name: Build docker container
-        run: docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
+        run: |
+          cd $GITHUB_WORKSPACE/zowe-dependency-scan-pipeline/.dockerfiles
+          docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
       - name: Download and extract Zowe PAX
         run: |
           mkdir zowe_pax 
@@ -60,7 +62,9 @@ jobs:
         with:
           path: license-scanning
       - name: Build docker container
-        run: docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
+        run: |
+          cd .dockerfiles
+          docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
       - name: Run Fossology Docker image
         run: docker run -d -p 8081:80 zowe/local-fossology:latest
       - name: Wait for Fossology to start
