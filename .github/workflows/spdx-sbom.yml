@@ -1,0 +1,72 @@
+name: SPDX SBOM Generation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  pax-sbom:
+    runs-on: ubuntu-latest
+    name: "Build Zowe PAX SPDX SBOM"
+    steps:
+      - name: Checkout current repo
+        uses: actions/checkout@v2
+        with:
+          path: license-scanning
+      - name: Checkout zowe-install-packaging (for autoconv)
+        uses: actions/checkout@v2
+        with:
+          repository: "https://github.com/zowe/zowe-install-packaging"
+          ref: ${{ zowe.pax.branch }}
+          path: zowe-install-packaging
+      - name: Build docker container
+        run: docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
+      - name: Download and extract Zowe PAX
+        run: |
+          mkdir zowe_pax 
+          cd zowe_pax 
+          wget https:// -O zowe.pax
+          tar -xvf zowe.pax
+          rm zowe.pax
+      - name: Convert Zowe Pax
+        run: |
+          cd zowe-install-packaging/zowe-install-packaging/containers/utils/autoconv/
+          npm install
+          npm run build
+          ./bin/autoconv $GITHUB_WORKSPACE/zowe_pax $GITHUB_WORKSPACE/zowe_pax_conv
+      - name: Run Fossology Docker image
+        run: docker run -d -p 8081:80 -v $GITHUB_WORKSPACE/zowe_pax_conv:/tmp/zowe_pax zowe/local-fossology:latest
+      - name: Wait for Fossology to start
+        run: wget http://localhost:8081/
+      - name: Run Scans
+        run: |
+          cd license-scanning/zowe-dependency-scan-pipeline/licenses/sbom/fossology
+          OUTPUT_DIR=$GITHUB_WORKSPACE python3 pax.py
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: zowe-pax.spdx
+          path: $GITHUB_WORKSPACE/zowe-pax.spdx
+
+  sources-sbom:
+    runs-on: ubuntu-latest
+    name: "Build Zowe Source SPDX SBOM"
+    steps:
+      - name: Checkout current repo
+        uses: actions/checkout@v2
+        with:
+          path: license-scanning
+      - name: Build docker container
+        run: docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
+      - name: Run Fossology Docker image
+        run: docker run -d -p 8081:80 zowe/local-fossology:latest
+      - name: Wait for Fossology to start
+        run: wget http://localhost:8081/
+      - name: Run Scans
+        run: |
+          mkdir -p spdx_out
+          cd license-scanning/zowe-dependency-scan-pipeline/licenses/sbom/fossology
+          ZOWE_SOURCES_VERSION=rc OUTPUT_DIR=$GITHUB_WORKSPACE/spdx_out python3 sources.py
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: $GITHUB_WORKSPACE/spdx_out/
