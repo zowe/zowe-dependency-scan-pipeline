@@ -20,13 +20,13 @@ jobs:
       - name: Checkout current repo
         uses: actions/checkout@v2
         with:
-          path: $ZDS_REPO_BASE_DIR
+          path: ${{ env.ZDS_REPO_BASE_DIR }}
       - name: Checkout zowe-install-packaging (for autoconv)
         uses: actions/checkout@v2
         with:
           repository: "zowe/zowe-install-packaging"
           ref: ${{ env.ZOWE_RELEASE_BRANCH }}
-          path: $ZIP_REPO_BASE_DIR
+          path: ${{ env.ZIP_REPO_BASE_DIR }}
       - name: Build docker container
         run: |
           cd $ZDS_REPO_BASE_DIR
