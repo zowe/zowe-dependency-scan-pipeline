@@ -24,7 +24,7 @@ jobs:
           path: zowe-install-packaging
       - name: Build docker container
         run: |
-          cd $GITHUB_WORKSPACE/zowe-dependency-scan-pipeline/.dockerfiles
+          cd $GITHUB_WORKSPACE/.dockerfiles
           docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
       - name: Download and extract Zowe PAX
         run: |
@@ -63,7 +63,7 @@ jobs:
           path: license-scanning
       - name: Build docker container
         run: |
-          cd .dockerfiles
+          cd $GITHUB_WORKSPACE/.dockerfiles
           docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
       - name: Run Fossology Docker image
         run: docker run -d -p 8081:80 zowe/local-fossology:latest
