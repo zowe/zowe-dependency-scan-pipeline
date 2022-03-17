@@ -3,6 +3,10 @@ name: SPDX SBOM Generation
 on:
   workflow_dispatch:
 
+env:
+    ZOWE_RELEASE_BRANCH: rc
+
+
 jobs:
   pax-sbom:
     runs-on: ubuntu-latest
@@ -16,7 +20,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: "https://github.com/zowe/zowe-install-packaging"
-          ref: ${{ zowe.pax.branch }}
+          ref: ${{ env.ZOWE_RELEASE_BRANCH }}
           path: zowe-install-packaging
       - name: Build docker container
         run: docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
@@ -24,7 +28,7 @@ jobs:
         run: |
           mkdir zowe_pax 
           cd zowe_pax 
-          wget https:// -O zowe.pax
+          wget https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/2.0.0-TP2/zowe-2.0.0-TP2.pax -O zowe.pax
           tar -xvf zowe.pax
           rm zowe.pax
       - name: Convert Zowe Pax
@@ -65,7 +69,7 @@ jobs:
         run: |
           mkdir -p spdx_out
           cd license-scanning/zowe-dependency-scan-pipeline/licenses/sbom/fossology
-          ZOWE_SOURCES_VERSION=rc OUTPUT_DIR=$GITHUB_WORKSPACE/spdx_out python3 sources.py
+          ZOWE_SOURCES_VERSION=${{ env.ZOWE_RELEASE_BRANCH }} OUTPUT_DIR=$GITHUB_WORKSPACE/spdx_out python3 sources.py
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
