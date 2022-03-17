@@ -29,11 +29,7 @@ jobs:
           path: ${{ env.ZIP_REPO_BASE_DIR }}
       - name: Build docker container
         run: |
-          cd $ZDS_REPO_BASE_DIR
-          ls -lask
-          cd $ZDS_REPO_BASE_DIR/zowe-dependency-scan-pipeline/
-          ls -lask
-          cd $ZDS_REPO_BASE_DIR/zowe-dependency-scan-pipeline/.dockerfiles
+          cd $ZDS_REPO_BASE_DIR/.dockerfiles
           docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
       - name: Download and extract Zowe PAX
         run: |
@@ -68,11 +64,9 @@ jobs:
     steps:
       - name: Checkout current repo
         uses: actions/checkout@v2
-        with:
-          path: license-scanning
       - name: Build docker container
         run: |
-          cd $GITHUB_WORKSPACE/zowe-dependency-scan-pipeline/.dockerfiles
+          cd $GITHUB_WORKSPACE/.dockerfiles
           docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
       - name: Run Fossology Docker image
         run: docker run -d -p 8081:80 zowe/local-fossology:latest
@@ -81,7 +75,7 @@ jobs:
       - name: Run Scans
         run: |
           mkdir -p $REPORT_DIR
-          cd $GITHUB_WORKSPACE/zowe-dependency-scan-pipeline/license-scanning/zowe-dependency-scan-pipeline/licenses/sbom/fossology
+          cd $GITHUB_WORKSPACE/license-scanning/zowe-dependency-scan-pipeline/licenses/sbom/fossology
           ZOWE_SOURCES_VERSION=${{ env.ZOWE_RELEASE_BRANCH }} OUTPUT_DIR=$REPORT_DIR python3 sources.py
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
