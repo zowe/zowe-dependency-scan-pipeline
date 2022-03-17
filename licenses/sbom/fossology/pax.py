@@ -9,15 +9,15 @@ foss_session = FossSession().session
 output_dir = os.getenv("OUTPUT_DIR", ".")
 
 server = {
-    "path": "/tmp/foss-scan",
+    "path": "/tmp/zowe_pax",
     "name": "Zowe PAX",
 }
 
-# pax_upload = foss_session.upload_file(folder=foss_session.rootFolder,
-#                                     server=server,
-#                                     description="Upload PAX from Server",
-#                                     access_level=AccessLevel.PUBLIC,
-#                                     wait_time=70) # Retries 10 times, 70s x 10 = 11 minute total timeout
+pax_upload = foss_session.upload_file(folder=foss_session.rootFolder,
+                                      server=server,
+                                      description="Upload PAX from Server",
+                                      access_level=AccessLevel.PUBLIC,
+                                      wait_time=70)  # Retries 10 times, 70s x 10 = 11 minute total timeout
 
 job_specification = {
     "analysis": {
