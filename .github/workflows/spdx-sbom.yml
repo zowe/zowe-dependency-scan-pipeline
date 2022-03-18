@@ -5,15 +5,15 @@ on:
 
 env:
   ZOWE_RELEASE_BRANCH: rc
-  REPORT_DIR: $GITHUB_WORKSPACE/reports
+  REPORT_DIR: /reports
 
 jobs:
   pax-sbom:
     env:
-      ZIP_REPO_BASE_DIR: $GITHUB_WORKSPACE/zip
-      ZDS_REPO_BASE_DIR: $GITHUB_WORKSPACE/zds
-      PAX_BASE_DIR: $GITHUB_WORKSPACE/zowe_pax
-      PAX_CONV_DIR: $GITHUB_WORKSPACE/zowe_pax_conv
+      ZIP_REPO_BASE_DIR: ${{ env.GITHUB_WORKSPACE }}/zip
+      ZDS_REPO_BASE_DIR: ${{ env.GITHUB_WORKSPACE }}/zds
+      PAX_BASE_DIR: ${{ env.GITHUB_WORKSPACE }}/zowe_pax
+      PAX_CONV_DIR: ${{ env.GITHUB_WORKSPACE }}/zowe_pax_conv
     runs-on: ubuntu-latest
     name: "Build Zowe PAX SPDX SBOM"
     steps:
@@ -33,14 +33,14 @@ jobs:
           docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
       - name: Download and extract Zowe PAX
         run: |
-          mkdir -p $PAX_BASE_DIR 
-          cd $PAX_BASE_DIR 
+          mkdir -p ${{ env.PAX_BASE_DIR }}
+          cd ${{ env.PAX_BASE_DIR }}
           wget https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/2.0.0-TP2/zowe-2.0.0-TP2.pax -O zowe.pax
           tar -xvf zowe.pax
           rm zowe.pax
       - name: Convert Zowe Pax
         run: |
-          cd $ZIP_REPO_BASE_DIR/containers/utils/autoconv/
+          cd ${{ env.ZIP_REPO_BASE_DIR }}/containers/utils/autoconv/
           npm install
           npm run build
           ./bin/autoconv ${{ env.PAX_BASE_DIR }} ${{ env.PAX_CONV_DIR }}
@@ -53,14 +53,14 @@ jobs:
         run: wget http://localhost:8081/
       - name: Run Scans
         run: |
-          cd $ZDS_REPO_BASE_DIR/licenses/sbom
+          cd ${{ env.ZDS_REPO_BASE_DIR }}/licenses/sbom
           pip3 install -r requirements.txt
           OUTPUT_DIR=$REPORT_DIR python3 fossology/pax.py
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
           name: zowe-pax.spdx
-          path: $REPORT_DIR/zowe-pax.spdx
+          path: ${{ env.REPORT_DIR }}/zowe-pax.spdx
 
   sources-sbom:
     runs-on: ubuntu-latest
@@ -84,7 +84,7 @@ jobs:
           mkdir -p $REPORT_DIR
           cd $GITHUB_WORKSPACE/licenses/sbom
           pip3 install -r requirements.txt
-          ZOWE_SOURCES_VERSION=${{ env.ZOWE_RELEASE_BRANCH }} OUTPUT_DIR=$REPORT_DIR python3 fossology/sources.py
+          ZOWE_SOURCES_VERSION=${{ env.ZOWE_RELEASE_BRANCH }} OUTPUT_DIR=${{ env.REPORT_DIR }} python3 fossology/sources.py
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
