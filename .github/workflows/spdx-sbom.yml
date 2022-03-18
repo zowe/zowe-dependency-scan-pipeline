@@ -10,10 +10,10 @@ env:
 jobs:
   pax-sbom:
     env:
-      ZIP_REPO_BASE_DIR: ${{ env.GITHUB_WORKSPACE }}/zip
-      ZDS_REPO_BASE_DIR: ${{ env.GITHUB_WORKSPACE }}/zds
-      PAX_BASE_DIR: ${{ env.GITHUB_WORKSPACE }}/zowe_pax
-      PAX_CONV_DIR: ${{ env.GITHUB_WORKSPACE }}/zowe_pax_conv
+      ZIP_REPO_BASE_DIR: /zip
+      ZDS_REPO_BASE_DIR: /zds
+      PAX_BASE_DIR: /zowe_pax
+      PAX_CONV_DIR: /zowe_pax_conv
     runs-on: ubuntu-latest
     name: "Build Zowe PAX SPDX SBOM"
     steps:
