@@ -94,7 +94,8 @@ async def main():
     for i in range(FOSS_SCAN_TASK_COUNT):
         asyncio.create_task(scan_and_report_worker(
             f'scan_worker_{i}', foss_scan_queue))
-
+    
+    # Temp hard-code
     for vcsRoot in foss_vcs_roots[2:4]:
         foss_clone_queue.put_nowait(vcsRoot)
 

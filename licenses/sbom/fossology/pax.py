@@ -13,6 +13,8 @@ server = {
     "name": "Zowe PAX",
 }
 
+print(f'Uploading Pax from mount point...')
+
 pax_upload = foss_session.upload_file(folder=foss_session.rootFolder,
                                       server=server,
                                       description="Upload PAX from Server",
@@ -49,12 +51,15 @@ job_specification = {
 }
 pax_upload = foss_session.list_uploads(name="Zowe PAX")[0][0]
 
+print('Scanning PAX...')
 scan_res = foss_session.schedule_jobs(
     foss_session.rootFolder, pax_upload, job_specification, wait=True)
 
+print('Generating report...')
 pax_report = foss_session.generate_report(pax_upload, ReportFormat.SPDX2TV)
 report_content, report_name = foss_session.download_report(pax_report)
 
+print(f'Writing report to {const.OUTPUT_DIR}{os.path.sep}zowe-pax.spdx')
 f = open(f'{const.OUTPUT_DIR}{os.path.sep}zowe-pax.spdx', "a")
 f.write(str(report_content, "utf-8"))
 f.close()
