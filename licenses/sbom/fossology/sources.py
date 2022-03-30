@@ -20,6 +20,7 @@ FOSS_SCAN_TASK_COUNT = 2
 
 foss_session = FossSession().session
 
+
 class JobScan:
 
     def __init__(self, folder, upload, job_spec):
@@ -30,21 +31,26 @@ class JobScan:
 
 async def scan_and_report_worker(name: string, queue: asyncio.Queue):
     while True:
-        scan_job: JobScan = await queue.get()
-        print(f'Scanning {scan_job.upload.uploadname}')
+        try:
+            scan_job: JobScan = await queue.get()
+            print(f'Scanning {scan_job.upload.uploadname}')
 
-        _ = foss_session.schedule_jobs(scan_job.folder, scan_job.upload,
-                                                  scan_job.job_spec, wait=True)
+            _ = foss_session.schedule_jobs(scan_job.folder, scan_job.upload,
+                                           scan_job.job_spec, wait=True)
 
-        report_id = foss_session.generate_report(
-            scan_job.upload, ReportFormat.SPDX2TV)
+            report_id = foss_session.generate_report(
+                scan_job.upload, ReportFormat.SPDX2TV)
 
-        report_content, _ = foss_session.download_report(report_id)
+            report_content, _ = foss_session.download_report(report_id)
 
-        f = open(f'{const.OUTPUT_DIR}{path.sep}{scan_job.upload.uploadname}.spdx', "a")
-        f.write(str(report_content, "utf-8"))
-        f.close()
-        queue.task_done()
+            f = open(
+                f'{const.OUTPUT_DIR}{path.sep}{scan_job.upload.uploadname}.spdx', "a")
+            f.write(str(report_content, "utf-8"))
+            f.close()
+            queue.task_done()
+        except:
+            queue.task_done()
+            raise
 
 
 async def clone_worker(name: string, queue: asyncio.Queue):
@@ -94,7 +100,7 @@ async def main():
     for i in range(FOSS_SCAN_TASK_COUNT):
         asyncio.create_task(scan_and_report_worker(
             f'scan_worker_{i}', foss_scan_queue))
-    
+
     # Temp hard-code
     for vcsRoot in foss_vcs_roots[2:4]:
         foss_clone_queue.put_nowait(vcsRoot)
@@ -105,7 +111,6 @@ async def main():
 
     for upload in vcs_up:
 
-     
         job_scan = JobScan(Folder(upload.folderid, upload.foldername, "", ""),
                            upload,
                            const.JOB_SPEC_NO_NOMOS)
