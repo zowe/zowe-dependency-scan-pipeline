@@ -5,7 +5,7 @@ on:
 
 env:
   ZOWE_RELEASE_BRANCH: rc
-  REPORT_DIR: $GITHUB_WORKSPACE/reports
+  REPORT_DIR: reports
 
 jobs:
   pax-sbom:
@@ -43,7 +43,7 @@ jobs:
           cd ${{ env.ZIP_REPO_BASE_DIR }}/containers/utils/autoconv/
           npm install
           npm run build
-          ./bin/autoconv ${{ env.PAX_BASE_DIR }} ${{ env.PAX_CONV_DIR }}
+          ./bin/autoconv {{ env.GITHUB_WORKSPACE }}/${{ env.PAX_BASE_DIR }} {{ env.GITHUB_WORKSPACE }}/${{ env.PAX_CONV_DIR }}
       - name: Run Fossology Docker image
         run: docker run -d -p 8081:80 -v ${{ env.PAX_CONV_DIR }}:/tmp/zowe_pax zowe/local-fossology:latest
       - name: Install Python3 and Pip
@@ -61,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: zowe-pax.spdx
-          path: reports/zowe-pax.spdx
+          path: ${{ env.REPORT_DIR }}/zowe-pax.spdx
 
   sources-sbom:
     runs-on: ubuntu-latest
@@ -89,4 +89,4 @@ jobs:
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
-          path: reports/*
+          path: ${{ env.REPORT_DIR }}/*
