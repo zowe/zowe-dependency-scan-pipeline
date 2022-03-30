@@ -89,4 +89,4 @@ jobs:
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
-          path: ${{ env.REPORT_DIR }}/
+          path: ${{ env.REPORT_DIR }}/*
