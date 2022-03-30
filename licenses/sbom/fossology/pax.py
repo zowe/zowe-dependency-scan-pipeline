@@ -19,7 +19,7 @@ pax_upload = foss_session.upload_file(folder=foss_session.rootFolder,
                                       server=server,
                                       description="Upload PAX from Server",
                                       access_level=AccessLevel.PUBLIC,
-                                      wait_time=70)  # Retries 10 times, 70s x 10 = 11 minute total timeout
+                                      wait_time=140)  # Retries 10 times, 140s x 10 = 23.33 minute total timeout
 
 job_specification = {
     "analysis": {
