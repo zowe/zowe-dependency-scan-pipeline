@@ -40,7 +40,7 @@ node('zowe-dependency-scanning-rev-split') {
   def NOTICES_ZOS_FILE = "notices_zos.txt"
   def ARTIFACT_REPO= "libs-snapshot-local"
   def ARTIFACT_PATH= "org/zowe/licenses"
-  def VERSION = "1.27.2"
+  def VERSION = "1.27.3"
   def ARTIFACT_VERSION = "${VERSION}-SNAPSHOT"
   def AGG_ARTIFACT_NAME = "zowe_licenses_full-SNAPSHOT.zip"
   def CLI_ARTIFACT_NAME = "zowe_licenses_cli-SNAPSHOT.zip"
