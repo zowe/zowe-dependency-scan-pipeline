@@ -45,7 +45,7 @@ jobs:
           npm run build
           ./bin/autoconv $GITHUB_WORKSPACE/${{ env.PAX_BASE_DIR }} $GITHUB_WORKSPACE/${{ env.PAX_CONV_DIR }}
       - name: Run Fossology Docker image
-        run: docker run -d -p 8081:80 -v $GITHUB_WORKSPACE/${{ env.PAX_BASE_DIR }}/zowe_pax:/tmp/zowe_pax zowe/local-fossology:latest
+        run: docker run -d -p 8081:80 -v $GITHUB_WORKSPACE/${{ env.PAX_CONV_DIR }}/zowe_pax:/tmp/zowe_pax zowe/local-fossology:latest
       - name: Install Python3 and Pip
         run: |
           sudo apt-get update && sudo apt-get install -y python3 python3-pip
