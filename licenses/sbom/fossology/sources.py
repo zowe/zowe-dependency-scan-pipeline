@@ -49,7 +49,8 @@ async def scan_and_report_worker(name: string, queue: asyncio.Queue):
             f.close()
             queue.task_done()
         except:
-            queue.task_done()
+            print(
+                f'Exception in scan and report worker for {scan_job.upload.uploadname}')
             raise
 
 
