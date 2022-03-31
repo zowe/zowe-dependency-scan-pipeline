@@ -8,12 +8,57 @@ env:
   REPORT_DIR: reports
 
 jobs:
+
+  cli-package-sbom:
+
+    env:
+      BASE_CLI_DIR: cli_explode
+      UPLOAD_DIR: "/tmp/zowe_cli"
+      UPLOAD_NAME: "Zowe CLI Standalone"
+
+    runs-on: ubuntu-latest
+    name: "Build Zowe CLI Standalone Package SBOM"
+
+    steps:
+      - name: Checkout current repo
+        uses: actions/checkout@v2
+      - name: Build docker container
+        run: |
+          cd .dockerfiles
+          docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
+      - name: Install Python3, Pip, Pre-Reqs
+        run: |
+          sudo apt-get update && sudo apt-get install -y python3 python3-pip unzip
+      - name: Download and extract Zowe CLI Package
+        run: |
+          mkdir -p ${{ env.BASE_CLI_DIR }}
+          cd ${{ env.BASE_CLI_DIR }}
+          wget https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/1.27.2/zowe-cli-package-1.27.2.zip -O zowe_cli.zip
+          unzip zowe_cli.zip
+          rm zowe_cli.zip
+      - name: Run Fossology Docker image
+        run: docker run -d -v $GITHUB_WORKSPACE/${{ env.BASE_CLI_DIR }}:${{ env.UPLOAD_DIR }} -p 8081:80 zowe/local-fossology:latest
+      - name: Wait for Fossology to start
+        run: wget http://localhost:8081/
+      - name: Run Scans
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/${{ env.REPORT_DIR }}
+          cd $GITHUB_WORKSPACE/licenses/sbom
+          pip3 install -r requirements.txt
+          ZOWE_SOURCES_VERSION=${{ env.ZOWE_RELEASE_BRANCH }} OUTPUT_DIR=$GITHUB_WORKSPACE/${{ env.REPORT_DIR }} python3 fossology/pax.py
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ${{ env.REPORT_DIR }}/*
+
   pax-sbom:
     env:
       ZIP_REPO_BASE_DIR: zip
       ZDS_REPO_BASE_DIR: zds
       PAX_BASE_DIR: zowe_pax
       PAX_CONV_DIR: zowe_pax_conv
+      UPLOAD_DIR: "/tmp/zowe_pax"
+      UPLOAD_NAME: "Zowe Pax"
   
     runs-on: ubuntu-latest
     name: "Build Zowe PAX SPDX SBOM"
@@ -90,4 +135,4 @@ jobs:
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
-          path: $GITHUB_WORKSPACE/${{ env.REPORT_DIR }}/*
+          path: ${{ env.REPORT_DIR }}/*
