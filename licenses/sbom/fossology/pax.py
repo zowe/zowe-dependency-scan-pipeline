@@ -13,7 +13,7 @@ server = {
     "name": "Zowe PAX",
 }
 
-print(f'Uploading Pax from mount point...')
+print(f'Uploading Pax from mount point...', flush=True)
 
 pax_upload = foss_session.upload_file(folder=foss_session.rootFolder,
                                       server=server,
@@ -28,7 +28,7 @@ job_specification = {
         "ecc": True,
         "keyword": True,
         "mime": True,
-        "monk": False,
+        "monk": True,
         "nomos": False,
         "ojo": False,
         "package": True,
@@ -51,15 +51,15 @@ job_specification = {
 }
 pax_upload = foss_session.list_uploads(name="Zowe PAX")[0][0]
 
-print('Scanning PAX...')
+print('Scanning PAX...', flush=True)
 scan_res = foss_session.schedule_jobs(
     foss_session.rootFolder, pax_upload, job_specification, wait=True)
 
-print('Generating report...')
+print('Generating report...', flush=True)
 pax_report = foss_session.generate_report(pax_upload, ReportFormat.SPDX2TV)
 report_content, report_name = foss_session.download_report(pax_report)
 
-print(f'Writing report to {const.OUTPUT_DIR}{os.path.sep}zowe-pax.spdx')
+print(f'Writing report to {const.OUTPUT_DIR}{os.path.sep}zowe-pax.spdx', flush=True)
 f = open(f'{const.OUTPUT_DIR}{os.path.sep}zowe-pax.spdx', "a")
 f.write(str(report_content, "utf-8"))
 f.close()
