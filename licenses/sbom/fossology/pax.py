@@ -57,7 +57,7 @@ scan_res = foss_session.schedule_jobs(
     foss_session.rootFolder, foss_upload, job_specification, wait=True, timeout=60)
 
 # Keep waiting on jobs while they are in progress. If any job ETA > 0, this keeps looping
-# This will wait (sleep) for jobs to complete based on their reported ETA
+# This will wait (sleep) for jobs to complete based on their reported ETA, divided
 allJobsDone = False
 while allJobsDone == False:
     allJobsDone = True
@@ -67,7 +67,8 @@ while allJobsDone == False:
             allJobsDone = False
             print(
                 f'Waiting on {job.__str__()} to complete, will wait ETA of {job.eta}', flush=True)
-            foss_session.detail_job(job.id, wait=True, timeout=job.eta)
+            tryAgainTimer  = max(job.eta/2, 20)
+            foss_session.detail_job(job.id, wait=True, timeout=tryAgainTimer)
 
 
 print('Generating report...', flush=True)
