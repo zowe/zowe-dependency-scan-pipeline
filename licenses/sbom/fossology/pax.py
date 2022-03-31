@@ -53,7 +53,20 @@ pax_upload = foss_session.list_uploads(name="Zowe PAX")[0][0]
 
 print('Scanning PAX...', flush=True)
 scan_res = foss_session.schedule_jobs(
-    foss_session.rootFolder, pax_upload, job_specification, wait=True)
+     foss_session.rootFolder, pax_upload, job_specification, wait=True,timeout=60)
+
+# Keep waiting on jobs while they are in progress. If any job ETA > 0, this keeps looping
+# This will wait (sleep) for jobs to complete based on their reported ETA
+allJobsDone = False
+while allJobsDone == False:
+    allJobsDone = True
+    all_jobs = foss_session.list_jobs(None, page=0, all_pages=True)
+    for job in all_jobs[0]:
+        if job.eta > 0:
+            allJobsDone = false
+            print(f'Waiting on {job.__str__()} to complete, will wait ETA of {job.eta}', flush=True)
+            foss_session.detail_job(job.id, wait=True, timeout=job.eta)
+
 
 print('Generating report...', flush=True)
 pax_report = foss_session.generate_report(pax_upload, ReportFormat.SPDX2TV)
