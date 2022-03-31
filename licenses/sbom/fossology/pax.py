@@ -63,7 +63,7 @@ while allJobsDone == False:
     all_jobs = foss_session.list_jobs(None, page=0, all_pages=True)
     for job in all_jobs[0]:
         if job.eta > 0:
-            allJobsDone = false
+            allJobsDone = False
             print(f'Waiting on {job.__str__()} to complete, will wait ETA of {job.eta}', flush=True)
             foss_session.detail_job(job.id, wait=True, timeout=job.eta)
 
