@@ -62,7 +62,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: zowe-pax.spdx
-          path: $GITHUB_WORKSPACE/${{ env.REPORT_DIR }}/zowe-pax.spdx
+          path: ${{ env.REPORT_DIR }}/zowe-pax.spdx
 
   sources-sbom:
     runs-on: ubuntu-latest
