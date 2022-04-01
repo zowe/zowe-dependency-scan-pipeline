@@ -34,7 +34,7 @@ jobs:
             EXPLODE: tar -xf 
             CONVERT: True
           - ARTIFACT_NAME: "Zowe Containerization"
-            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{env.ZOWE_ARTIFACTS_VERSION}}/zowe-containerization-${{env.ZOWE_ARTIFACTS_VERSION}}.zip
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_artifacts_version }}/zowe-containerization-${{ github.event.inputs.zowe_artifacts_version }}.zip
             EXPLODE: unzip
     env:
       WORK_DIR: work
