@@ -58,14 +58,14 @@ jobs:
           wget ${{ matrix.ARTIFACT_LOCATION }} -O artifact.archive
           ${{ matrix.EXPLODE }} artifact.archive
           rm artifact.archive
-      - if: ${{ matrix.CONVERT == True }}
+      - if: ${{ matrix.CONVERT }}
         name: Checkout zowe-install-packaging (for autoconv)
         uses: actions/checkout@v2
         with:
           repository: "zowe/zowe-install-packaging"
           ref: ${{ env.ZOWE_RELEASE_BRANCH }}
           path: zip
-      - if: ${{ matrix.CONVERT == True }}
+      - if: ${{ matrix.CONVERT }}
         name: Run autoconv
         run: |
           mkdir -p conv_dir
