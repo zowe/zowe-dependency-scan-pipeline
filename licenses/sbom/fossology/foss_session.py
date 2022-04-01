@@ -1,5 +1,6 @@
 import random
 import string
+from time import sleep
 
 from fossology import Fossology, fossology_token
 from fossology.obj import TokenScope
@@ -29,13 +30,12 @@ class FossSession:
             allJobsDone = True
             all_jobs = self.session.list_jobs(upload, page=0, all_pages=True)
             for job in all_jobs[0]:
-                if job.eta > 0:
+                if (job.status == 'Queued' or job.status == "Starting") or job.eta > 0:
                     allJobsDone = False
                     print(
                         f'Waiting on {job.__str__()} to complete, will wait ETA of {job.eta}', flush=True)
-                    tryAgainTimer = max(job.eta/2, 20)
-                    self.session.detail_job(
-                        job.id, wait=True, timeout=tryAgainTimer)
+                    tryAgainTimer = max(job.eta/3, 20)
+                    sleep(tryAgainTimer)
 
     def waitForAllJobs(self):
         self.waitForUploadJobs(None)
