@@ -163,7 +163,7 @@ async def main():
 
             job_scan = JobScan(Folder(upload.folderid, upload.foldername, "", ""),
                                upload,
-                               const.JOB_SPEC_NO_NOMOS)
+                               const.JOB_SPEC_WITH_NOMOS)
 
             foss_scan_queue.put_nowait(job_scan)
 
