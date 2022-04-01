@@ -23,4 +23,19 @@ class FossSession:
         )
         self.session = Fossology(FOSSOLOGY_SERVER, token, FOSSOLOGY_USER)
 
- 
+    def waitForUploadJobs(self, upload):
+        allJobsDone = False
+        while allJobsDone == False:
+            allJobsDone = True
+            all_jobs = self.session.list_jobs(upload, page=0, all_pages=True)
+            for job in all_jobs[0]:
+                if job.eta > 0:
+                    allJobsDone = False
+                    print(
+                        f'Waiting on {job.__str__()} to complete, will wait ETA of {job.eta}', flush=True)
+                    tryAgainTimer = max(job.eta/2, 20)
+                    self.session.detail_job(
+                        job.id, wait=True, timeout=tryAgainTimer)
+
+    def waitForAllJobs(self):
+        self.waitForUploadJobs(None)

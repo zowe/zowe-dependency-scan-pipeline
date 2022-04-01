@@ -18,7 +18,8 @@ from fossology.obj import AccessLevel, Folder, ReportFormat
 FOSS_CLONE_TASK_COUNT = 4
 FOSS_SCAN_TASK_COUNT = 2
 
-foss_session = FossSession().session
+foss_client = FossSession()
+foss_session = foss_client.session
 
 
 class JobScan:
@@ -38,8 +39,14 @@ async def scan_and_report_worker(name: string, queue: asyncio.Queue):
             _ = foss_session.schedule_jobs(scan_job.folder, scan_job.upload,
                                            scan_job.job_spec, wait=True)
 
+
+            foss_client.waitForUploadJobs(scan_job.upload)
+         
             report_id = foss_session.generate_report(
                 scan_job.upload, ReportFormat.SPDX2TV)
+
+         
+            foss_client.waitForUploadJobs(scan_job.upload)
 
             report_content, _ = foss_session.download_report(report_id)
 

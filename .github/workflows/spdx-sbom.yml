@@ -45,7 +45,7 @@ jobs:
           mkdir -p $GITHUB_WORKSPACE/${{ env.REPORT_DIR }}
           cd $GITHUB_WORKSPACE/licenses/sbom
           pip3 install -r requirements.txt
-          ZOWE_SOURCES_VERSION=${{ env.ZOWE_RELEASE_BRANCH }} OUTPUT_DIR=$GITHUB_WORKSPACE/${{ env.REPORT_DIR }} python3 fossology/pax.py
+          ZOWE_SOURCES_VERSION=${{ env.ZOWE_RELEASE_BRANCH }} OUTPUT_DIR=$GITHUB_WORKSPACE/${{ env.REPORT_DIR }} python3 fossology/local.py
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:
@@ -102,7 +102,7 @@ jobs:
           cd ${{ env.ZDS_REPO_BASE_DIR }}/licenses/sbom
           pip3 install -r requirements.txt
           mkdir -p $GITHUB_WORKSPACE/${{ env.REPORT_DIR }}
-          OUTPUT_DIR=$GITHUB_WORKSPACE/${{ env.REPORT_DIR }} python3 fossology/pax.py
+          OUTPUT_DIR=$GITHUB_WORKSPACE/${{ env.REPORT_DIR }} python3 fossology/local.py
       - name: Publish Artifact
         uses: actions/upload-artifact@v3
         with:

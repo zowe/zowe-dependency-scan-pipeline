@@ -5,7 +5,8 @@ import const
 from foss_session import FossSession
 from fossology.obj import AccessLevel, ReportFormat
 
-foss_session = FossSession().session
+foss_client = FossSession()
+foss_session = foss_client.session
 output_dir = os.getenv("OUTPUT_DIR", ".")
 upload_path = os.getenv("UPLOAD_DIR", "/tmp/upload")
 upload_name = os.getenv("UPLOAD_NAME", "default_up_name")
@@ -58,23 +59,15 @@ scan_res = foss_session.schedule_jobs(
 
 # Keep waiting on jobs while they are in progress. If any job ETA > 0, this keeps looping
 # This will wait (sleep) for jobs to complete based on their reported ETA, divided
-allJobsDone = False
-while allJobsDone == False:
-    allJobsDone = True
-    all_jobs = foss_session.list_jobs(None, page=0, all_pages=True)
-    for job in all_jobs[0]:
-        if job.eta > 0:
-            allJobsDone = False
-            print(
-                f'Waiting on {job.__str__()} to complete, will wait ETA of {job.eta}', flush=True)
-            tryAgainTimer  = max(job.eta/2, 20)
-            foss_session.detail_job(job.id, wait=True, timeout=tryAgainTimer)
 
+foss_client.waitForAllJobs()
 
 print('Generating report...', flush=True)
 spdx_report = foss_session.generate_report(foss_upload, ReportFormat.SPDX2TV)
-report_content, report_name = foss_session.download_report(spdx_report)
 
+foss_client.waitForAllJobs()
+
+report_content, report_name = foss_session.download_report(spdx_report)
 upload_filename = upload_name.replace(' ', '_')
 
 print(
