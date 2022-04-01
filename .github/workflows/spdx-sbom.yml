@@ -27,10 +27,10 @@ jobs:
       matrix:
         include:
           - ARTIFACT_NAME: "Zowe CLI Standalone Package"
-            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{env.ZOWE_ARTIFACTS_VERSION}}/zowe-cli-package-${{env.ZOWE_ARTIFACTS_VERSION}}.zip
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_artifacts_version }}/zowe-cli-package-${{ github.event.inputs.zowe_artifacts_version }}.zip
             EXPLODE: unzip
           - ARTIFACT_NAME: "Zowe PAX"
-            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{env.ZOWE_ARTIFACTS_VERSION}}/zowe-${{env.ZOWE_ARTIFACTS_VERSION}}.pax
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_artifacts_version }}/zowe-${{ github.event.inputs.zowe_artifacts_version }}.pax
             EXPLODE: tar -xf 
             CONVERT: True
           - ARTIFACT_NAME: "Zowe Containerization"
