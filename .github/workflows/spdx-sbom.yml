@@ -3,10 +3,14 @@ name: SPDX SBOM Generation
 on:
   workflow_dispatch:
     inputs:
-      zowe_artifacts_version: 
+      zowe_zos_artifacts_version: 
         description: "The version of the Zowe deliverables used in binary scanning. This is the version in 'libs-release-local'"
         required: true
         default: 2.0.0-TP2
+      zowe_cli_artifacts_version: 
+        description: "The version of the Zowe deliverables used in binary scanning. This is the version in 'libs-release-local'"
+        required: true
+        default: 1.27.2
       zowe_sources_branch: 
         description: "The branch of zowe-install-packaging used to determine sources included in the scan"
         required: true
@@ -14,7 +18,6 @@ on:
 
 env:
   ZOWE_RELEASE_BRANCH: ${{ github.event.inputs.zowe_sources_branch }}
-  ZOWE_ARTIFACTS_VERSION: ${{ github.event.inputs.zowe_artifacts_version }}
   REPORT_DIR: reports
 
 jobs:
@@ -24,17 +27,27 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         include:
           - ARTIFACT_NAME: "Zowe CLI Standalone Package"
-            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_artifacts_version }}/zowe-cli-package-${{ github.event.inputs.zowe_artifacts_version }}.zip
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_cli_artifacts_version }}/zowe-cli-package-${{ github.event.inputs.zowe_cli_artifacts_version }}.zip
+            EXPLODE: unzip
+          - ARTIFACT_NAME: "Zowe CLI Plugins Package"
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_cli_artifacts_version }}/zowe-cli-plugins-${{ github.event.inputs.zowe_cli_artifacts_version }}.zip
+            EXPLODE: unzip
+          - ARTIFACT_NAME: "Zowe CLI NodeJS SDK"
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_cli_artifacts_version }}/zowe-cli-nodejs-sdk-${{ github.event.inputs.zowe_cli_artifacts_version }}.zip
+            EXPLODE: unzip
+          - ARTIFACT_NAME: "Zowe CLI Python SDK"
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_cli_artifacts_version }}/zowe-cli-python-sdk-${{ github.event.inputs.zowe_cli_artifacts_version }}.zip
             EXPLODE: unzip
           - ARTIFACT_NAME: "Zowe PAX"
-            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_artifacts_version }}/zowe-${{ github.event.inputs.zowe_artifacts_version }}.pax
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_zos_artifacts_version }}/zowe-${{ github.event.inputs.zowe_zos_artifacts_version }}.pax
             EXPLODE: tar -xf 
             CONVERT: True
           - ARTIFACT_NAME: "Zowe Containerization"
-            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_artifacts_version }}/zowe-containerization-${{ github.event.inputs.zowe_artifacts_version }}.zip
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_zos_artifacts_version }}/zowe-containerization-${{ github.event.inputs.zowe_zos_artifacts_version }}.zip
             EXPLODE: unzip
     env:
       WORK_DIR: work
