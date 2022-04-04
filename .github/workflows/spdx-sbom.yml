@@ -7,12 +7,12 @@ on:
         description: Run scans for Zowe sources
         type: boolean
         required: true
-        default: True
+        default: true
       zowe_scan_artifacts:
         description: Run scans for Zowe artifacts
         type: boolean
         required: true
-        default: True
+        default: true
       zowe_scan_artifacts_target:
         description: (NOT IMPLEMENTED) Choose which Zowe artifacts are scanned
         type: choice
@@ -42,7 +42,7 @@ env:
 jobs:
 
   artifact-sboms:
-    if: ${{ github.event.inputs.zowe_scan_artifacts }}
+    if: ${{ github.event.inputs.zowe_scan_artifacts == 'true' }} 
     runs-on: ubuntu-latest
 
     strategy:
@@ -125,7 +125,7 @@ jobs:
           path: ${{ env.REPORT_DIR }}/*
 
   sources-sbom:
-    if: ${{ github.event.inputs.zowe_scan_artifacts }}
+    if: ${{ github.event.inputs.zowe_scan_artifacts  == 'true' }}
     runs-on: ubuntu-latest
     name: "Build Zowe Source SPDX SBOM"
     steps:
