@@ -3,6 +3,25 @@ name: SPDX SBOM Generation
 on:
   workflow_dispatch:
     inputs:
+      zowe_scan_sources:
+        description: Run scans for Zowe sources
+        type: boolean
+        required: true
+        default: True
+      zowe_scan_artifacts:
+        description: Run scans for Zowe artifacts
+        type: boolean
+        required: true
+        default: True
+      zowe_scan_artifacts_target:
+        description: (NOT IMPLEMENTED) Choose which Zowe artifacts are scanned
+        type: choice
+        required: true
+        options:
+          - zOS_Only
+          - CLI_Only
+          - All
+        default: All
       zowe_zos_artifacts_version: 
         description: "The version of the Zowe deliverables used in binary scanning. This is the version in 'libs-release-local'"
         required: true
@@ -23,7 +42,7 @@ env:
 jobs:
 
   artifact-sboms:
-
+    if: ${{ github.event.inputs.zowe_scan_artifacts }}
     runs-on: ubuntu-latest
 
     strategy:
@@ -106,6 +125,7 @@ jobs:
           path: ${{ env.REPORT_DIR }}/*
 
   sources-sbom:
+    if: ${{ github.event.inputs.zowe_scan_artifacts }}
     runs-on: ubuntu-latest
     name: "Build Zowe Source SPDX SBOM"
     steps:
