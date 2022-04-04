@@ -125,7 +125,7 @@ jobs:
           path: ${{ env.REPORT_DIR }}/*
 
   sources-sbom:
-    if: ${{ github.event.inputs.zowe_scan_artifacts  == 'true' }}
+    if: ${{ github.event.inputs.zowe_scan_sources  == 'true' }}
     runs-on: ubuntu-latest
     name: "Build Zowe Source SPDX SBOM"
     steps:
