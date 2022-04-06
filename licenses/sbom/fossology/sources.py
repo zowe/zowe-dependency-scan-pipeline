@@ -32,6 +32,7 @@ class JobScan:
         self.folder = folder
         self.upload = upload
         self.job_spec = job_spec
+        self.fail_count = 0
 
 
 async def check_jobs_complete(upload):
@@ -48,30 +49,38 @@ async def check_jobs_complete(upload):
 async def scan_and_report_worker(name: string, queue: asyncio.Queue):
     while True:
         scan_job: JobScan = await queue.get()
-        try:
-            print(f'Scanning {scan_job.upload.uploadname}', flush=True)
-
-            _ = foss_session.schedule_jobs(scan_job.folder, scan_job.upload,
-                                           scan_job.job_spec, wait=False)
-
-            await check_jobs_complete(scan_job.upload)
-
-            report_id = foss_session.generate_report(
-                scan_job.upload, ReportFormat.SPDX2TV)
-
-            await check_jobs_complete(scan_job.upload)
-
-            report_content, _ = foss_session.download_report(report_id)
-
-            f = open(
-                f'{const.OUTPUT_DIR}{path.sep}{scan_job.upload.uploadname}.spdx', "a")
-            f.write(str(report_content, "utf-8"))
-            f.close()
-            queue.task_done()
-        except:
+        if scan_job.fail_count > 3:
             print(
-                f'Exception in scan and report worker for {scan_job.upload.uploadname}', flush=True)
-            raise
+                f'{scan_job.upload.uploadname} exceeded failure threshold', flush=True)
+            queue.task_done()
+        else:
+            try:
+                print(f'Scanning {scan_job.upload.uploadname}', flush=True)
+
+                _ = foss_session.schedule_jobs(scan_job.folder, scan_job.upload,
+                                            scan_job.job_spec, wait=False)
+
+                await check_jobs_complete(scan_job.upload)
+
+                report_id = foss_session.generate_report(
+                    scan_job.upload, ReportFormat.SPDX2TV)
+
+                await check_jobs_complete(scan_job.upload)
+
+                report_content, _ = foss_session.download_report(report_id)
+
+                f = open(
+                    f'{const.OUTPUT_DIR}{path.sep}{scan_job.upload.uploadname}.spdx', "a")
+                f.write(str(report_content, "utf-8"))
+                f.close()
+                queue.task_done()
+            except:
+                scan_job.fail_count+=1
+                print(
+                    f'Exception in scan and report worker for {scan_job.upload.uploadname}, Retrying: {scan_job.fail_count}', flush=True)
+                queue.put_nowait(scan_job)
+                queue.task_done()
+                raise
 
 
 async def clone_worker(name: string, queue: asyncio.Queue):
