@@ -72,15 +72,14 @@ async def scan_and_report_worker(name: string, queue: asyncio.Queue):
                 f = open(
                     f'{const.OUTPUT_DIR}{path.sep}{scan_job.upload.uploadname}.spdx', "a")
                 f.write(str(report_content, "utf-8"))
-                f.close()
+                f.close() 
                 queue.task_done()
-            except:
+            except TryAgain:
                 scan_job.fail_count+=1
                 print(
                     f'Exception in scan and report worker for {scan_job.upload.uploadname}, Retrying: {scan_job.fail_count}', flush=True)
                 queue.put_nowait(scan_job)
                 queue.task_done()
-                raise
 
 
 async def clone_worker(name: string, queue: asyncio.Queue):
@@ -117,7 +116,7 @@ async def clone_worker(name: string, queue: asyncio.Queue):
         except:
             # nothing
             print('Existing upload not found.')
-            raise
+            
 
 
 async def main():
