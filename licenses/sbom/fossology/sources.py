@@ -11,7 +11,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import requests
-from tenacity import TryAgain
+from tenacity import RetryError, TryAgain
 from tryagain import retries
 
 import const
@@ -74,7 +74,7 @@ async def scan_and_report_worker(name: string, queue: asyncio.Queue):
                 f.write(str(report_content, "utf-8"))
                 f.close() 
                 queue.task_done()
-            except TryAgain:
+            except (TryAgain, RetryError) as exception:
                 scan_job.fail_count+=1
                 print(
                     f'Exception in scan and report worker for {scan_job.upload.uploadname}, Retrying: {scan_job.fail_count}', flush=True)
