@@ -34,7 +34,7 @@ node('zowe-dependency-scanning-rev-split') {
     )
   )
 
-  def ZOWE_BRANCH = "v2.x/staging"
+  def ZOWE_BRANCH = "v2.x/rc"
   def DEPENDENCY_SCAN_HOME = "licenses/dependency-scan"
   def PENDING_APPROVAL_REPORT_NAME = "dependency_approval_action_aggregates.json"
   def MARKDOWN_REPORT_NAME = "markdown_dependency_report.md"
