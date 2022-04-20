@@ -46,10 +46,10 @@ jobs:
           echo "done" && exit 0
           EOF
         env:
-          ssh_host: ${{ secrets[matrix.host] }}
+          ssh_host: ${{ secrets[matrix.servers.host] }}
           ssh_port: 22
-          ssh_password: ${{ secrets.SSH_MARIST_USERNAME }}
-          ssh_user: ${{ secrets[matrix.password] }}
+          ssh_user: ${{ secrets.SSH_MARIST_USERNAME }}
+          ssh_password: ${{ secrets[matrix.servers.password] }}
 
 
   # cleanup-loz:
