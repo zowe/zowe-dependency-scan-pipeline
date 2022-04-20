@@ -62,7 +62,30 @@ jobs:
           ssh_password: ${{ secrets[matrix.servers.password] }}
 
 
-  # cleanup-loz:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
+  cleanup-loz:
+    strategy:
+      matrix:
+        servers:
+          - {"name": "loz-docker-1", "host": "ZLINUX_HOST", "user": "ZLINUX_SSH_USER", "key": "ZLINUX_SSH_KEY", "passphrase": "ZLINUX_SSH_PASSPHRASE"}
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cleanup ${{ matrix.servers.name }}
+        run: |
+          echo "${ssh_key}" > ~/ssh_key
+          chmod 700 ~/ssh_key
+
+          SSHPASS=${ssh_passphrase} sshpass -e -P 'passphrase for key' scp -P 22 -o StrictHostKeyChecking=no -o LogLevel=QUIET -i ~/ssh_key scripts/cleanup-zlinux.sh ${ssh_user}@${ssh_host}:/tmp/cleanup-zlinux.sh
+
+          SSHPASS=${ssh_passphrase} sshpass -e -P 'passphrase for key' ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET -p 22 -i ~/ssh_key ${ssh_user}@${ssh_host} << EOF
+          cd /tmp && chmod +x cleanup-zlinux.sh && ./cleanup-zlinux.sh
+          echo "done" && exit 0
+          EOF
+        env:
+          ssh_host: ${{ secrets[matrix.servers.host] }}
+          ssh_port: 22
+          ssh_user: ${{ secrets[matrix.servers.user] }}
+          ssh_key: ${{ secrets[matrix.servers.key] }}
+          ssh_passphrase: ${{ secrets[matrix.servers.passphrase] }}
