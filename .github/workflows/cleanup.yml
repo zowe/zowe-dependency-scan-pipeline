@@ -40,10 +40,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cleanup z/OS systems
+      - name: Cleanup ${{ matrix.servers.name }}
         run: |
-          echo "Clean up ${{ matrix.servers.name }}"
-          
           sshpass -p "${ssh_password}" scp -P ${ssh_port} -o StrictHostKeyChecking=no -o PubkeyAuthentication=no scripts/cleanup-zos.sh ${ssh_user}@${ssh_host}:/tmp/cleanup-zos.sh
 
           SSHPASS=${ssh_password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p ${ssh_port} ${ssh_user}@${ssh_host} << EOF
