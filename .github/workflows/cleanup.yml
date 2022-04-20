@@ -8,59 +8,58 @@ on:
 
 jobs:
 
-  cleanup-artifactory:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+  # cleanup-artifactory:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: 'Setup jFrog CLI'
-        uses: jfrog/setup-jfrog-cli@v2
-        # env:
-        #   JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
+  #     - name: 'Setup jFrog CLI'
+  #       uses: jfrog/setup-jfrog-cli@v2
+  #       # env:
+  #       #   JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
       
-      - name: Update jfrog config
-        run: |
-          jfrog config add zowe --overwrite --interactive=false --artifactory-url=https://zowe.jfrog.io/zowe --user=${jfrog_username} --password=${jfrog_password} 1>/dev/null 2>/dev/null
-        env:
-          jfrog_username: ${{ secrets.ARTIFACTORY_X_USERNAME }}
-          jfrog_password: ${{ secrets.ARTIFACTORY_X_PASSWORD }}
+  #     - name: Update jfrog config
+  #       run: |
+  #         jfrog config add zowe --overwrite --interactive=false --artifactory-url=https://zowe.jfrog.io/zowe --user=${jfrog_username} --password=${jfrog_password} 1>/dev/null 2>/dev/null
+  #       env:
+  #         jfrog_username: ${{ secrets.ARTIFACTORY_X_USERNAME }}
+  #         jfrog_password: ${{ secrets.ARTIFACTORY_X_PASSWORD }}
 
-      - name: Cleanup nightly builds on Zowe Artifactory
-        run: |
-          cd artifactory-tools
-          ./clean-nightly.sh -a zowe
+  #     - name: Cleanup nightly builds on Zowe Artifactory
+  #       run: |
+  #         cd artifactory-tools
+  #         ./clean-nightly.sh -a zowe
 
-      - name: Cleanup snapshots on Zowe Artifactory
-        run: |
-          cd artifactory-tools
-          ./clean-snapshots.sh -a zowe
+  #     - name: Cleanup snapshots on Zowe Artifactory
+  #       run: |
+  #         cd artifactory-tools
+  #         ./clean-snapshots.sh -a zowe
 
-  cleanup-zos:
-    strategy:
-      matrix:
-        servers:
-          - {"name": "zzow02", "host": "SSH_MARIST_ACF2_HOST", "password": "SSH_MARIST_ACF2_PASSWORD"}
-          - {"name": "zzow03", "host": "SSH_MARIST_TSS_HOST", "password": "SSH_MARIST_TSS_PASSWORD"}
-          - {"name": "zzow04", "host": "SSH_MARIST_RACF_HOST", "password": "SSH_MARIST_RACF_PASSWORD"}
-      fail-fast: false
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+  # cleanup-zos:
+  #   strategy:
+  #     matrix:
+  #       servers:
+  #         - {"name": "zzow02", "host": "SSH_MARIST_ACF2_HOST", "password": "SSH_MARIST_ACF2_PASSWORD"}
+  #         - {"name": "zzow03", "host": "SSH_MARIST_TSS_HOST", "password": "SSH_MARIST_TSS_PASSWORD"}
+  #         - {"name": "zzow04", "host": "SSH_MARIST_RACF_HOST", "password": "SSH_MARIST_RACF_PASSWORD"}
+  #     fail-fast: false
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Cleanup ${{ matrix.servers.name }}
-        run: |
-          sshpass -p "${ssh_password}" scp -P ${ssh_port} -o StrictHostKeyChecking=no -o PubkeyAuthentication=no scripts/cleanup-zos.sh ${ssh_user}@${ssh_host}:/tmp/cleanup-zos.sh
+  #     - name: Cleanup ${{ matrix.servers.name }}
+  #       run: |
+  #         sshpass -p "${ssh_password}" scp -P ${ssh_port} -o StrictHostKeyChecking=no -o PubkeyAuthentication=no scripts/cleanup-zos.sh ${ssh_user}@${ssh_host}:/tmp/cleanup-zos.sh
 
-          SSHPASS=${ssh_password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p ${ssh_port} ${ssh_user}@${ssh_host} << EOF
-          cd /tmp && chmod +x cleanup-zos.sh && ./cleanup-zos.sh
-          echo "done" && exit 0
-          EOF
-        env:
-          ssh_host: ${{ secrets[matrix.servers.host] }}
-          ssh_port: 22
-          ssh_user: ${{ secrets.SSH_MARIST_USERNAME }}
-          ssh_password: ${{ secrets[matrix.servers.password] }}
-
+  #         SSHPASS=${ssh_password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p ${ssh_port} ${ssh_user}@${ssh_host} << EOF
+  #         cd /tmp && chmod +x cleanup-zos.sh && ./cleanup-zos.sh
+  #         echo "done" && exit 0
+  #         EOF
+  #       env:
+  #         ssh_host: ${{ secrets[matrix.servers.host] }}
+  #         ssh_port: 22
+  #         ssh_user: ${{ secrets.SSH_MARIST_USERNAME }}
+  #         ssh_password: ${{ secrets[matrix.servers.password] }}
 
   cleanup-loz:
     strategy:
