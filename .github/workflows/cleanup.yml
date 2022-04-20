@@ -1,0 +1,45 @@
+name: Clean up 
+
+on: 
+  workflow_dispatch:
+  # push:
+  schedule:
+    - cron:  '04 2 * * *'
+
+jobs:
+
+  # cleanup-artifactory:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+
+  #     - name: Cleanup nightly builds on Zowe Artifactory
+  #       run: |
+  #         cd artifactory-tools
+  #         ./clean-nightly.sh -a ${pipeline.artifactory.CLI_CONFIG_NAME}
+
+  #     - name: Cleanup snapshots on Zowe Artifactory
+  #       run: |
+  #         cd artifactory-tools
+  #         ./clean-snapshots.sh -a ${pipeline.artifactory.CLI_CONFIG_NAME}
+
+  cleanup-zos:
+    strategy:
+      matrix:
+        servers:
+          - {"name": "zzow02", "secret_name": "a"}
+          - {"name": "zzow03", "secret_name": "b"}
+          - {"name": "zzow04", "secret_name": "c"}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cleanup z/OS systems
+        run: |
+          echo "${{ matrix.servers.name }} - ${{ matrix.servers.secret_name }}"
+
+
+  # cleanup-loz:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
