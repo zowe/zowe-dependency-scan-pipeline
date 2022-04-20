@@ -15,8 +15,15 @@ jobs:
 
       - name: 'Setup jFrog CLI'
         uses: jfrog/setup-jfrog-cli@v2
+        # env:
+        #   JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
+      
+      - name: Update jfrog config
+        run: |
+          jfrog config add zowe --overwrite --interactive=false --artifactory-url=https://zowe.jfrog.io/zowe --user=${jfrog_username} --password=${jfrog_password} 1>/dev/null 2>/dev/null
         env:
-          JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
+          jfrog_username: ${{ secrets.ARTIFACTORY_X_USERNAME }}
+          jfrog_password: ${{ secrets.ARTIFACTORY_X_PASSWORD }}
 
       - name: Cleanup nightly builds on Zowe Artifactory
         run: |
