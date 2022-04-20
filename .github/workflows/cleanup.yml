@@ -8,20 +8,25 @@ on:
 
 jobs:
 
-  # cleanup-artifactory:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
+  cleanup-artifactory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - name: Cleanup nightly builds on Zowe Artifactory
-  #       run: |
-  #         cd artifactory-tools
-  #         ./clean-nightly.sh -a ${pipeline.artifactory.CLI_CONFIG_NAME}
+      - name: 'Setup jFrog CLI'
+        uses: jfrog/setup-jfrog-cli@v2
+        env:
+          JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
 
-  #     - name: Cleanup snapshots on Zowe Artifactory
-  #       run: |
-  #         cd artifactory-tools
-  #         ./clean-snapshots.sh -a ${pipeline.artifactory.CLI_CONFIG_NAME}
+      - name: Cleanup nightly builds on Zowe Artifactory
+        run: |
+          cd artifactory-tools
+          ./clean-nightly.sh -a zowe
+
+      - name: Cleanup snapshots on Zowe Artifactory
+        run: |
+          cd artifactory-tools
+          ./clean-snapshots.sh -a zowe
 
   cleanup-zos:
     strategy:
