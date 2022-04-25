@@ -32,9 +32,10 @@ class FossSession:
             for job in all_jobs[0]:
                 if (job.status == 'Queued' or job.status == "Starting") or job.eta > 0:
                     allJobsDone = False
+                    # We want to retry no faster than 20s, no slower than 10m intervals.
+                    tryAgainTimer = min(max(job.eta/3, 20), 60*10)
                     print(
-                        f'Waiting on {job.__str__()} to complete, will wait ETA of {job.eta}', flush=True)
-                    tryAgainTimer = max(job.eta/3, 20)
+                        f'Waiting on {job.__str__()} to complete, will wait ETA of {tryAgainTimer}', flush=True)
                     sleep(tryAgainTimer)
 
     def waitForAllJobs(self):
