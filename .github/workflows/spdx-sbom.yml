@@ -23,13 +23,13 @@ on:
           - All
         default: All
       zowe_zos_artifacts_version: 
-        description: "The version of the Zowe deliverables used in binary scanning. This is the version in 'libs-release-local'"
+        description: "The version of the Zowe z/OS deliverables used in binary scanning. This is the version in 'libs-release-local'"
         required: true
-        default: 2.0.0-TP2
+        default: 2.0.0
       zowe_cli_artifacts_version: 
-        description: "The version of the Zowe deliverables used in binary scanning. This is the version in 'libs-release-local'"
+        description: "The version of the Zowe CLI deliverables used in binary scanning. This is the version in 'libs-release-local'"
         required: true
-        default: 1.27.2
+        default: 2.0.0
       zowe_sources_branch: 
         description: "The branch of zowe-install-packaging used to determine sources included in the scan"
         required: true
