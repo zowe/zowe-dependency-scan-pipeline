@@ -14,7 +14,7 @@ on:
         required: true
         default: true
       zowe_scan_artifacts_target:
-        description: (NOT IMPLEMENTED) Choose which Zowe artifacts are scanned
+        description: (NOT YET IMPLEMENTED) Choose which Zowe artifacts are scanned
         type: choice
         required: true
         options:
@@ -25,15 +25,15 @@ on:
       zowe_zos_artifacts_version: 
         description: "The version of the Zowe z/OS deliverables used in binary scanning. This is the version in 'libs-release-local'"
         required: true
-        default: 2.0.0
+        default: 1.27.1
       zowe_cli_artifacts_version: 
         description: "The version of the Zowe CLI deliverables used in binary scanning. This is the version in 'libs-release-local'"
         required: true
-        default: 2.0.0
+        default: 1.27.1
       zowe_sources_branch: 
         description: "The branch of zowe-install-packaging used to determine sources included in the scan"
         required: true
-        default: "v2.x/staging" 
+        default: "v1.x/staging" 
 
 env:
   ZOWE_RELEASE_BRANCH: ${{ github.event.inputs.zowe_sources_branch }}
