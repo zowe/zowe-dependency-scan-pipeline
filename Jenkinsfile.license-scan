@@ -29,7 +29,7 @@ node('zowe-dependency-scanning-rev-split') {
     )
   )
 
-  def ZOWE_BRANCH = "master"
+  def ZOWE_BRANCH = "v1.x/rc"
   def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
   def PENDING_APPROVAL_REPORT_NAME = "dependency_approval_action_aggregates.json"
   def MARKDOWN_REPORT_NAME = "markdown_dependency_report.md"
@@ -40,7 +40,7 @@ node('zowe-dependency-scanning-rev-split') {
   def NOTICES_ZOS_FILE = "notices_zos.txt"
   def ARTIFACT_REPO= "libs-snapshot-local"
   def ARTIFACT_PATH= "org/zowe/licenses"
-  def VERSION = "1.27.2"
+  def VERSION = "1.28.0"
   def ARTIFACT_VERSION = "${VERSION}-SNAPSHOT"
   def AGG_ARTIFACT_NAME = "zowe_licenses_full-SNAPSHOT.zip"
   def CLI_ARTIFACT_NAME = "zowe_licenses_cli-SNAPSHOT.zip"
