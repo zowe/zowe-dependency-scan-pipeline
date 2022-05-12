@@ -159,6 +159,7 @@ jobs:
         uses: zowe-actions/shared-actions/publish@main
         with:
           publish-target-path-pattern: "org/zowe/sbom/${{ github.event.inputs.zowe_sbom_artifact_version }}"
+          publish-target-file-pattern: '{filename}{fileext}'
           artifacts: |
             ${{ matrix.ARTIFACT_NAME }}_sbom.zip
 
@@ -213,5 +214,6 @@ jobs:
         uses: zowe-actions/shared-actions/publish@main
         with:
           publish-target-path-pattern: "org/zowe/sbom/${{ github.event.inputs.zowe_sbom_artifact_version }}"
+          publish-target-file-pattern: '{filename}{fileext}'
           artifacts: |
             ${{ matrix.ARTIFACT_NAME }}_sbom.zip
