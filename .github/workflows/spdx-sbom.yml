@@ -13,6 +13,11 @@ on:
         type: boolean
         required: true
         default: true
+      zowe_publish_to_artifactory:
+        description: Publish SBOMs to Artifactory
+        type: boolean
+        required: true
+        default: false
       zowe_scan_artifacts_target:
         description: (NOT YET IMPLEMENTED) Choose which Zowe artifacts are scanned
         type: choice
@@ -148,7 +153,8 @@ jobs:
       - name: Prepare artifact as zip
         run: zip -j ${{ matrix.ARTIFACT_NAME }}_sbom.zip ${{ env.REPORT_DIR }}/*
 
-      - name: "[Upload 2] Upload to artifactory"
+      - if: ${{ github.event.inputs.zowe_publish_to_artifactory }}
+        name: "[Upload 2] Upload to artifactory"
         timeout-minutes: 10
         uses: zowe-actions/shared-actions/publish@main
         with:
@@ -201,7 +207,8 @@ jobs:
       - name: Prepare artifact as zip
         run: zip -j ${{ matrix.ARTIFACT_NAME }}_sbom.zip ${{ env.REPORT_DIR }}/*
 
-      - name: "[Upload 2] Upload to artifactory"
+      - if: ${{ github.event.inputs.zowe_publish_to_artifactory }}
+        name: "[Upload 2] Upload to artifactory"
         timeout-minutes: 10
         uses: zowe-actions/shared-actions/publish@main
         with:
