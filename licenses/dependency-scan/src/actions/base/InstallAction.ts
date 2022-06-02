@@ -106,6 +106,7 @@ export class InstallAction implements IAction {
             processPromises.push(this.log.logOutputAsync(installProcess, projectDir, "install"));
         }
         Promise.all(processPromises).then((result) => {
+            console.log("completed install actions for " + projectDir);
             cb(null);
         }).catch((error) => {
             console.log(error);
