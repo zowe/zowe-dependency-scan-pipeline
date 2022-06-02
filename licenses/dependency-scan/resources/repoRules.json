@@ -3,7 +3,8 @@
 		"paths": [
 			"api-catalog-ui/frontend",
 			"helloworld-expressjs",
-			"apiml-auth"
+			"apiml-auth",
+			"metrics-service-ui"
 		]
 	},
 	"common-java": {

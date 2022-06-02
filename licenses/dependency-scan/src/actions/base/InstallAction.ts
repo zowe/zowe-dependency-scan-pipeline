@@ -65,7 +65,7 @@ export class InstallAction implements IAction {
             const bootstrapGradle = spawn.sync(`./bootstrap_gradlew.sh`, [], { cwd: absDir, env: process.env, shell: true });
             this.log.logOutputSync(bootstrapGradle, projectDir, "install");
 
-            let gradleArgs = ["build", "-x", "test", "-x", "check"];
+            let gradleArgs = ["build", "-x", "test", "-x", "check", "-Dorg.gradle.internal.http.socketTimeout=30000", "-Dorg.gradle.internal.http.connectionTimeout=30000"];
             if (this.repoRules.hasExtraGradleArgs(projectDir)) {
                 gradleArgs = gradleArgs.concat(this.repoRules.getExtraGradleArgs(projectDir));
             }
@@ -82,7 +82,7 @@ export class InstallAction implements IAction {
             }
             if (fs.existsSync(path.join(absDir, "node_modules"))) {
                 try {
-                    rimraf.sync(path.join(absDir, "node_modules"), { maxBusyTries: 10});
+                    rimraf.sync(path.join(absDir, "node_modules"), { maxBusyTries: 10 });
                 } catch (rmErr) {
                     console.log(`Issue cleaning node_modules prior to install, will try to continue... ${rmErr}`)
                 }
