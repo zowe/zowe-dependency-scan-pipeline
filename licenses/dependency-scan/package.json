@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/markackert/dependency-license-scan#readme",
   "dependencies": {
-    "async": "2.6.1",
+    "async": "2.6.4",
     "cross-spawn": "6.0.5",
     "fs-extra": "8.1.0",
     "inversify": "^5.0.1",
