@@ -65,13 +65,13 @@ export class InstallAction implements IAction {
             const bootstrapGradle = spawn.sync(`./bootstrap_gradlew.sh`, [], { cwd: absDir, env: process.env, shell: true });
             this.log.logOutputSync(bootstrapGradle, projectDir, "install");
 
-            let gradleArgs = ["build", "-x", "test", "-x", "check", "-Dorg.gradle.internal.http.socketTimeout=30000", "-Dorg.gradle.internal.http.connectionTimeout=30000"];
+            let gradleArgs = ["build", "-x", "test", "-x", "check"];
             if (this.repoRules.hasExtraGradleArgs(projectDir)) {
                 gradleArgs = gradleArgs.concat(this.repoRules.getExtraGradleArgs(projectDir));
             }
             console.log(`Issuing ./gradlew build in ${absDir} with args ${gradleArgs}`);
-            const installProcess = spawn(`./gradlew`, gradleArgs, { cwd: absDir, env: process.env, shell: true });
-            processPromises.push(this.log.logOutputAsync(installProcess, projectDir, "install"));
+            const installProcess = spawn.sync(`./gradlew`, gradleArgs, { cwd: absDir, env: process.env, shell: true });
+            this.log.logOutputSync(installProcess, projectDir, "install");
 
         }
         if (Utilities.dirHasNodeProject(absDir)) {
