@@ -2,10 +2,9 @@
 	"api-layer": {
 		"paths": [
 			"api-catalog-ui/frontend",
-			"helloworld-expressjs",
-			"apiml-auth",
-			"metrics-service-ui"
-		]
+			"metrics-service-ui/frontend"
+		],
+		"gradleArgs": [ "-x", "npmBuild", "-x", "npmInstall"]
 	},
 	"common-java": {
 		"gradleArgs": ["-x", "attls"]
