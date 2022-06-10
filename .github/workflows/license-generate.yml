@@ -1,0 +1,137 @@
+name: SPDX SBOM Generation
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: Run scans for Zowe sources
+        type: boolean
+        required: true
+        default: false
+      overwrite_existing:
+        description: Run scans for Zowe artifacts
+        type: boolean
+        required: true
+        default: false
+      zowe_sources_branch: 
+        description: "The branch of zowe-install-packaging used to determine sources included in the scan"
+        required: true
+        default: "v1.x/rc" 
+
+env:
+  ZOWE_RELEASE_BRANCH: ${{ github.event.inputs.zowe_sources_branch }}
+  REPORT_DIR: reports
+
+jobs:
+
+  artifact-sboms:
+    if: ${{ github.event.inputs.zowe_scan_artifacts == 'true' }} 
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ARTIFACT_NAME: "Zowe CLI Standalone Package"
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_cli_artifacts_version }}/zowe-cli-package-${{ github.event.inputs.zowe_cli_artifacts_version }}.zip
+            EXPLODE: unzip
+          - ARTIFACT_NAME: "Zowe CLI Plugins Package"
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_cli_artifacts_version }}/zowe-cli-plugins-${{ github.event.inputs.zowe_cli_artifacts_version }}.zip
+            EXPLODE: unzip
+          - ARTIFACT_NAME: "Zowe CLI NodeJS SDK"
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_cli_artifacts_version }}/zowe-nodejs-sdk-${{ github.event.inputs.zowe_cli_artifacts_version }}.zip
+            EXPLODE: unzip
+          - ARTIFACT_NAME: "Zowe CLI Python SDK"
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_cli_artifacts_version }}/zowe-python-sdk-${{ github.event.inputs.zowe_cli_artifacts_version }}.zip
+            EXPLODE: unzip
+          - ARTIFACT_NAME: "Zowe PAX"
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_zos_artifacts_version }}/zowe-${{ github.event.inputs.zowe_zos_artifacts_version }}.pax
+            EXPLODE: tar -xf 
+            CONVERT: True
+          - ARTIFACT_NAME: "Zowe Containerization"
+            ARTIFACT_LOCATION: https://zowe.jfrog.io/artifactory/libs-release-local/org/zowe/${{ github.event.inputs.zowe_zos_artifacts_version }}/zowe-containerization-${{ github.event.inputs.zowe_zos_artifacts_version }}.zip
+            EXPLODE: unzip
+    env:
+      WORK_DIR: work
+      MOUNT_POINT: /tmp/zowe_mount
+    name: "SBOM: ${{ matrix.ARTIFACT_NAME}}"
+
+    steps:
+      - name: Checkout current repo
+        uses: actions/checkout@v2
+      - name: Build docker container
+        run: |
+          cd .dockerfiles
+          docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
+      - name: Install Python3, Pip, Pre-Reqs
+        run: |
+          sudo apt-get update && sudo apt-get install -y python3 python3-pip unzip
+      - name: Download and extract ${{ matrix.ARTIFACT_NAME }}
+        run: |
+          mkdir -p ${{ env.WORK_DIR }}
+          cd ${{ env.WORK_DIR }}
+          wget ${{ matrix.ARTIFACT_LOCATION }} -O artifact.archive
+          ${{ matrix.EXPLODE }} artifact.archive
+          rm artifact.archive
+      - if: ${{ matrix.CONVERT }}
+        name: Checkout zowe-install-packaging (for autoconv)
+        uses: actions/checkout@v2
+        with:
+          repository: "zowe/zowe-install-packaging"
+          ref: ${{ env.ZOWE_RELEASE_BRANCH }}
+          path: zip
+      - if: ${{ matrix.CONVERT }}
+        name: Run autoconv
+        run: |
+          mkdir -p conv_dir
+          cd zip/containers/utils/autoconv/
+          npm install
+          npm run build
+          mkdir $GITHUB_WORKSPACE/convert
+          ./bin/autoconv $GITHUB_WORKSPACE/${{ env.WORK_DIR }} $GITHUB_WORKSPACE/convert
+          rm -rf $GITHUB_WORKSPACE/${{ env.WORK_DIR }}
+          mv  $GITHUB_WORKSPACE/convert/${{ env.WORK_DIR }} $GITHUB_WORKSPACE/${{ env.WORK_DIR }}
+      - name: Run Fossology Docker image
+        run: docker run -d -v $GITHUB_WORKSPACE/${{ env.WORK_DIR }}:${{ env.MOUNT_POINT }} -p 8081:80 zowe/local-fossology:latest
+      - name: Wait for Fossology to start
+        run: wget http://localhost:8081/
+      - name: Run Scans
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/${{ env.REPORT_DIR }}
+          cd $GITHUB_WORKSPACE/licenses/sbom
+          pip3 install -r requirements.txt
+          UPLOAD_DIR=${{ env.MOUNT_POINT}} UPLOAD_NAME='${{ matrix.ARTIFACT_NAME }}' OUTPUT_DIR=$GITHUB_WORKSPACE/${{ env.REPORT_DIR }} python3 fossology/local.py
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.ARTIFACT_NAME }}
+          path: ${{ env.REPORT_DIR }}/*
+
+  sources-sbom:
+    if: ${{ github.event.inputs.zowe_scan_sources  == 'true' }}
+    runs-on: ubuntu-latest
+    name: "Build Zowe Source SPDX SBOM"
+    steps:
+      - name: Checkout current repo
+        uses: actions/checkout@v2
+      - name: Build docker container
+        run: |
+          cd .dockerfiles
+          docker build -t zowe/local-fossology:latest -f spdxsbom.Dockerfile .
+      - name: Run Fossology Docker image
+        run: docker run -d -p 8081:80 zowe/local-fossology:latest
+      - name: Install Python3 and Pip
+        run: |
+          sudo apt-get update && sudo apt-get install -y python3 python3-pip
+      - name: Wait for Fossology to start
+        run: wget http://localhost:8081/
+      - name: Run Scans
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/${{ env.REPORT_DIR }}
+          cd $GITHUB_WORKSPACE/licenses/sbom
+          pip3 install -r requirements.txt
+          ZOWE_SOURCES_VERSION='${{ env.ZOWE_RELEASE_BRANCH }}' OUTPUT_DIR=$GITHUB_WORKSPACE/${{ env.REPORT_DIR }} python3 fossology/sources.py
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: ${{ env.REPORT_DIR }}/*
