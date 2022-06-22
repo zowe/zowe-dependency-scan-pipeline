@@ -21,7 +21,7 @@
     "@typescript-eslint/parser": "^2.34.0",
     "debug": "^3.1.0",
     "eslint": "^5.2.0",
-    "got": "^11.5.2",
+    "got": "^11.8.5",
     "jest": "^26.4.2",
     "jest-circus": "^26.6.3",
     "js-yaml": "^3.14.0",
