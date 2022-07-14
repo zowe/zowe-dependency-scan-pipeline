@@ -91,7 +91,8 @@ node('zowe-dependency-scanning-rev-split') {
     environment: [
       ZOWE_MANIFEST_BRANCH: "${ZOWE_BRANCH}",
       APP_LICENSE_SCAN: "true",
-      APP_NOTICES_SCAN: "true"
+      APP_NOTICES_SCAN: "true",
+      SKIP_INSTALL_SPECIFIC: "api-layer"
     ],
     isSkippable   : false,
     operation     : {

@@ -84,4 +84,6 @@ export class Constants {
     public static readonly SCAN_INDIVIDUALS: boolean = Utilities.getEnv("ZOWE_SCAN_INDIVIDUAL", true);
 
     public static readonly SCAN_AGGREGATE: boolean = Utilities.getEnv("ZOWE_SCAN_AGGREGATE", true);
+
+    public static readonly SKIP_INSTALL_SPECIFIC: string = Utilities.getEnvStr("SKIP_INSTALL_SPECIFIC", "")
 }

@@ -52,66 +52,71 @@ export class InstallAction implements IAction {
 
     private installProject(projectDir: string, cb: (error: any, val?: any) => void) {
         // absolute path
-        const absDir = path.join(Constants.CLONE_DIR, projectDir);
-        const processPromises: Array<Promise<any>> = [];
-        if (Utilities.dirHasMavenProject(absDir)) {
-            console.log("Issuing mvn install in " + absDir);
-            const installProcess = spawn("mvn", ["install", "-DskipTests"], { cwd: absDir, env: process.env });
-            processPromises.push(this.log.logOutputAsync(installProcess, projectDir, "install"));
-        }
-        if (Utilities.dirHasGradleProject(absDir)) {
-            console.log("Issuing ./bootstrap_gradle in " + absDir);
-            const osSuffix = os.platform() === "win32" ? "bat" : "sh";
-            const bootstrapGradle = spawn.sync(`./bootstrap_gradlew.sh`, [], { cwd: absDir, env: process.env, shell: true });
-            this.log.logOutputSync(bootstrapGradle, projectDir, "install");
-
-            let gradleArgs = ["build", "-x", "test", "-x", "check"];
-            if (this.repoRules.hasExtraGradleArgs(projectDir)) {
-                gradleArgs = gradleArgs.concat(this.repoRules.getExtraGradleArgs(projectDir));
+        if (Constants.SKIP_INSTALL_SPECIFIC.includes(projectDir)) {
+            //skip this project
+            console.log(`Skipping ${projectDir}`);
+        } else {
+            const absDir = path.join(Constants.CLONE_DIR, projectDir);
+            const processPromises: Array<Promise<any>> = [];
+            if (Utilities.dirHasMavenProject(absDir)) {
+                console.log("Issuing mvn install in " + absDir);
+                const installProcess = spawn("mvn", ["install", "-DskipTests"], { cwd: absDir, env: process.env });
+                processPromises.push(this.log.logOutputAsync(installProcess, projectDir, "install"));
             }
-            console.log(`Issuing ./gradlew build in ${absDir} with args ${gradleArgs}`);
-            const installProcess = spawn.sync(`./gradlew`, gradleArgs, { cwd: absDir, env: process.env, shell: true });
-            this.log.logOutputSync(installProcess, projectDir, "install");
+            if (Utilities.dirHasGradleProject(absDir)) {
+                console.log("Issuing ./bootstrap_gradle in " + absDir);
+                const osSuffix = os.platform() === "win32" ? "bat" : "sh";
+                const bootstrapGradle = spawn.sync(`./bootstrap_gradlew.sh`, [], { cwd: absDir, env: process.env, shell: true });
+                this.log.logOutputSync(bootstrapGradle, projectDir, "install");
 
-        }
-        if (Utilities.dirHasNodeProject(absDir)) {
-            fs.copyFileSync("resources/private_npmrc/.npmrc", path.join(absDir, ".npmrc"));
-            fs.copyFileSync("resources/private_npmrc/.yarnrc", path.join(absDir, ".yarnrc"));
-            if (fs.existsSync(path.join(absDir, "package-lock.json"))) {
-                fs.unlinkSync(path.join(absDir, "package-lock.json"));
-            }
-            if (fs.existsSync(path.join(absDir, "node_modules"))) {
-                try {
-                    rimraf.sync(path.join(absDir, "node_modules"), { maxBusyTries: 10 });
-                } catch (rmErr) {
-                    console.log(`Issue cleaning node_modules prior to install, will try to continue... ${rmErr}`)
+                let gradleArgs = ["build", "-x", "test", "-x", "check"];
+                if (this.repoRules.hasExtraGradleArgs(projectDir)) {
+                    gradleArgs = gradleArgs.concat(this.repoRules.getExtraGradleArgs(projectDir));
                 }
-            }
+                console.log(`Issuing ./gradlew build in ${absDir} with args ${gradleArgs}`);
+                const installProcess = spawn.sync(`./gradlew`, gradleArgs, { cwd: absDir, env: process.env, shell: true });
+                this.log.logOutputSync(installProcess, projectDir, "install");
 
-            // skip-integrity-check is required to bypass some errors on build environment...
-            // Integrity isn't *critically* important here as we just want to get dependency trees down and check their license info.
-            // So far, there are no failures downstream due to an integrity mismatch at this step.
-            /// -- Alternatives to skip-integrity-check are dropping network-concurrency to 1 and/or setting a mutex on yarn install.
-            console.log("Issuing yarn install in " + absDir);
-            const installProcess = spawn("yarn", ["install",
-                ((projectDir === "vscode-extension-for-zowe") ? "" : "--production"),
-                "--network-timeout", "300000", "--ignore-engines",
-                "--registry", "https://zowe.jfrog.io/zowe/api/npm/npm-release",
-                "--skip-integrity-check", "--network-concurrency", "5"], { cwd: absDir, env: process.env, shell: true });
-            processPromises.push(this.log.logOutputAsync(installProcess, projectDir, "install"));
+            }
+            if (Utilities.dirHasNodeProject(absDir)) {
+                fs.copyFileSync("resources/private_npmrc/.npmrc", path.join(absDir, ".npmrc"));
+                fs.copyFileSync("resources/private_npmrc/.yarnrc", path.join(absDir, ".yarnrc"));
+                if (fs.existsSync(path.join(absDir, "package-lock.json"))) {
+                    fs.unlinkSync(path.join(absDir, "package-lock.json"));
+                }
+                if (fs.existsSync(path.join(absDir, "node_modules"))) {
+                    try {
+                        rimraf.sync(path.join(absDir, "node_modules"), { maxBusyTries: 10 });
+                    } catch (rmErr) {
+                        console.log(`Issue cleaning node_modules prior to install, will try to continue... ${rmErr}`)
+                    }
+                }
+
+                // skip-integrity-check is required to bypass some errors on build environment...
+                // Integrity isn't *critically* important here as we just want to get dependency trees down and check their license info.
+                // So far, there are no failures downstream due to an integrity mismatch at this step.
+                /// -- Alternatives to skip-integrity-check are dropping network-concurrency to 1 and/or setting a mutex on yarn install.
+                console.log("Issuing yarn install in " + absDir);
+                const installProcess = spawn("yarn", ["install",
+                    ((projectDir === "vscode-extension-for-zowe") ? "" : "--production"),
+                    "--network-timeout", "300000", "--ignore-engines",
+                    "--registry", "https://zowe.jfrog.io/zowe/api/npm/npm-release",
+                    "--skip-integrity-check", "--network-concurrency", "5"], { cwd: absDir, env: process.env, shell: true });
+                processPromises.push(this.log.logOutputAsync(installProcess, projectDir, "install"));
+            }
+            if (Utilities.dirHasCargoProject(absDir)) {
+                console.log("Issuing cargo install in " + absDir);
+                const installProcess = spawn("cargo", ["install", "--path", ".", "--locked"], { cwd: absDir, env: process.env });
+                processPromises.push(this.log.logOutputAsync(installProcess, projectDir, "install"));
+            }
+            Promise.all(processPromises).then((result) => {
+                console.log("completed install actions for " + projectDir);
+                cb(null);
+            }).catch((error) => {
+                console.log(error);
+                cb(error, null);
+            });
         }
-        if (Utilities.dirHasCargoProject(absDir)) {
-            console.log("Issuing cargo install in " + absDir);
-            const installProcess = spawn("cargo", ["install", "--path", ".", "--locked"], { cwd: absDir, env: process.env });
-            processPromises.push(this.log.logOutputAsync(installProcess, projectDir, "install"));
-        }
-        Promise.all(processPromises).then((result) => {
-            console.log("completed install actions for " + projectDir);
-            cb(null);
-        }).catch((error) => {
-            console.log(error);
-            cb(error, null);
-        });
     }
 
 }
