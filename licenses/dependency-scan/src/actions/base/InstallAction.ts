@@ -55,6 +55,7 @@ export class InstallAction implements IAction {
         if (Constants.SKIP_INSTALL_SPECIFIC.includes(projectDir)) {
             //skip this project
             console.log(`Skipping ${projectDir}`);
+            cb(null)
         } else {
             const absDir = path.join(Constants.CLONE_DIR, projectDir);
             const processPromises: Array<Promise<any>> = [];
