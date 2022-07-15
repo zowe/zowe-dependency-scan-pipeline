@@ -20,7 +20,7 @@ node('zowe-dependency-scanning-rev-split') {
     stringParam(
       name: 'ZOWE_VERSION',
       description: 'Version number of Zowe bundle',
-      defaultValue: '2.0.0'
+      defaultValue: '2.2.0'
     ),
     booleanParam(
       name: 'PUBLISH_RELEASE',
