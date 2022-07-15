@@ -70,7 +70,8 @@ export class InstallAction implements IAction {
                 const bootstrapGradle = spawn.sync(`./bootstrap_gradlew.sh`, [], { cwd: absDir, env: process.env, shell: true });
                 this.log.logOutputSync(bootstrapGradle, projectDir, "install");
 
-                let gradleArgs = ["build", "-x", "test", "-x", "check"];
+                // let gradleArgs = ["build", "-x", "test", "-x", "check"];
+                let gradleArgs = ["compileJava"]
                 if (this.repoRules.hasExtraGradleArgs(projectDir)) {
                     gradleArgs = gradleArgs.concat(this.repoRules.getExtraGradleArgs(projectDir));
                 }
