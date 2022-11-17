@@ -30,7 +30,7 @@ node('zowe-dependency-scanning-rev-split') {
   )
 
   def ZOWE_BRANCH = "v1.x/rc"
-  def DEPENDENCY_SCAN_HOME = "/home/jenkins/dependency-scan"
+  def DEPENDENCY_SCAN_HOME = "licenses/dependency-scan"
   def PENDING_APPROVAL_REPORT_NAME = "dependency_approval_action_aggregates.json"
   def MARKDOWN_REPORT_NAME = "markdown_dependency_report.md"
   def MARKDOWN_CLI_REPORT = "cli_dependency_report.md"
