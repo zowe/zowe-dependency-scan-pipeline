@@ -1,0 +1,130 @@
+name: License Bundle Generation
+
+permissions: read-all
+
+on:
+  workflow_dispatch:
+    inputs:
+      zowe_version:
+        description: Version number of Zowe license bundle
+        type: string
+        required: true
+        default: '2.13.0'
+      publish_release:
+        description: Should the license bundle be published to libs-release-local
+        type: boolean
+        required: true
+        default: false
+      replace_release:
+        description: Should the license bundle overwrite an existing release in libs-release-local
+        type: boolean
+        required: true
+        default: false
+      zowe_sources_branch: 
+        description: The branch of zowe-install-packaging used to determine sources included in the scan
+        required: true
+        default: 'v2.x/rc' 
+
+env:
+  PUBLISH_RELEASE:  ${{ github.event.inputs.publish_release }}
+  REPLACE_EXISTING_RELEASE:  ${{ github.event.inputs.replace_release }} 
+  ZOWE_RELEASE_BRANCH: ${{ github.event.inputs.zowe_sources_branch }}
+  PENDING_APPROVAL_REPORT_NAME: dependency_approval_action_aggregates.json
+  DEPENDENCY_SCAN_HOME: licenses/dependency-scan
+  MARKDOWN_REPORT_NAME: markdown_dependency_report.md
+  MARKDOWN_CLI_REPORT: cli_dependency_report.md
+  MARKDOWN_ZOS_REPORT: zos_dependency_report.md
+  NOTICES_AGGREGATE_FILE: notices_aggregate.txt
+  NOTICES_CLI_FILE: notices_cli.txt
+  NOTICES_ZOS_FILE: notices_zos.txt
+  ARTIFACT_REPO: libs-snapshot-local
+  ARTIFACT_PATH: org/zowe/licenses
+  VERSION: ${{ github.event.inputs.zowe_version }}
+  ARTIFACT_VERSION: ${{ github.event.inputs.zowe_version }}-SNAPSHOT
+  AGG_ARTIFACT_NAME: zowe_licenses_full-SNAPSHOT.zip
+  CLI_ARTIFACT_NAME: zowe_licenses_cli-SNAPSHOT.zip
+  ZOS_ARTIFACT_NAME: zowe_licenses_zos-SNAPSHOT.zip
+
+jobs:
+
+  create-licenses:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update variables if releasing
+        run: | 
+          if [[ "$PUBLISH_RELEASE" = true ]]; then
+              echo "ARTIFACT_REPO=libs-release-local" >> $GITHUB_OUTPUT
+              echo "ARTIFACT_VERSION=$VERSION" >> $GITHUB_OUTPUT
+              echo "AGG_ARTIFACT_NAME=zowe_licenses_full.zip" >> $GITHUB_OUTPUT
+              echo "CLI_ARTIFACT_NAME=zowe_licenses_cli.zip" >> $GITHUB_OUTPUT
+              echo "ZOS_ARTIFACT_NAME=zowe_licenses_zos.zip" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create release artifact path
+        run: | 
+          echo "FULL_ARTIFACT_PATH=$ARTIFACT_REPO/$ARTIFACT_PATH/$ARTIFACT_VERSION/" >> $GITHUB_OUTPUT
+
+      - name: Checkout current repo
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      
+      - name: 'Setup jFrog CLI'
+        uses: jfrog/setup-jfrog-cli@v2
+        env:
+          JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
+  
+      - name: 'Prepare workflow'
+        uses: zowe-actions/shared-actions/prepare-workflow@main
+
+      - name: Download and extract ${{ matrix.ARTIFACT_NAME }}
+        working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
+        run: |
+          yarn install & yarn build
+          node lib/index.js
+          cd build && zip -r logs.zip logs/
+          cd build && zip -r license_reports.zip license_reports/
+          cd build && zip -r notice_reports.zip notice_reports/
+          mkdir -p zowe_licenses
+          mkdir -p zowe_cli_licenses
+          mkdir -p zowe_zos_licenses
+          cp ../resources/* zowe_licenses/
+          cp ../resources/* zowe_cli_licenses/
+          cp ../resources/* zowe_zos_licenses/
+
+          # Aggregate
+          cp build/notice_reports/${{ env.NOTICES_AGGREGATE_FILE }} zowe_licenses/zowe_full_notices.txt
+          cp build/license_reports/${{ env.MARKDOWN_REPORT_NAME }} zowe_licenses/zowe_full_dependency_list.md
+          zip -j ${{ env.AGG_ARTIFACT_NAME }} zowe_licenses/*
+
+          # CLI
+          cp build/notice_reports/${{ env.NOTICES_CLI_FILE }} zowe_cli_licenses/zowe_cli_notices.txt
+          cp build/license_reports/${{ env.MARKDOWN_CLI_REPORT }} zowe_cli_licenses/zowe_cli_dependency_list.md
+          zip -j ${{ env.CLI_ARTIFACT_NAME }} zowe_cli_licenses/*
+          # z/OS
+          cp build/notice_reports/${{ env.NOTICES_ZOS_FILE }} zowe_zos_licenses/zowe_zos_notices.txt
+          cp build/license_reports/${{ env.MARKDOWN_ZOS_REPORT }} zowe_zos_licenses/zowe_zos_dependency_list.md
+          zip -j ${{ env.ZOS_ARTIFACT_NAME }} zowe_zos_licenses/*
+
+      - name: Archive Aggregates
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}      
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}
+
+
+      - name: Publish to Artifactory
+        id: publish
+        timeout-minutes: 10
+        uses: zowe-actions/shared-actions/publish@main
+        with:
+          publishTargetPathPattern: ${{ env.FULL_ARTIFACT_PATH }}
+          artifacts: |
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}      
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}
