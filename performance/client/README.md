@@ -2,6 +2,11 @@
 
 Perform performance test on the target server.
 
+## Blocking issue
+
+This project is not currently in use, and JSON.lua was removed due to licensing considerations. [See here](./src/wrk-lua-scripts/JSON.lua.README).
+
+
 ## Programming Language And Main Testing Method
 
 - Node.js [v12.x LTS](https://nodejs.org/docs/latest-v12.x/api/index.html) or above
