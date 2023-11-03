@@ -50,8 +50,10 @@ jobs:
   create-licenses:
 
     runs-on: ubuntu-latest
+  
     container:
       image: markackertca/zowe-license-scanning:split-report
+      options: --user jenkins
     steps:
       - name: Update variables if releasing
         run: | 
