@@ -53,7 +53,7 @@ jobs:
   
     container:
       image: markackertca/zowe-license-scanning:split-report
-      options: --user jenkins
+      options: --user root
     steps:
       - name: Update variables if releasing
         run: | 
