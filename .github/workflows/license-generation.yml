@@ -85,7 +85,6 @@ jobs:
       - name: Scan Licenses on Branch ${{ env.ZOWE_RELEASE_BRANCH }}
         working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
         run: |
-          npm install -g glob
           yarn install & yarn build
           node lib/index.js
           cd build && zip -r logs.zip logs/
