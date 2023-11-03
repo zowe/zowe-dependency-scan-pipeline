@@ -52,9 +52,10 @@ jobs:
     runs-on: ubuntu-latest
   
     container:
-      image: markackertca/zowe-license-scanning:split-report
-      options: --user root
+      image: zowe-docker-snapshot.jfrog.io/ompzowe/license-scan-build:v2x
+
     steps:
+
       - name: Update variables if releasing
         run: | 
           if [[ "$PUBLISH_RELEASE" = true ]]; then
