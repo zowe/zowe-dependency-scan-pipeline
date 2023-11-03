@@ -81,10 +81,11 @@ jobs:
         uses: jfrog/setup-jfrog-cli@v2
         env:
           JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
-          
+
       - name: Scan Licenses on Branch ${{ env.ZOWE_RELEASE_BRANCH }}
         working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
         run: |
+          npm install -g glob
           yarn install & yarn build
           node lib/index.js
           cd build && zip -r logs.zip logs/
