@@ -15,11 +15,11 @@ on:
         type: boolean
         required: true
         default: false
-      replace_release:
-        description: Should the license bundle overwrite an existing release in libs-release-local
-        type: boolean
-        required: true
-        default: false
+      release_suffix:
+        description: Should the license bundle have a suffix (useful during RC testing)
+        type: string
+        required: false
+        default: ''
       zowe_sources_branch: 
         description: The branch of zowe-install-packaging used to determine sources included in the scan
         required: true
@@ -65,7 +65,7 @@ jobs:
       
       - name: Create release artifact path
         run: | 
-          echo "FULL_ARTIFACT_PATH=$ARTIFACT_REPO/$ARTIFACT_PATH/$ARTIFACT_VERSION/" >> $GITHUB_OUTPUT
+          echo "FULL_ARTIFACT_PATH=${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/" >> $GITHUB_OUTPUT
 
       - name: Checkout current repo
         uses: actions/checkout@v2
