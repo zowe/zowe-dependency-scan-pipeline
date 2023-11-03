@@ -50,6 +50,8 @@ jobs:
   create-licenses:
 
     runs-on: ubuntu-latest
+    container:
+      image: markackertca/zowe-license-scanning:split-report
     steps:
       - name: Update variables if releasing
         run: | 
@@ -80,7 +82,7 @@ jobs:
       - name: 'Prepare workflow'
         uses: zowe-actions/shared-actions/prepare-workflow@main
 
-      - name: Download and extract ${{ matrix.ARTIFACT_NAME }}
+      - name: Scan Licenses on Branch ${{ env.ZOWE_RELEASE_BRANCH }}
         working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
         run: |
           yarn install & yarn build
@@ -124,6 +126,7 @@ jobs:
         uses: zowe-actions/shared-actions/publish@main
         with:
           publishTargetPathPattern: ${{ env.FULL_ARTIFACT_PATH }}
+          isPerformingRelease: ${{ env.PUBLISH_RELEASE }}
           artifacts: |
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}      
