@@ -4,7 +4,7 @@
   "description": "Scripts written in typescript/javascript to generate dependency attribution reports.",
   "main": "lib/index.js",
   "scripts": {
-    "build": "node scripts/updateLicense.js && tsc --pretty"
+    "build": "tsc --pretty"
   },
   "repository": {
     "type": "git",
@@ -13,7 +13,7 @@
   "author": "Mark Ackert",
   "license": "EPL-2.0",
   "bugs": {
-    "url": "https://github.`com/markackert/dependency-license-scan/issues"
+    "url": "https://github.com/markackert/dependency-license-scan/issues"
   },
   "homepage": "https://github.com/markackert/dependency-license-scan#readme",
   "dependencies": {
