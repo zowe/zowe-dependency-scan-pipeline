@@ -88,7 +88,7 @@ export class InstallAction implements IAction {
                 }
                 if (fs.existsSync(path.join(absDir, "node_modules"))) {
                     try {
-                        rimraf.sync(path.join(absDir, "node_modules"), { maxBusyTries: 10 });
+                        rimraf.sync(path.join(absDir, "node_modules"), { maxRetries: 10 });
                     } catch (rmErr) {
                         console.log(`Issue cleaning node_modules prior to install, will try to continue... ${rmErr}`)
                     }

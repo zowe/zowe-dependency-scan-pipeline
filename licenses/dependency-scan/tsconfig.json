@@ -5,7 +5,8 @@
       "reflect-metadata"
     ],
     "lib": [
-      "esnext"
+      "esnext",
+      "DOM",
     ],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
