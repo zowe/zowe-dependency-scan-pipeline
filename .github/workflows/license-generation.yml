@@ -76,6 +76,9 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '16'
+
+      - name: '[Zowe Actions] Prepare workflow'
+        uses: zowe-actions/shared-actions/prepare-workflow@main
       
       - name: 'Setup jFrog CLI'
         uses: jfrog/setup-jfrog-cli@v2
