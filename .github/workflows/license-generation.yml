@@ -83,6 +83,10 @@ jobs:
           JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
 
       - name: Scan Licenses on Branch ${{ env.ZOWE_RELEASE_BRANCH }}
+        env:
+          APP_NOTICES_SCAN: true
+          APP_LICENSE_SCAN: true
+          ZOWE_MANIFEST_BRANCH: ${{ env.ZOWE_RELEASE_BRANCH }}
         working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
         run: |
           yarn install && yarn build
