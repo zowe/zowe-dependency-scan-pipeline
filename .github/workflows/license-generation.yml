@@ -131,8 +131,8 @@ jobs:
         timeout-minutes: 10
         uses: zowe-actions/shared-actions/publish@main
         with:
-          publishTargetPathPattern: ${{ env.FULL_ARTIFACT_PATH }}
-          isPerformingRelease: ${{ env.PUBLISH_RELEASE }}
+          publish-target-path-pattern: ${{ env.FULL_ARTIFACT_PATH }}
+          perform-release: ${{ env.PUBLISH_RELEASE }}
           artifacts: |
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}      
