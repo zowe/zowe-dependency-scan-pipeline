@@ -87,9 +87,11 @@ jobs:
         run: |
           yarn install && yarn build
           node lib/index.js
-          cd build && zip -r logs.zip logs/
-          cd build && zip -r license_reports.zip license_reports/
-          cd build && zip -r notice_reports.zip notice_reports/
+          cd build
+          zip -r logs.zip logs/ 
+          zip -r license_reports.zip license_reports/
+          zip -r notice_reports.zip notice_reports/
+          cd ..
           mkdir -p zowe_licenses
           mkdir -p zowe_cli_licenses
           mkdir -p zowe_zos_licenses
