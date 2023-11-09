@@ -17,6 +17,7 @@ on:
         default: false
       overwrite_release:
         description: Should the license bundle overwrite and replace an existing artifact
+        type: boolean
         required: false
         default: false
       release_suffix:
@@ -31,6 +32,7 @@ on:
 
 env:
   PUBLISH_RELEASE:  ${{ github.event.inputs.publish_release }}
+  RELEASE_SUFFIX: ${{ github.event.inputs.release_suffix }}
   REPLACE_EXISTING_RELEASE:  ${{ github.event.inputs.replace_release }} 
   ZOWE_RELEASE_BRANCH: ${{ github.event.inputs.zowe_sources_branch }}
   PENDING_APPROVAL_REPORT_NAME: dependency_approval_action_aggregates.json
@@ -70,7 +72,7 @@ jobs:
               echo "AGG_ARTIFACT_NAME=zowe_licenses_full.zip" >> $GITHUB_OUTPUT
               echo "CLI_ARTIFACT_NAME=zowe_licenses_cli.zip" >> $GITHUB_OUTPUT
               echo "ZOS_ARTIFACT_NAME=zowe_licenses_zos.zip" >> $GITHUB_OUTPUT
-              echo "FILENAME_PATTERN={filename}{fileext}" >> $GITHUB_OUTPUT
+              echo "FILENAME_PATTERN={filename}${{ env.RELEASE_SUFFIX }}{fileext}" >> $GITHUB_OUTPUT
           fi
     
       - name: Checkout current repo
@@ -151,7 +153,7 @@ jobs:
       - name: Remove existing artifacts
         id: cleanup
         if: ${{ github.event.inputs.publish_release }} && ${{ github.event.inputs.overwrite_release }}
-        run:
+        run: |
           jfrog rt del ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.AGG_ARTIFACT_NAME }}
           jfrog rt del ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.AGG_ARTIFACT_NAME }}
           jfrog rt del ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.AGG_ARTIFACT_NAME }}
