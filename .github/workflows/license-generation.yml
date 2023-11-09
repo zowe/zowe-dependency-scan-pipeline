@@ -15,6 +15,10 @@ on:
         type: boolean
         required: true
         default: false
+      overwrite_release:
+        description: Should the license bundle overwrite and replace an existing artifact
+        required: false
+        default: false
       release_suffix:
         description: Should the license bundle have a suffix (useful during RC testing)
         type: string
@@ -141,6 +145,13 @@ jobs:
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}      
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}
 
+      - name: Remove existing artifacts
+        id: cleanup
+        if: ${{ github.event.inputs.publish_release }} && ${{ github.event.inputs.overwrite_release }}
+        run:
+          jfrog rt del ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.AGG_ARTIFACT_NAME }}
+          jfrog rt del ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.AGG_ARTIFACT_NAME }}
+          jfrog rt del ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.AGG_ARTIFACT_NAME }}
 
       - name: Publish to Artifactory
         id: publish
