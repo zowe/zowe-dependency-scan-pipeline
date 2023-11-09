@@ -44,10 +44,12 @@ env:
   ARTIFACT_REPO: libs-snapshot-local
   ARTIFACT_PATH: org/zowe/licenses
   VERSION: ${{ github.event.inputs.zowe_version }}
+  # Below may be modified depending on inputs
   ARTIFACT_VERSION: ${{ github.event.inputs.zowe_version }}-SNAPSHOT
   AGG_ARTIFACT_NAME: zowe_licenses_full-SNAPSHOT.zip
   CLI_ARTIFACT_NAME: zowe_licenses_cli-SNAPSHOT.zip
   ZOS_ARTIFACT_NAME: zowe_licenses_zos-SNAPSHOT.zip
+  FILENAME_PATTERN: "{filename}-{publishversion}{fileext}"
 
 jobs:
 
@@ -68,6 +70,7 @@ jobs:
               echo "AGG_ARTIFACT_NAME=zowe_licenses_full.zip" >> $GITHUB_OUTPUT
               echo "CLI_ARTIFACT_NAME=zowe_licenses_cli.zip" >> $GITHUB_OUTPUT
               echo "ZOS_ARTIFACT_NAME=zowe_licenses_zos.zip" >> $GITHUB_OUTPUT
+              echo "FILENAME_PATTERN={filename}{fileext}" >> $GITHUB_OUTPUT
           fi
     
       - name: Checkout current repo
@@ -158,6 +161,7 @@ jobs:
         timeout-minutes: 10
         uses: zowe-actions/shared-actions/publish@main
         with:
+          publish-target-file-pattern: ${{ env.FILENAME_PATTERN }}
           publish-target-path-pattern: ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/
           perform-release: ${{ env.PUBLISH_RELEASE }}
           artifacts: |
