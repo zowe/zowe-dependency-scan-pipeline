@@ -175,7 +175,6 @@ jobs:
         run: |
           pwd
           git config --global --add safe.directory /__w/zowe-dependency-scan-pipeline/zowe-dependency-scan-pipeline
-          git remote add origin https://github.com/zowe/zowe-dependency-scan-pipeline
           git ls-remote
           git ls-remote --tags
 
