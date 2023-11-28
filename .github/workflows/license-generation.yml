@@ -29,6 +29,11 @@ on:
         description: The branch of zowe-install-packaging used to determine sources included in the scan
         required: true
         default: 'v2.x/rc' 
+      dummy_build:
+        description: Creates empty zip files, bypassing license scans. For test purposes only.
+        required: false
+        type: boolean
+        default: false
 
 env:
   PUBLISH_RELEASE:  ${{ github.event.inputs.publish_release }}
@@ -94,6 +99,7 @@ jobs:
           JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
 
       - name: '[TEST-ONLY] Dummy scan step'
+        if: ${{ github.event.inputs.dummy_build }} == true
         working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
         run: | 
           mkdir -p zowe_licenses
@@ -109,40 +115,41 @@ jobs:
           zip -j ${{ env.ZOS_ARTIFACT_NAME }} zowe_zos_licenses/*
 
 
-    #  - name: Scan Licenses on Branch ${{ env.ZOWE_RELEASE_BRANCH }}
-    #   env:
-    #     APP_NOTICES_SCAN: true
-    #     APP_LICENSE_SCAN: true
-    #     ZOWE_MANIFEST_BRANCH: ${{ env.ZOWE_RELEASE_BRANCH }}
-    #   working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
-    #   run: |
-    #     yarn install && yarn build
-    #     node lib/index.js
-    #     cd build
-    #     zip -r logs.zip logs/ 
-    #     zip -r license_reports.zip license_reports/
-    #     zip -r notice_reports.zip notice_reports/
-    #     cd ..
-    #     mkdir -p zowe_licenses
-    #     mkdir -p zowe_cli_licenses
-    #     mkdir -p zowe_zos_licenses
-    #     cp ../resources/* zowe_licenses/
-    #     cp ../resources/* zowe_cli_licenses/
-    #     cp ../resources/* zowe_zos_licenses/
+      - name: Scan Licenses on Branch ${{ env.ZOWE_RELEASE_BRANCH }}
+        if: ${{ github.event.inputs.dummy_build }} != true
+        env:
+          APP_NOTICES_SCAN: true
+          APP_LICENSE_SCAN: true
+          ZOWE_MANIFEST_BRANCH: ${{ env.ZOWE_RELEASE_BRANCH }}
+        working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
+        run: |
+          yarn install && yarn build
+          node lib/index.js
+          cd build
+          zip -r logs.zip logs/ 
+          zip -r license_reports.zip license_reports/
+          zip -r notice_reports.zip notice_reports/
+          cd ..
+          mkdir -p zowe_licenses
+          mkdir -p zowe_cli_licenses
+          mkdir -p zowe_zos_licenses
+          cp ../resources/* zowe_licenses/
+          cp ../resources/* zowe_cli_licenses/
+          cp ../resources/* zowe_zos_licenses/
 
-    #     # Aggregate
-    #     cp build/notice_reports/${{ env.NOTICES_AGGREGATE_FILE }} zowe_licenses/zowe_full_notices.txt
-    #     cp build/license_reports/${{ env.MARKDOWN_REPORT_NAME }} zowe_licenses/zowe_full_dependency_list.md
-    #     zip -j ${{ env.AGG_ARTIFACT_NAME }} zowe_licenses/*
+          # Aggregate
+          cp build/notice_reports/${{ env.NOTICES_AGGREGATE_FILE }} zowe_licenses/zowe_full_notices.txt
+          cp build/license_reports/${{ env.MARKDOWN_REPORT_NAME }} zowe_licenses/zowe_full_dependency_list.md
+          zip -j ${{ env.AGG_ARTIFACT_NAME }} zowe_licenses/*
 
-    #     # CLI
-    #     cp build/notice_reports/${{ env.NOTICES_CLI_FILE }} zowe_cli_licenses/zowe_cli_notices.txt
-    #     cp build/license_reports/${{ env.MARKDOWN_CLI_REPORT }} zowe_cli_licenses/zowe_cli_dependency_list.md
-    #     zip -j ${{ env.CLI_ARTIFACT_NAME }} zowe_cli_licenses/*
-    #     # z/OS
-    #     cp build/notice_reports/${{ env.NOTICES_ZOS_FILE }} zowe_zos_licenses/zowe_zos_notices.txt
-    #     cp build/license_reports/${{ env.MARKDOWN_ZOS_REPORT }} zowe_zos_licenses/zowe_zos_dependency_list.md
-    #     zip -j ${{ env.ZOS_ARTIFACT_NAME }} zowe_zos_licenses/*
+          # CLI
+          cp build/notice_reports/${{ env.NOTICES_CLI_FILE }} zowe_cli_licenses/zowe_cli_notices.txt
+          cp build/license_reports/${{ env.MARKDOWN_CLI_REPORT }} zowe_cli_licenses/zowe_cli_dependency_list.md
+          zip -j ${{ env.CLI_ARTIFACT_NAME }} zowe_cli_licenses/*
+          # z/OS
+          cp build/notice_reports/${{ env.NOTICES_ZOS_FILE }} zowe_zos_licenses/zowe_zos_notices.txt
+          cp build/license_reports/${{ env.MARKDOWN_ZOS_REPORT }} zowe_zos_licenses/zowe_zos_dependency_list.md
+          zip -j ${{ env.ZOS_ARTIFACT_NAME }} zowe_zos_licenses/*
 
       - name: Archive Aggregates
         uses: actions/upload-artifact@v3
