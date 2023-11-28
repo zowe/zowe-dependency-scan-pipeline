@@ -170,6 +170,12 @@ jobs:
           jfrog rt del ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.CLI_ARTIFACT_NAME }}
           jfrog rt del ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.ZOS_ARTIFACT_NAME }}
 
+      - name: '[DEBUG] Check git configuration'
+        id: debug-git
+        run: |
+          git ls-remote
+          git ls-remote --tags
+
       - name: Publish to Artifactory
         id: publish
         timeout-minutes: 10
