@@ -56,9 +56,9 @@ env:
   VERSION: ${{ github.event.inputs.zowe_version }}
   # Below may be modified depending on inputs
   ARTIFACT_VERSION: ${{ github.event.inputs.zowe_version }}
-  AGG_ARTIFACT_NAME: zowe_licenses_full-SNAPSHOT.zip
-  CLI_ARTIFACT_NAME: zowe_licenses_cli-SNAPSHOT.zip
-  ZOS_ARTIFACT_NAME: zowe_licenses_zos-SNAPSHOT.zip
+  AGG_ARTIFACT_NAME: zowe_licenses_full.zip
+  CLI_ARTIFACT_NAME: zowe_licenses_cli.zip
+  ZOS_ARTIFACT_NAME: zowe_licenses_zos.zip
   FILENAME_PATTERN: init_in_step_one
 
 jobs:
@@ -77,9 +77,6 @@ jobs:
           if [ "$PUBLISH_RELEASE" = true ]; then
               echo "ARTIFACT_REPO=libs-release-local" >> $GITHUB_ENV
               echo "ARTIFACT_VERSION=$VERSION" >> $GITHUB_ENV
-              echo "AGG_ARTIFACT_NAME=zowe_licenses_full.zip" >> $GITHUB_ENV
-              echo "CLI_ARTIFACT_NAME=zowe_licenses_cli.zip" >> $GITHUB_ENV
-              echo "ZOS_ARTIFACT_NAME=zowe_licenses_zos.zip" >> $GITHUB_ENV
               echo "FILENAME_PATTERN={filename}${{ env.RELEASE_SUFFIX }}{fileext}" >> $GITHUB_ENV
           else
               echo "FILENAME_PATTERN={filename}-${{ env.ARTIFACT_VERSION }}-{timestamp}{fileext}" >> $GITHUB_ENV
