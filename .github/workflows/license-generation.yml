@@ -47,7 +47,7 @@ env:
   ARTIFACT_PATH: org/zowe/licenses
   VERSION: ${{ github.event.inputs.zowe_version }}
   # Below may be modified depending on inputs
-  ARTIFACT_VERSION: ${{ github.event.inputs.zowe_version }}-SNAPSHOT
+  ARTIFACT_VERSION: ${{ github.event.inputs.zowe_version }}
   AGG_ARTIFACT_NAME: zowe_licenses_full-SNAPSHOT.zip
   CLI_ARTIFACT_NAME: zowe_licenses_cli-SNAPSHOT.zip
   ZOS_ARTIFACT_NAME: zowe_licenses_zos-SNAPSHOT.zip
