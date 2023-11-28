@@ -67,14 +67,14 @@ jobs:
       - name: Update variables if releasing
         run: | 
           if [ "$PUBLISH_RELEASE" = true ]; then
-              echo "ARTIFACT_REPO=libs-release-local" >> $GITHUB_OUTPUT
-              echo "ARTIFACT_VERSION=$VERSION" >> $GITHUB_OUTPUT
-              echo "AGG_ARTIFACT_NAME=zowe_licenses_full.zip" >> $GITHUB_OUTPUT
-              echo "CLI_ARTIFACT_NAME=zowe_licenses_cli.zip" >> $GITHUB_OUTPUT
-              echo "ZOS_ARTIFACT_NAME=zowe_licenses_zos.zip" >> $GITHUB_OUTPUT
-              echo "FILENAME_PATTERN={filename}${{ env.RELEASE_SUFFIX }}{fileext}" >> $GITHUB_OUTPUT
+              echo "ARTIFACT_REPO=libs-release-local" >> $GITHUB_ENV
+              echo "ARTIFACT_VERSION=$VERSION" >> $GITHUB_ENV
+              echo "AGG_ARTIFACT_NAME=zowe_licenses_full.zip" >> $GITHUB_ENV
+              echo "CLI_ARTIFACT_NAME=zowe_licenses_cli.zip" >> $GITHUB_ENV
+              echo "ZOS_ARTIFACT_NAME=zowe_licenses_zos.zip" >> $GITHUB_ENV
+              echo "FILENAME_PATTERN={filename}${{ env.RELEASE_SUFFIX }}{fileext}" >> $GITHUB_ENV
           else
-              echo "FILENAME_PATTERN={filename}-${{ env.ARTIFACT_VERSION }}{fileext}" >> $GITHUB_OUTPUT
+              echo "FILENAME_PATTERN={filename}-${{ env.ARTIFACT_VERSION }}{fileext}" >> $GITHUB_ENV
           fi
     
       - name: Checkout current repo
