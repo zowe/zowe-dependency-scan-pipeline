@@ -173,6 +173,8 @@ jobs:
       - name: '[DEBUG] Check git configuration'
         id: debug-git
         run: |
+          pwd
+          git remote add origin https://github.com/zowe/zowe-dependency-scan-pipeline.git
           git ls-remote
           git ls-remote --tags
 
