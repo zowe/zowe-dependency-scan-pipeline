@@ -65,6 +65,7 @@ jobs:
     steps:
 
       - name: Update variables if releasing
+        shell: /bin/bash
         run: | 
           if [[ "$PUBLISH_RELEASE" = true ]]; then
               echo "ARTIFACT_REPO=libs-release-local" >> $GITHUB_OUTPUT
@@ -73,7 +74,7 @@ jobs:
               echo "CLI_ARTIFACT_NAME=zowe_licenses_cli.zip" >> $GITHUB_OUTPUT
               echo "ZOS_ARTIFACT_NAME=zowe_licenses_zos.zip" >> $GITHUB_OUTPUT
               echo "FILENAME_PATTERN={filename}${{ env.RELEASE_SUFFIX }}{fileext}" >> $GITHUB_OUTPUT
-          else 
+          else
               echo "FILENAME_PATTERN={filename}-${{ env.ARTIFACT_VERSION }}{fileext}" >> $GITHUB_OUTPUT
           fi
     
