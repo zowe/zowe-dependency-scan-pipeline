@@ -32,8 +32,11 @@ on:
       dummy_build:
         description: Creates empty zip files, bypassing license scans. For test purposes only.
         required: false
-        type: boolean
-        default: false
+        type: choice
+        default: 'false'
+        options:
+          - 'true'
+          - 'false'
 
 env:
   PUBLISH_RELEASE:  ${{ github.event.inputs.publish_release }}
@@ -99,7 +102,7 @@ jobs:
           JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
 
       - name: '[TEST-ONLY] Dummy scan step'
-        if: ${{ github.event.inputs.dummy_build == true }} 
+        if: ${{ github.event.inputs.dummy_build == 'true' }} 
         working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
         run: | 
           mkdir -p zowe_licenses
@@ -116,7 +119,7 @@ jobs:
 
 
       - name: Scan Licenses on Branch ${{ env.ZOWE_RELEASE_BRANCH }}
-        if: ${{ github.event.inputs.dummy_build != true }} 
+        if: ${{ github.event.inputs.dummy_build == 'false' }} 
         env:
           APP_NOTICES_SCAN: true
           APP_LICENSE_SCAN: true
