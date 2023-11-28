@@ -155,8 +155,8 @@ jobs:
         if: ${{ github.event.inputs.publish_release }} && ${{ github.event.inputs.overwrite_release }}
         run: |
           jfrog rt del ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.AGG_ARTIFACT_NAME }}
-          jfrog rt del ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.AGG_ARTIFACT_NAME }}
-          jfrog rt del ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.AGG_ARTIFACT_NAME }}
+          jfrog rt del ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.CLI_ARTIFACT_NAME }}
+          jfrog rt del ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.ZOS_ARTIFACT_NAME }}
 
       - name: Publish to Artifactory
         id: publish
