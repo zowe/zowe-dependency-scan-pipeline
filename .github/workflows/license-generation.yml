@@ -174,9 +174,8 @@ jobs:
         id: debug-git
         run: |
           pwd
-          git remote add origin https://github.com/zowe/zowe-dependency-scan-pipeline.git
-          git ls-remote
-          git ls-remote --tags
+          sudo git ls-remote
+          sudo git ls-remote --tags
 
       - name: Publish to Artifactory
         id: publish
