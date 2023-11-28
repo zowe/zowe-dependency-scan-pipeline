@@ -99,7 +99,7 @@ jobs:
           JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
 
       - name: '[TEST-ONLY] Dummy scan step'
-        if: ${{ github.event.inputs.dummy_build }} == true
+        if: ${{ github.event.inputs.dummy_build == true }} 
         working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
         run: | 
           mkdir -p zowe_licenses
@@ -116,7 +116,7 @@ jobs:
 
 
       - name: Scan Licenses on Branch ${{ env.ZOWE_RELEASE_BRANCH }}
-        if: ${{ github.event.inputs.dummy_build }} != true
+        if: ${{ github.event.inputs.dummy_build != true }} 
         env:
           APP_NOTICES_SCAN: true
           APP_LICENSE_SCAN: true
