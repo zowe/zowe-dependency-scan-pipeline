@@ -65,7 +65,7 @@ jobs:
     steps:
 
       - name: Update variables if releasing
-        shell: /bin/bash
+        shell: bash
         run: | 
           if [[ "$PUBLISH_RELEASE" = true ]]; then
               echo "ARTIFACT_REPO=libs-release-local" >> $GITHUB_OUTPUT
