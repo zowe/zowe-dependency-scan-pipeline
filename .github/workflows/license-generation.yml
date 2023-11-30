@@ -80,7 +80,7 @@ jobs:
           else
               echo "ARTIFACT_REPO=libs-snapshot-local" >> $GITHUB_ENV
               echo "ARTIFACT_VERSION=$VERSION-SNAPSHOT" >> $GITHUB_ENV
-              echo "FILENAME_PATTERN={filename}-${{ env.ARTIFACT_VERSION }}-{timestamp}{fileext}" >> $GITHUB_ENV
+              echo "FILENAME_PATTERN={filename}-${{ env.VERSION }}-SNAPSHOT-{timestamp}{fileext}" >> $GITHUB_ENV
           fi
     
       - name: Checkout current repo
