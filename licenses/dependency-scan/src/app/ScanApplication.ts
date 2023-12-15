@@ -20,7 +20,7 @@ export class ScanApplication {
     @inject(TYPES.CloneAction) private readonly cloneAction: IAction;
     @inject(TYPES.InstallAction) private readonly installAction: IAction;
     @inject(TYPES.NoticesReportAction) private readonly noticeReportaction: IAction;
-    @inject(TYPES.LicenseScanAction) private readonly licenseScanAction: IAction;
+    @inject(TYPES.OrtScanAction) private readonly analyzeScanAction: IAction;
     @inject(TYPES.LicenseReportAction) private readonly licenseReportAction: IAction;
     @inject(TYPES.OwaspScanReportAction) private readonly owaspScanReportAction: IAction;
     @inject(TYPES.OwaspPublishAction) private readonly owasPublishAction: IAction;
@@ -33,16 +33,14 @@ export class ScanApplication {
         //      Confusing comma syntax, both statements are performed and the result of the second is returned..
         (Constants.EXEC_CLONE) ? (appFns.push(this.cloneAction.run.bind(this.cloneAction)), console.log("Will Execute Clone Step"))
             : console.log("Will Skip Clone Step");
-        (Constants.EXEC_INSTALLS) ? (appFns.push(this.installAction.run.bind(this.installAction)), console.log("Will Execute Install Step"))
-            : console.log("Will Skip Install Step");
 
         if (Constants.APP_LICENSE_SCAN) {
             console.log("Performing a License Scan");
             // tslint:disable 
             // TSLint Disabled so I can do a heinous (op1,op2) within the ternary operator. 
             //      Confusing comma syntax, both statements are performed and the result of the second is returned..
-            (Constants.EXEC_SCANS) ? (appFns.push(this.licenseScanAction.run.bind(this.licenseScanAction)), console.log("Will Execute Scan Step"))
-                : console.log("Will Skip Scan Step");
+            (Constants.EXEC_SCANS) ? (appFns.push(this.analyzeScanAction.run.bind(this.analyzeScanAction)), console.log("Will Execute ORT Scan Step"))
+                : console.log("Will Skip ORT Scan Step");
             (Constants.EXEC_REPORTS) ? (appFns.push(this.licenseReportAction.run.bind(this.licenseReportAction)), console.log("Will Execute Report Step"))
                 : console.log("Will Skip Report Step");
         }

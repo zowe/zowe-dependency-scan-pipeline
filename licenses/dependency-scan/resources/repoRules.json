@@ -1,54 +1,49 @@
 {
+	"default": {
+		"excludes": {
+            "scopes": [{
+                "pattern": "devDependencies.*",
+                "reason": "TEST_DEPENDENCY_OF",
+                "comment": "Dev/Test Dependencies"
+            }, {
+                "pattern": "test.*",
+                "reason": "TEST_DEPENDENCY_OF",
+                "comment": "Dev/Test Dependencies"
+            }],
+            "paths": [{
+                "pattern": "**/__tests__/**",
+                "reason": "TEST_OF",
+                "comment": "Common Test Directory"
+            }, {
+                "pattern": "scripts/**",
+                "reason": "BUILD_TOOL_OF",
+                "comment": "Common scripting directory not included in final build"
+            }
+            ]
+        }
+	},
 	"api-layer": {
-		"paths": [
-			"api-catalog-ui/frontend",
-			"metrics-service-ui/frontend"
-		],
-		"gradleArgs": [ "-x", "npmBuild", "-x", "npmInstall"]
+		"excludes": {
+			"paths": [
+				{
+					"pattern": "zss-sample-service/**",
+					"reason": "EXAMPLE_OF",
+					"comment": "Sample project."
+				}
+			]
+		}
 	},
-	"common-java": {
-		"gradleArgs": ["-x", "attls"]
-	},
-	"db-browser": {
-		"paths": ["webClient"]
-	},
-	"db-browser-db2": {
-		"paths": ["nodeServer"]
-	},
-	"file-transfer-app": {
-		"paths": ["webClient", "nodeServer"]
-	},
-	"sample-angular-app": {
-		"paths": ["nodeServer", "webClient"]
-	},
-	"sample-react-app": {
-		"paths": ["webClient"]
-	},
-	"tn3270-ng2": {
-		"paths": ["webClient"]
-	},
-	"vt-ng2": {
-		"paths": ["webClient"]
-	},
-	"zlux-app-manager": {
-		"paths": ["bootstrap", "system-apps/app-prop-viewer/webClient", "virtual-desktop", "virtual-desktop/nodeServer"]
-	},
-	"zlux-editor": {
-		"paths": ["webClient"]
-	},
-	"zlux-file-explorer": {
-		"paths": ["webClient"]
-	},
-	"zlux-file-properties": {
-		"paths": ["webClient"]
-	},
-	"zlux-shared": {
-		"paths": ["src/logging"]
-	},
-	"zos-subsystems": {
-		"paths": ["webClient"]
+	"vscode-extension-for-zowe": {
+		"excludes": {
+			"paths": [
+				{
+					"pattern": "**/samples/**",
+					"reason": "EXAMPLE_OF",
+					"comment": "Sample APIs"
+				}
+			]
+		}
 	},
 	"zowe-cli": {
-		"paths": ["zowex"]
 	}
 }

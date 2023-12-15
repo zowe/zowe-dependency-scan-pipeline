@@ -11,110 +11,56 @@
 
 import { inject, injectable } from "inversify";
 import * as path from "path";
+import { stringify } from "yaml";
+import * as _ from "lodash";
+import * as fs from "fs-extra";
 import { isNullOrUndefined } from "util";
 import { TYPES } from "../constants/Types";
 import { RepositoryInfo } from "./RepositoryInfo";
 import { ReportInfo } from "./RepositoryReportDest";
-
+import {RepoRulesType, RepoRule} from "./RepoRulesType";
+import { Utilities } from "../utils/Utilities";
 @injectable()
 export class RepositoryRules {
 
-    @inject(TYPES.RepoRulesData) private readonly repoRules: any;
-    private readonly IGNORE_KEY: string = "ignores";
-    private readonly GRADLE_KEY: string = "gradleArgs";
-    private readonly PATHS_KEY: string = "paths";
+    @inject(TYPES.RepoRulesData) private readonly repoRules: RepoRulesType;
+    private readonly defaultGradleTool: string = "GradleInspector";
+    private readonly skipEncluded: string = "ort.analyzer.skipExcluded=true"
+    private readonly forceOverwrite: string = "org.forceOverwrite=true"
 
-    /**
-     * Some repositories/projects have submodules within them.
-     * This returns the relative paths to those submodules
-     * 
-     * @param projects
-     */
-    public getExtraProjectPaths(projects: string[]): string[] {
-        const extraPaths: string[] = [];
-        projects.forEach((project: string) => {
-            const repoRule = this.repoRules[project];
-            if (!isNullOrUndefined(repoRule) && !isNullOrUndefined(repoRule[this.PATHS_KEY])) {
-                const subPaths: string[] = repoRule[this.PATHS_KEY];
-                subPaths.forEach((subpath: string) => {
-                    extraPaths.push(path.join(project, subpath));
-                });
-            }
-        });
-        return extraPaths;
+    public makeOrtYaml(project: string): string {
+
+        const merged = _.merge(this.repoRules["default"], this.repoRules[project]);
+
+        return stringify(merged);
+
     }
 
-    /**
-    * 
-    * @param project 
-    */
-    public getExtraPathForRepository(repoInfo: RepositoryInfo): string[] {
-        const extraPaths: string[] = [];
-        const repoRule = this.repoRules[repoInfo.repository];
-        if (!isNullOrUndefined(repoRule) && !isNullOrUndefined(repoRule[this.PATHS_KEY])) {
-            const subPaths: string[] = repoRule[this.PATHS_KEY];
-            subPaths.forEach((subpath: string) => {
-                extraPaths.push(path.join(repoInfo.repository, subpath));
-            });
+    public getOrtAnalyzerFlags(projectDir: string): string[] { 
+        let project = path.basename(projectDir);
+        let flags: string[] = [];
+        // always try to skip excluded to improve performance
+        flags.push("-P", this.skipEncluded);
+
+        if (this.repoRules[project]?.toolsEnabled?.length > 0) {
+            flags.push("-P", this.getPkgManagerFlag(this.repoRules[project]?.toolsEnabled));
+        } else if (Utilities.dirHasGradleProject(projectDir)) {
+            flags.push("-P", this.getPkgManagerFlag([this.defaultGradleTool]))
+        } // else we don't specify and rely on default discovery of pkg manager
+
+        // if something exists we should clean it up
+        if (fs.existsSync(path.join(projectDir, "analyzer-result.json"))) {
+            flags.push("-P", this.forceOverwrite);
         }
-        return extraPaths;
+
+        return flags;
     }
 
-    /**
-     * 
-     * @param project 
-     */
-    public getExtraPathForRepositories(repoInfo: RepositoryInfo[]): ReportInfo[] {
-        let extraPaths: ReportInfo[] = [];
-        repoInfo.forEach((repo) => {
-            let reports: string[] = this.getExtraPathForRepository(repo)
-            reports.forEach((reportN) => {
-                let reportDest: ReportInfo = {
-                    destinations: repo.destinations,
-                    reportName: reportN,
-                }
-                extraPaths = extraPaths.concat(reportDest)
-            })
-        });
-        return extraPaths;
+
+    private getPkgManagerFlag(pkgManagers: string[]): string {
+        return "ort.analyzer.enabledPackageManagers="+pkgManagers.join(",")
     }
 
-    public hasExtraGradleArgs(project: string): boolean {
-        const ruleSet = this.repoRules[project];
-        return (!isNullOrUndefined(ruleSet) && !isNullOrUndefined(ruleSet[this.GRADLE_KEY]));
-    }
 
-    public getExtraGradleArgs(project: string): string[] | null {
-        if (this.hasExtraGradleArgs(project)) {
-            return this.repoRules[project][this.GRADLE_KEY];
-        }
-        return null;
-    }
 
-    /**
-     *   Ignore Rules if they become required.
-     *
-     *
-    public shouldIgnore(project: string, pattern?: string): boolean | string[] {
-        const ruleSet = this.repoRules[project];
-        if (!isNullOrUndefined(ruleSet)) {
-            if (!isNullOrUndefined(ruleSet[this.IGNORE_KEY])) {
-                const ignoreRules = ruleSet[this.IGNORE_KEY];
-                if (!isNullOrUndefined(pattern) && pattern.trim().length > 0) {
-                    if (ignoreRules.includes(pattern)) {
-                        return true;
-                    }
-                }
-                else {
-                    return ignoreRules as string[];
-                }
-            }
-            else {
-                return false;
-            }
-        }
-        return false;
-    }
-
-    */
 }
