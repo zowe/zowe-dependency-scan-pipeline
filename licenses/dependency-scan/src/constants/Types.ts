@@ -23,9 +23,9 @@ export const TYPES = {
     // Actions
     CloneAction: Symbol("CloneAction"),
     InstallAction: Symbol("InstallAction"),
-    NoticesReportAction: Symbol("NoticesReportAction"),
+    OrtSbomAction: Symbol("OrtSbomAction"),
     OrtScanAction: Symbol("OrtScanAction"),
-    LicenseReportAction: Symbol("LicenseReportAction"),
+    OrtReportAction: Symbol("OrtReportAction"),
     OwaspScanReportAction: Symbol("OwaspScanAction"),
     OwaspPublishAction: Symbol("OwaspPublishAction")
 };

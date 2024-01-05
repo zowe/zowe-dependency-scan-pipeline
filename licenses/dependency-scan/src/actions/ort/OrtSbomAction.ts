@@ -28,7 +28,7 @@ import { Utilities } from "../../utils/Utilities";
 import { IAction } from "../IAction";
 
 @injectable()
-export class NoticeReportAction implements IAction {
+export class OrtSbomAction implements IAction {
 
     @inject(TYPES.Logger) private readonly log: Logger;
     @inject(TYPES.RepoRules) private readonly repoRules: any;
