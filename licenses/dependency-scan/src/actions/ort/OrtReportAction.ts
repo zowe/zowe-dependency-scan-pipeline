@@ -41,11 +41,18 @@ export class OrtReportAction implements IAction {
 
     constructor() {
         console.log("Making dir " + Constants.LICENSE_REPORTS_DIR);
-        if (Constants.CLEAN_REPO_DIR_ON_START && (Constants.EXEC_REPORTS || Constants.EXEC_SCANS)) {
+        if (Constants.CLEAN_REPO_DIR_ON_START && (Constants.EXEC_LICENSES_NOTICES || Constants.EXEC_SCANS)) {
             rimraf.sync(Constants.LICENSE_REPORTS_DIR);
         }
         if (!fs.existsSync(Constants.LICENSE_REPORTS_DIR)) {
             fs.mkdirSync(Constants.LICENSE_REPORTS_DIR, { recursive: true });
+        }
+        console.log("Making dir " + Constants.NOTICE_REPORTS_DIR);
+        if (Constants.CLEAN_REPO_DIR_ON_START && (Constants.EXEC_LICENSES_NOTICES || Constants.EXEC_SCANS)) {
+            rimraf.sync(Constants.NOTICE_REPORTS_DIR);
+        }
+        if (!fs.existsSync(Constants.NOTICE_REPORTS_DIR)) {
+            fs.mkdirSync(Constants.NOTICE_REPORTS_DIR, { recursive: true });
         }
         this.completeTpsrMdReport.bind(this);
         this.completeNoticesReport.bind(this);
@@ -56,7 +63,7 @@ export class OrtReportAction implements IAction {
      */
     public run(): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
-            if (Constants.EXEC_REPORTS) {
+            if (Constants.EXEC_LICENSES_NOTICES) {
 
                 console.log("Generate Report");
                 const projectDirs: string[] = Utilities.getSubDirs(Constants.CLONE_DIR);
@@ -71,7 +78,7 @@ export class OrtReportAction implements IAction {
                     Promise.all(reportPromises).then(() => {
                         resolve(true);
                     }).catch((error) => {
-                        reject(error);
+                        resolve(error);
                     });
                 };
             }
@@ -107,7 +114,7 @@ export class OrtReportAction implements IAction {
                     }
                 });
             });
-
+            resolve(1);
         })
     }
 
@@ -205,7 +212,7 @@ export class OrtReportAction implements IAction {
 
         const resolvedDir = path.join(Constants.CLONE_DIR, projectPath);
         const normalizedProjectName = projectPath.replace(/[\\\/]/g, "-");
-        console.log("Running license_finder report on " + resolvedDir);
+        console.log("Running ORT License and Notice report on " + resolvedDir);
         const reportProcess = spawn("ort", ["report", "-i", resolvedDir + "/analyzer-result.json",
             "-o", Constants.LICENSE_REPORTS_DIR + path.sep + path.basename(projectPath),
             "-f", "PlainTextTemplate",

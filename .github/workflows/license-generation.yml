@@ -56,6 +56,9 @@ env:
   AGG_ARTIFACT_NAME: zowe_licenses_full.zip
   CLI_ARTIFACT_NAME: zowe_licenses_cli.zip
   ZOS_ARTIFACT_NAME: zowe_licenses_zos.zip
+  AGG_SBOM_ARTIFACT_NAME: sbom_aggregate.spdx.yml
+  CLI_SBOM_ARTIFACT_NAME: sbom_cli.spdx.yml
+  ZOS_SBOM_ARTIFACT_NAME: sbom_zos.spdx.yml
   FILENAME_PATTERN: init_in_step_one
   ARTIFACT_REPO: init_in_step_one
   ARTIFACT_VERSION: init_in_step_one
@@ -86,6 +89,9 @@ jobs:
       - name: Checkout current repo
         uses: actions/checkout@v4
 
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.3.0
+
       - uses: actions/setup-node@v2
         with:
           node-version: '16'
@@ -114,6 +120,9 @@ jobs:
           zip -j ${{ env.AGG_ARTIFACT_NAME }} zowe_licenses/*
           zip -j ${{ env.CLI_ARTIFACT_NAME }} zowe_cli_licenses/*
           zip -j ${{ env.ZOS_ARTIFACT_NAME }} zowe_zos_licenses/*
+          echo "" > ${{ env.AGG_SBOM_ARTIFACT_NAME }}
+          echo "" > ${{ env.ZOS_SBOM_ARTIFACT_NAME }}
+          echo "" > ${{ env.CLI_SBOM_ARTIFACT_NAME }}
 
 
       - name: Scan Licenses on Branch ${{ env.ZOWE_RELEASE_BRANCH }}
@@ -152,6 +161,16 @@ jobs:
           cp build/license_reports/${{ env.MARKDOWN_ZOS_REPORT }} zowe_zos_licenses/zowe_zos_dependency_list.md
           zip -j ${{ env.ZOS_ARTIFACT_NAME }} zowe_zos_licenses/*
 
+          # SBOMs
+          cp build/sbom_reports/${{ env.AGG_SBOM_ARTIFACT_NAME }} ${{ env.AGG_SBOM_ARTIFACT_NAME }}
+          cp build/sbom_reports/${{ env.CLI_SBOM_ARTIFACT_NAME }} ${{ env.CLI_SBOM_ARTIFACT_NAME }}
+          cp build/sbom_reports/${{ env.ZOS_SBOM_ARTIFACT_NAME }} ${{ env.ZOS_SBOM_ARTIFACT_NAME }}
+
+      - name: Cosign experiments
+        working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
+        run: |
+          cosign sign-blob ${{ env.AGG_SBOM_ARTIFACT_NAME }} --bundle ${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle --oidc-provider=github-actions
+
       - name: Archive Aggregates
         uses: actions/upload-artifact@v3
         with:
@@ -159,6 +178,9 @@ jobs:
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}      
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}
 
       - name: Remove existing artifacts
         id: cleanup
@@ -179,6 +201,21 @@ jobs:
             --password ${{secrets.ZOWE_JFROG_ELEVATED_KEY }} \
             --url https://zowe.jfrog.io/artifactory \
             ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.ZOS_ARTIFACT_NAME }}
+          jfrog rt del\
+            --user ${{ secrets.ZOWE_JFROG_ELEVATED_USER }} \
+            --password ${{secrets.ZOWE_JFROG_ELEVATED_KEY }} \
+            --url https://zowe.jfrog.io/artifactory \
+            ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}
+          jfrog rt del\
+            --user ${{ secrets.ZOWE_JFROG_ELEVATED_USER }} \
+            --password ${{secrets.ZOWE_JFROG_ELEVATED_KEY }} \
+            --url https://zowe.jfrog.io/artifactory \
+            ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}
+          jfrog rt del\
+            --user ${{ secrets.ZOWE_JFROG_ELEVATED_USER }} \
+            --password ${{secrets.ZOWE_JFROG_ELEVATED_KEY }} \
+            --url https://zowe.jfrog.io/artifactory \
+            ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}
 
       - name: '[PUBLISH] Fix local git configuration (container+runner UID mismatch)'
         if: ${{ github.event.inputs.publish_release }}
@@ -198,3 +235,6 @@ jobs:
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}      
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}

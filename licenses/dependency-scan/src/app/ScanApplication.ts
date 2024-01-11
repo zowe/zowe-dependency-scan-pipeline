@@ -25,7 +25,7 @@ export class ScanApplication {
     @inject(TYPES.OwaspScanReportAction) private readonly owaspScanReportAction: IAction;
     @inject(TYPES.OwaspPublishAction) private readonly owasPublishAction: IAction;
 
-    public run() {
+    public async run() {
         const appFns: Array<() => Promise<any>> = [];
         // Step 1 - Clone
         if (Constants.EXEC_CLONE) {
@@ -36,7 +36,7 @@ export class ScanApplication {
         }
 
         // Step 2 - Determine Scan Type(s) and Add to Run Queue
-        if (Constants.APP_LICENSE_SCAN) {
+        if (Constants.APP_ORT_REPORTS) {
             console.log("Performing a License Scan");
           
             if(Constants.EXEC_SCANS) {
@@ -46,11 +46,19 @@ export class ScanApplication {
                 console.log("Will Skip ORT Scan Step");
             }
         
-            if(Constants.EXEC_REPORTS) {
+            if(Constants.EXEC_LICENSES_NOTICES) {
                 appFns.push(this.ortReportAction.run.bind(this.ortReportAction));
-                console.log("Will Execute ORT Report Step")
+                console.log("Will Execute ORT License and Notice Report Step")
             } else {
-                console.log("Will Skip ORT Report Step");
+                console.log("Will Skip ORT License and Notice Report Step");
+            }
+
+            if (Constants.EXEC_SBOM) {
+                appFns.push(this.ortSbomAction.run.bind(this.ortSbomAction));
+                console.log("Will execute ORT SBOM Scanning Step");
+            }
+            else {
+                console.log("Will skip ORT SBOM Report Step");
             }
                 
         }
@@ -64,7 +72,7 @@ export class ScanApplication {
             }
         }
 
-        // Step 3 - Run Everything in order
+        // Step 3 - Run Everything in order        
         appFns.reduce((prev, cur) => prev.then(cur), Promise.resolve());
     }
 }

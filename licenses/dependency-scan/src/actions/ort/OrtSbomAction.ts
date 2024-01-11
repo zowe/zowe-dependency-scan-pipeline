@@ -14,18 +14,16 @@ import * as spawn from "cross-spawn";
 import * as fs from "fs-extra";
 import { inject, injectable } from "inversify";
 import * as path from "path";
-import * as toml from "toml";
 import "reflect-metadata";
 import * as rimraf from "rimraf";
-import * as xml2js from "xml2js";
 import { Constants } from "../../constants/Constants";
 import { TYPES } from "../../constants/Types";
-import { ReportInfo } from "../../repos/RepositoryReportDest";
 import { ZoweManifest } from "../../repos/ZoweManifest";
-import { ZoweManifestSourceDependency } from "../../repos/ZoweManifestSourceDependency";
 import { Logger } from "../../utils/Logger";
-import { Utilities } from "../../utils/Utilities";
 import { IAction } from "../IAction";
+import { Utilities } from "../../utils/Utilities";
+import { ZoweManifestSourceDependency } from "../../repos/ZoweManifestSourceDependency";
+import { ReportInfo } from "../../repos/RepositoryReportDest";
 
 @injectable()
 export class OrtSbomAction implements IAction {
@@ -34,18 +32,20 @@ export class OrtSbomAction implements IAction {
     @inject(TYPES.RepoRules) private readonly repoRules: any;
     @inject(TYPES.ZoweManifest) private readonly zoweManifest: ZoweManifest;
 
-    private readonly NOTICE_REPORT_FILE = path.resolve(Constants.NOTICE_REPORTS_DIR, "notices_aggregate.txt");
-    private projectNoticeQueue: async.AsyncQueue<any> = async.queue(this.generateProjectNotice.bind(this), Constants.PARALLEL_NOTICE_REPORT_COUNT);
+    private readonly SBOM_ZOS_REPORT = path.resolve(Constants.SBOM_REPORTS_DIR, "sbom_zos.spdx.yml");
+    private readonly SBOM_CLI_REPORT = path.resolve(Constants.SBOM_REPORTS_DIR, "sbom_cli.spdx.yml");
+    private readonly SBOM_AGG_REPORT = path.resolve(Constants.SBOM_REPORTS_DIR, "sbom_aggregate.spdx.yml");
+    private sbomQueue: async.AsyncQueue<any> = async.queue(this.reportSboms.bind(this), Constants.PARALLEL_NOTICE_REPORT_COUNT);
 
     constructor() {
-        console.log("Making dir " + Constants.NOTICE_REPORTS_DIR);
-        if (Constants.CLEAN_REPO_DIR_ON_START && (Constants.EXEC_REPORTS || Constants.EXEC_SCANS)) {
-            rimraf.sync(Constants.NOTICE_REPORTS_DIR);
+        console.log("Making dir " + Constants.SBOM_REPORTS_DIR);
+        if (Constants.CLEAN_REPO_DIR_ON_START && Constants.EXEC_SBOM) {
+            rimraf.sync(Constants.SBOM_REPORTS_DIR);
         }
-        if (!fs.existsSync(Constants.NOTICE_REPORTS_DIR)) {
-            fs.mkdirSync(Constants.NOTICE_REPORTS_DIR, { recursive: true });
+        if (!fs.existsSync(Constants.SBOM_REPORTS_DIR)) {
+            fs.mkdirSync(Constants.SBOM_REPORTS_DIR, { recursive: true });
         }
-        this.aggregateNotices.bind(this);
+        this.aggregateSboms.bind(this);
     }
 
     /**
@@ -53,183 +53,82 @@ export class OrtSbomAction implements IAction {
      */
     public run(): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
+            if (Constants.EXEC_SBOM) {
+                console.log("Generate SBOM Report");
 
-            console.log("Generate Notices Report");
-
-            const projectDirs: string[] = Utilities.getSubDirs(Constants.CLONE_DIR);
-            const rulesDirs = this.repoRules.getExtraProjectPaths(projectDirs);
-            console.log(projectDirs);
-            console.log(rulesDirs);
-            // As compared to other actions, we do not fully resolve project dirs. We will use the project dir as the name i
-            this.projectNoticeQueue.push(projectDirs);
-            this.projectNoticeQueue.push(rulesDirs);
-            this.projectNoticeQueue.drain = () => {
-                this.aggregateNotices().then((result) => {
-                    resolve(true);
-                });
-            };
+                const projectDirs: string[] = Utilities.getSubDirs(Constants.CLONE_DIR);
+                // As compared to other actions, we do not fully resolve project dirs. We will use the project dir as the name i
+                this.sbomQueue.push(projectDirs);
+                this.sbomQueue.drain = () => {
+                    this.aggregateSboms().then((result) => {
+                        resolve(true);
+                    }).catch((error) => {
+                        console.log(error);
+                    });
+                };
+            }
         });
     }
 
-    private aggregateNotices(): Promise<any> {
+    private aggregateSboms(): Promise<any> {
         return new Promise((resolve, reject) => {
-
             const sourceDependencies: ZoweManifestSourceDependency[] = this.zoweManifest.sourceDependencies;
-            const aggregateNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_aggregate.txt");
-            const cliNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_cli.txt");
-            const zosNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_zos.txt");
             (sourceDependencies).forEach((dependency: ZoweManifestSourceDependency) => {
-                const notices = (dependency.entries.map((depEntry): ReportInfo => {
+                const reports = (dependency.entries.map((depEntry): ReportInfo => {
                     return { destinations: depEntry.destinations, reportName: depEntry.repository }
                 }))
-                    .concat((this.repoRules.getExtraPathForRepositories(dependency.entries)));
 
-                notices.forEach((noticeInstance: ReportInfo) => {
-                    const noticeDestinationDir = path.join(Constants.NOTICE_REPORTS_DIR, noticeInstance.reportName);
-                    // check if we have notices.txt (yarn) or license-dependency.xml (gradle)
-                    const noticesTxtFile = path.join(noticeDestinationDir, "notices.txt");
-                    const licenseXmlFile = path.join(noticeDestinationDir, "license-dependency.xml");
-                    if (fs.existsSync(noticesTxtFile)) {
-                        fs.appendFileSync(aggregateNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
-                        if (noticeInstance.destinations.join(",").includes("CLI")) {
-                            fs.appendFileSync(cliNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
+                reports.forEach((sbomReport: ReportInfo) => {
+                    const sbomReportDir = path.join(Constants.SBOM_REPORTS_DIR, sbomReport.reportName);
+                    const sbomFile = path.join(sbomReportDir, "bom.spdx.yml");
+                    if (fs.existsSync(sbomFile)) {
+                        fs.appendFileSync(this.SBOM_AGG_REPORT, fs.readFileSync(sbomFile).toString());
+                        if (sbomReport.destinations.join(",").includes("CLI")) {
+                            fs.appendFileSync(this.SBOM_CLI_REPORT, fs.readFileSync(sbomFile).toString());
                         } else {
-                            fs.appendFileSync(zosNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
+                            fs.appendFileSync(this.SBOM_ZOS_REPORT, fs.readFileSync(sbomFile).toString());
                         }
+                    } else {
+                        console.log("Could not find SBOM for " + sbomReport.reportName);
                     }
-                    else if (fs.existsSync(licenseXmlFile)) {
-                        console.log(licenseXmlFile);
-                        const parser = new xml2js.Parser();
-                        fs.readFile(licenseXmlFile, (error, fileData) => {
-                            parser.parseString(fileData, (err: any, result: any) => {
-                                if (result && result.licenses && result.licenses.license && Array.isArray(result.licenses.license)) {
-                                    result.licenses.license.forEach((license: any) => {
-                                        fs.appendFileSync(aggregateNoticesFile, "The following software may be included in this product: "
-                                            + JSON.stringify(license.dependency) + ". This software contains the following license(s):\n\n");
-                                        fs.appendFileSync(aggregateNoticesFile, license.$.name + ": " + license.$.url + "\n\n\n");
-
-                                        if (noticeInstance.destinations.join(",").includes("CLI")) {
-                                            fs.appendFileSync(cliNoticesFile, "The following software may be included in this product: "
-                                                + JSON.stringify(license.dependency) + ". This software contains the following license(s):\n\n");
-                                            fs.appendFileSync(cliNoticesFile, license.$.name + ": " + license.$.url + "\n\n\n");
-                                        } else {
-                                            fs.appendFileSync(zosNoticesFile, "The following software may be included in this product: "
-                                                + JSON.stringify(license.dependency) + ". This software contains the following license(s):\n\n");
-                                            fs.appendFileSync(zosNoticesFile, license.$.name + ": " + license.$.url + "\n\n\n");
-                                        }
-                                    });
-                                } else {
-                                    console.log(`WARNING: result.licenses.license is empty: %j`, result);
-                                }
-                            });
-                        });
-                    }
-
                 });
             });
+            resolve(1);
         });
     }
 
-    private generateProjectNotice(projectDir: string, cb: (error: any, val?: any) => void) {
-        console.log("Generating notices for project " + projectDir);
-        const processPromises: Array<Promise<any>> = [];
-        const absProjectDir: string = path.join(Constants.CLONE_DIR, projectDir);
-        const noticeDestinationDir = path.join(Constants.NOTICE_REPORTS_DIR, projectDir);
-        fs.mkdirpSync(noticeDestinationDir);
-        if (Utilities.dirHasGradleProject(absProjectDir)) {
-            let processComplete: Promise<any>;
+    private reportSboms(projectPath: string, cb: (error: any, val?: any) => void) {
 
-            // ignoring windows users for now
-            const noticeProcess = spawn("./gradlew", ["downloadLicenses"], {
-                cwd: absProjectDir,
-                env: process.env,
-                shell: true
-            });
-            processComplete = this.log.logOutputAsync(noticeProcess, projectDir, "notices_report");
-            processPromises.push(processComplete);
-            processComplete.then((result) => {
-                fs.copySync(path.join(absProjectDir, "build", "reports", "license", "license-dependency.xml"),
-                    path.join(noticeDestinationDir, "license-dependency.xml"));
-            }).catch((error) => {
-                console.log(error);
-            });
-
-        }
-        else if (Utilities.dirHasNodeProject(absProjectDir)) {
-            let processComplete: Promise<any>;
-
-            // ignoring windows users for now
-            const noticeProcess = spawn("yarn", ["licenses", "generate-disclaimer", "--production"], {
-                cwd: absProjectDir,
-                env: process.env,
-                shell: true
-            });
-            processComplete = this.log.logOutputAsync(noticeProcess, projectDir, "notices_report", {
-                stdOutOnlyFile: projectDir + "notices.txt"
-            });
-            processPromises.push(processComplete);
-            processComplete.then((result) => {
-                fs.copySync(this.log.getLogFilepath(projectDir + "notices.txt", "notices_report"),
-                    path.join(noticeDestinationDir, "notices.txt"));
-            }).catch((error) => {
-                console.log(error);
-            });
-        }
-        else if (Utilities.dirHasCargoProject(absProjectDir)) {
-            let processComplete: Promise<any>;
-
-            const noticeProcess = spawn('sh -c "cargo license --json > Cargo.json && get-license-helper Cargo.json"', {
-                cwd: absProjectDir,
-                env: process.env,
-                shell: true
-            });
-            processComplete = this.log.logOutputAsync(noticeProcess, projectDir, "notices_report");
-            processPromises.push(processComplete);
-            processComplete.then((result) => {
-                const cargoJson = JSON.parse(fs.readFileSync(path.join(absProjectDir, "Cargo.json")).toString());
-                const cargoContentsRaw = fs.readFileSync(path.join(absProjectDir, "Cargo.toml")).toString();
-                const cargoContents = toml.parse(cargoContentsRaw);
-                const productName = cargoContents.package.name;
-                const noticesDirectoryPath = path.join(absProjectDir, "library_licenses");
-                const noticesDestinationPath = path.join(noticeDestinationDir, "notices.txt");
-                const noticesDisclaimer = `THE FOLLOWINGS SETS FORTH ATTRIBUTION NOTICES FOR THIRD PARTY SOFTWARE THAT MAY BE CONTAINED IN PORTIONS OF ` +
-                `THE ${productName.toUpperCase()} PRODUCT.`;
-                const noticesIdentifierOne = "The following software may be included in this product: ";
-                const noticesIdentifierTwo = ". A copy of the source code may be downloaded from ";
-                const noticesIdentifierThree = ". This software contains the following license and notice below:\n\n";
-                const delimiter = "-----";
-
-                fs.writeFileSync(noticesDestinationPath, `${noticesDisclaimer}\n\n`);
-
-                for (const dirent of fs.readdirSync(noticesDirectoryPath, {withFileTypes: true})){
-                    if(dirent.isFile()){
-                        const filePath = path.join(noticesDirectoryPath, dirent.name);
-                        const contents = fs.readFileSync(filePath).toString();
-                        const splitIndex = path.basename(filePath).lastIndexOf("-LICENSE-");
-                        const pkgName = path.basename(filePath).slice(0, splitIndex);
-                        let repository = undefined;
-                        for(const pkg of cargoJson) {
-                            if (pkg.name === pkgName && pkg.repository != null) {repository = pkg.repository}
-                        }
-
-                        fs.appendFileSync(noticesDestinationPath, `${delimiter}\n\n${noticesIdentifierOne}${pkgName}`);
-                        if (repository) { fs.appendFileSync(noticesDestinationPath, `${noticesIdentifierTwo}${repository}`);}
-                        fs.appendFileSync(noticesDestinationPath, `${noticesIdentifierThree}${contents}\n\n`);
-                    }
-                }
-            }).catch((error) => {
-                console.log(error);
-            });
-        }
-        else {
-            console.log("Nothing found: " + absProjectDir);
-        }
-        Promise.all(processPromises).then((result) => {
-            cb(null);
-        }).catch((error) => {
-            console.log(error);
-            cb(error, null);
+        const resolvedDir = path.join(Constants.CLONE_DIR, projectPath);
+        console.log("Running ORT SBOM generation for " + resolvedDir);
+        const reportProcess = spawn("ort", ["report", "-i", resolvedDir + "/analyzer-result.json",
+            "-o", Constants.SBOM_REPORTS_DIR + path.sep + path.basename(projectPath),
+            "-O", `SpdxDocument=document.name=${path.basename(projectPath)}`,
+            "-f", "SpdxDocument"
+            ], {
+            cwd: process.env.cwd,
+            env: process.env,
+            // Shell true required for aggregate paths with spaces between projects
+            shell: true
         });
+       
+        const logPromise: Promise<any> = this.log.logOutputAsync(reportProcess, projectPath, "sboms");
+        logPromise.then((result) => {
+            // spdx doc invalid only for cli
+            if (path.basename(projectPath) == "zowe-cli") {
+                console.log("Modifying Zowe CLI Ref to Secrets-core")
+                const spdxFile = Constants.SBOM_REPORTS_DIR + path.sep + path.basename(projectPath) + path.sep + "bom.spdx.yml";
+                let spdxContent: string = fs.readFileSync(spdxFile).toString();
+                spdxContent = spdxContent.replace("SPDXRef-Package-Crate-secrets-core-0.1.0", 
+                                    "SPDXRef-Project-Cargo-secrets-core-0.1.0");
+                fs.writeFileSync(spdxFile, spdxContent);
+            }
+            cb(null, result);
+        }).catch((error) => {
+            cb(error, null);
+            console.log(error);
+        });
+
     }
 
 }

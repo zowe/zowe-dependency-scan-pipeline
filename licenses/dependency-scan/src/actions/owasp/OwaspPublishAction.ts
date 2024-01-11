@@ -46,7 +46,7 @@ export class OwaspPublishAction implements IAction {
      */
     public run(): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
-            if (Constants.EXEC_REPORTS) {
+            if (Constants.EXEC_LICENSES_NOTICES) {
 
                 console.log("Generate Report");
                 const projectDirs: string[] = Utilities.getSubDirs(Constants.CLONE_DIR);
