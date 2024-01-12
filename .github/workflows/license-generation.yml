@@ -1,6 +1,8 @@
 name: License Bundle Generation
 
-permissions: read-all
+permissions:
+  contents: read
+  id-token: write
 
 on:
   workflow_dispatch:
@@ -170,7 +172,7 @@ jobs:
       - name: Cosign experiments
         working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
         run: |
-          cosign sign-blob ${{ env.AGG_SBOM_ARTIFACT_NAME }} --bundle ${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle --oidc-provider=github-actions
+          cosign sign-blob ${{ env.AGG_SBOM_ARTIFACT_NAME }} --bundle ${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle 
 
       - name: Archive Aggregates
         uses: actions/upload-artifact@v3
