@@ -89,12 +89,6 @@ jobs:
     
       - name: Checkout current repo
         uses: actions/checkout@v4
-
-      - name: Install ORT
-        run: |
-          curl "https://github.com/oss-review-toolkit/ort/releases/download/${{ env.ORT_VERSION }}/ort-${{ env.ORT_VERSION }}.zip" -o ort.zip
-          unzip ort.zip
-          echo `pwd`/ort-${{ env.ORT_VERSION }}/bin >> $GITHUB_PATH
         
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.3.0
