@@ -172,7 +172,7 @@ jobs:
       - name: Cosign experiments
         working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
         run: |
-          cosign sign-blob ${{ env.AGG_SBOM_ARTIFACT_NAME }} --bundle ${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle 
+          cosign sign-blob ${{ env.AGG_SBOM_ARTIFACT_NAME }} --bundle ${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle --yes
 
       - name: Archive Aggregates
         uses: actions/upload-artifact@v3
