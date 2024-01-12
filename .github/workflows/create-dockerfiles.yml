@@ -1,4 +1,4 @@
-name: License Bundle Generation
+name: Build and Push Dockerfiles
 
 permissions: read-all
 
