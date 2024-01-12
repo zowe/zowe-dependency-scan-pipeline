@@ -4,6 +4,7 @@ permissions: read-all
 
 on:
   workflow_dispatch:
+    inputs:
       publish_release:
         description: Should the license bundle be published to docker-release
         type: boolean
