@@ -184,6 +184,7 @@ jobs:
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle 
 
       - name: Remove existing artifacts
         id: cleanup
@@ -241,4 +242,3 @@ jobs:
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle 
