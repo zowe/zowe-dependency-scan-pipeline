@@ -9,7 +9,7 @@ ARG ORT_VERSION=12.0.0
 USER root
 
 RUN apt-get update -y && apt-get upgrade -y
-RUN apt-get install -y curl bash python3 zip unzip wget software-properties-common python3-pip
+RUN apt-get install -y curl bash python3 zip unzip wget software-properties-common python3-pip git
 RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
 RUN apt-get update -y && apt-get install -y nodejs openjdk-17-jdk pkg-config
 
