@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
   
     container:
-      image: zowe-docker-snapshot.jfrog.io/ompzowe/license-scan-build:v2x
+      image: zowe-docker-release.jfrog.io/ompzowe/zowecicd-license-base:v2x
 
     steps:
 
