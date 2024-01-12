@@ -17,12 +17,21 @@ on:
         default: 'latest'
 env:
   PUBLISH_RELEASE:  ${{ github.event.inputs.publish_release }}
+  TARGET_DOCKER_REGISTRY: ""
 
 jobs:
 
   build:
     runs-on: ubuntu-latest
     steps:
+
+      - name: Set target docker registry
+        run: | 
+          if [ "$PUBLISH_RELEASE" = true ]; then
+            echo "TARGET_DOCKER_REGISTRY=zowe-docker-release.jfrog.io" >> $GITHUB_ENV
+          else 
+            echo "TARGET_DOCKER_REGISTRY=zowe-docker-snapshot.jfrog.io" >> $GITHUB_ENV
+          fi
 
       - name: Checkout 
         uses: actions/checkout@v2
@@ -33,26 +42,17 @@ jobs:
       - name: Login to JFrog
         uses: docker/login-action@v1
         with:
-          registry: zowe-docker-snapshot.jfrog.io
+          registry: ${{ env.TARGET_DOCKER_REGISTRY }}
           username: ${{ secrets.ARTIFACTORY_USERNAME }}
           password: ${{ secrets.ARTIFACTORY_PASSWORD }}
 
-      - name: Build and push to snapshot
-        if: ${{ env.PUBLISH_RELEASE == 'false' }}
-        id: docker_build_snapshot
-        uses: docker/build-push-action@v2
-        with:
-          push: true
-          file: licenses/docker/ort.Dockerfile
-          tags: zowe-docker-snapshot.jfrog.io/ompzowe/zowecicd-license-base:${{ github.event.inputs.image_version }}
-
       - name: Build and push to release
         if: ${{ env.PUBLISH_RELEASE == 'true' }}
-        id: docker_build_release
+        id: docker_build
         uses: docker/build-push-action@v2
         with:
           push: true
           file: licenses/docker/ort.Dockerfile
-          tags: zowe-docker-release.jfrog.io/ompzowe/zowecicd-license-base:${{ github.event.inputs.image_version }}
+          tags: ${{ env.TARGET_DOCKER_REGISTRY }}/ompzowe/zowecicd-license-base:${{ github.event.inputs.image_version }}
 
       
