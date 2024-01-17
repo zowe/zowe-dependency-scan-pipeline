@@ -169,22 +169,33 @@ jobs:
           cp build/sbom_reports/${{ env.CLI_SBOM_ARTIFACT_NAME }} ${{ env.CLI_SBOM_ARTIFACT_NAME }}
           cp build/sbom_reports/${{ env.ZOS_SBOM_ARTIFACT_NAME }} ${{ env.ZOS_SBOM_ARTIFACT_NAME }}
 
-      - name: Cosign experiments
+      - name: Cosign artifacts
         working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
         run: |
           cosign sign-blob ${{ env.AGG_SBOM_ARTIFACT_NAME }} --bundle ${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle --yes
+          cosign sign-blob ${{ env.CLI_SBOM_ARTIFACT_NAME }} --bundle ${{ env.CLI_SBOM_ARTIFACT_NAME }}.bundle --yes
+          cosign sign-blob ${{ env.ZOS_SBOM_ARTIFACT_NAME }} --bundle ${{ env.ZOS_SBOM_ARTIFACT_NAME }}.bundle --yes
+          cosign sign-blob ${{ env.AGG_ARTIFACT_NAME }} --bundle ${{ env.AGG_ARTIFACT_NAME }}.bundle --yes
+          cosign sign-blob ${{ env.CLI_ARTIFACT_NAME }} --bundle ${{ env.CLI_ARTIFACT_NAME }}.bundle --yes
+          cosign sign-blob ${{ env.ZOS_ARTIFACT_NAME }} --bundle ${{ env.ZOS_ARTIFACT_NAME }}.bundle --yes
 
       - name: Archive Aggregates
         uses: actions/upload-artifact@v3
         with:
           path: |
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}      
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}.bundle
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}  
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}.bundle    
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}.bundle
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}.bundle
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle 
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}.bundle
+
 
       - name: Remove existing artifacts
         id: cleanup
@@ -237,8 +248,14 @@ jobs:
           perform-release: ${{ env.PUBLISH_RELEASE }}
           artifacts: |
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}      
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}.bundle
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}  
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}.bundle    
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}.bundle
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}.bundle
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}.bundle
