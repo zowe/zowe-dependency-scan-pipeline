@@ -51,7 +51,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          file: licenses/docker/ort.Dockerfile
+          file: .dockerfiles/ort.Dockerfile
           tags: ${{ env.TARGET_DOCKER_REGISTRY }}/ompzowe/zowecicd-license-base:${{ github.event.inputs.image_version }}
 
       
