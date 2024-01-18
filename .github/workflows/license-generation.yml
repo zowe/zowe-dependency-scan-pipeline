@@ -91,9 +91,6 @@ jobs:
     
       - name: Checkout current repo
         uses: actions/checkout@v4
-        
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.3.0
 
       - uses: actions/setup-node@v2
         with:
@@ -169,34 +166,6 @@ jobs:
           cp build/sbom_reports/${{ env.CLI_SBOM_ARTIFACT_NAME }} ${{ env.CLI_SBOM_ARTIFACT_NAME }}
           cp build/sbom_reports/${{ env.ZOS_SBOM_ARTIFACT_NAME }} ${{ env.ZOS_SBOM_ARTIFACT_NAME }}
 
-      - name: Cosign artifacts
-        working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
-        run: |
-          cosign sign-blob ${{ env.AGG_SBOM_ARTIFACT_NAME }} --bundle ${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle --yes
-          cosign sign-blob ${{ env.CLI_SBOM_ARTIFACT_NAME }} --bundle ${{ env.CLI_SBOM_ARTIFACT_NAME }}.bundle --yes
-          cosign sign-blob ${{ env.ZOS_SBOM_ARTIFACT_NAME }} --bundle ${{ env.ZOS_SBOM_ARTIFACT_NAME }}.bundle --yes
-          cosign sign-blob ${{ env.AGG_ARTIFACT_NAME }} --bundle ${{ env.AGG_ARTIFACT_NAME }}.bundle --yes
-          cosign sign-blob ${{ env.CLI_ARTIFACT_NAME }} --bundle ${{ env.CLI_ARTIFACT_NAME }}.bundle --yes
-          cosign sign-blob ${{ env.ZOS_ARTIFACT_NAME }} --bundle ${{ env.ZOS_ARTIFACT_NAME }}.bundle --yes
-
-      - name: Archive Aggregates
-        uses: actions/upload-artifact@v3
-        with:
-          path: |
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}.bundle
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}  
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}.bundle    
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}.bundle
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}.bundle
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}.bundle
-
-
       - name: Remove existing artifacts
         id: cleanup
         if: ${{ github.event.inputs.publish_release }} && ${{ github.event.inputs.overwrite_release }}
@@ -241,12 +210,24 @@ jobs:
       - name: Publish to Artifactory
         id: publish
         timeout-minutes: 10
-        uses: zowe-actions/shared-actions/publish@main
+        uses: zowe-actions/shared-actions/publish@user/markackert/cosign-publish-integration
         with:
           publish-target-file-pattern: ${{ env.FILENAME_PATTERN }}
           publish-target-path-pattern: ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/
           perform-release: ${{ env.PUBLISH_RELEASE }}
+          sigstore-sign-artifacts: true
           artifacts: |
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}  
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}
+
+      - name: Archive Aggregates  
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}.bundle
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}  
