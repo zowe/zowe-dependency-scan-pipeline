@@ -215,6 +215,7 @@ jobs:
           publish-target-file-pattern: ${{ env.FILENAME_PATTERN }}
           publish-target-path-pattern: ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/
           perform-release: ${{ env.PUBLISH_RELEASE }}
+          sigstore-sign-artifacts: true
           artifacts: |
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}  
