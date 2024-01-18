@@ -11,7 +11,7 @@ on:
         description: Version number of Zowe license bundle
         type: string
         required: true
-        default: '2.13.0'
+        default: '0.0.1'
       publish_release:
         description: Should the license bundle be published to libs-release-local
         type: boolean
@@ -35,7 +35,7 @@ on:
         description: Creates empty zip files, bypassing license scans. For test purposes only.
         required: false
         type: choice
-        default: 'false'
+        default: 'true'
         options:
           - 'true'
           - 'false'
