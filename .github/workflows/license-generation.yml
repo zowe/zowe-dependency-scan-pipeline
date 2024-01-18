@@ -210,7 +210,7 @@ jobs:
       - name: Publish to Artifactory
         id: publish
         timeout-minutes: 10
-        uses: zowe-actions/shared-actions/publish@user/markackert/cosign-publish-integration
+        uses: zowe-actions/shared-actions/publish@main
         with:
           publish-target-file-pattern: ${{ env.FILENAME_PATTERN }}
           publish-target-path-pattern: ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/
