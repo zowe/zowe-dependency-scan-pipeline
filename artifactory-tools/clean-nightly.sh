@@ -12,7 +12,7 @@
 
 ################################################################################
 # This script cleans up nightly builds.
-# 
+#
 # Example: ./clean-nightly.sh -a artifactory-server repo/path/to/nightly/
 ################################################################################
 
@@ -23,7 +23,7 @@ SCRIPT_PWD=$(cd $(dirname "$0") && pwd)
 RUN_PWD=$(pwd)
 DEFAULT_ARTIFACTORY_SERVER=zowe-jack
 DEFAULT_NIGHTLY_BUILD_FULL_PATH=libs-release-local/org/zowe/nightly/
-NIGHTLY_BUILD_PATTERNS="zowe-1.*.pax zowe-smpe-1.*.tar zowe-smpe-1.*.zip zowe-containerization-1.*.zip server-bundle.amd64-1.*.tar cli/zowe-cli-1.*.zip v2/zowe-2.*.pax"
+NIGHTLY_BUILD_PATTERNS="zowe-1.*.pax zowe-smpe-1.*.tar zowe-smpe-1.*.zip zowe-containerization-1.*.zip server-bundle.amd64-1.*.tar cli/zowe-cli-1.*.zip v2/zowe-2.*.pax zowe-smpe-2.*.tar zowe-smpe-2.*.zip v3/zowe-3.*.pax"
 NIGHTLY_BUILD_COUNT=30
 
 ################################################################################
@@ -52,24 +52,24 @@ function usage {
 }
 while getopts ":ha:" opt; do
   case $opt in
-    h)
-      usage
-      exit 0
-      ;;
-    a)
-      ARTIFACTORY_SERVER=$OPTARG
-      ;;
-    \?)
-      echo "[${SCRIPT_NAME}][error] invalid option: -$OPTARG" >&2
-      exit 1
-      ;;
-    :)
-      echo "[${SCRIPT_NAME}][error] invalid option argument: -$OPTARG requires an argument" >&2
-      exit 1
-      ;;
+  h)
+    usage
+    exit 0
+    ;;
+  a)
+    ARTIFACTORY_SERVER=$OPTARG
+    ;;
+  \?)
+    echo "[${SCRIPT_NAME}][error] invalid option: -$OPTARG" >&2
+    exit 1
+    ;;
+  :)
+    echo "[${SCRIPT_NAME}][error] invalid option argument: -$OPTARG requires an argument" >&2
+    exit 1
+    ;;
   esac
 done
-shift $((OPTIND-1))
+shift $((OPTIND - 1))
 NIGHTLY_BUILD_FULL_PATH=$1
 if [ -z "${NIGHTLY_BUILD_FULL_PATH}" ]; then
   NIGHTLY_BUILD_FULL_PATH=$DEFAULT_NIGHTLY_BUILD_FULL_PATH
@@ -104,7 +104,7 @@ for pattern in $NIGHTLY_BUILD_PATTERNS; do
   echo
   ARTIFACTS_COUNT=$(echo -e "$ARTIFACTS" | wc -l)
   if [ $ARTIFACTS_COUNT -gt $NIGHTLY_BUILD_COUNT ]; then
-    SHOULD_DELETE_COUNT="$(($ARTIFACTS_COUNT-$NIGHTLY_BUILD_COUNT))"
+    SHOULD_DELETE_COUNT="$(($ARTIFACTS_COUNT - $NIGHTLY_BUILD_COUNT))"
     echo "[${SCRIPT_NAME}] Will delete ${SHOULD_DELETE_COUNT} artifact(s) ..."
     SHOULD_DELETE="$(echo -e "$ARTIFACTS" | head -n ${SHOULD_DELETE_COUNT})"
     for one in $SHOULD_DELETE; do
