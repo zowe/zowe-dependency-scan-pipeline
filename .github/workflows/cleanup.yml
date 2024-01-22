@@ -57,7 +57,7 @@ jobs:
           EOF
         env:
           ssh_host: ${{ secrets[matrix.servers.host] }}
-          ssh_port: 22
+          ssh_port: 65522
           ssh_user: ${{ secrets.SSH_MARIST_USERNAME }}
           ssh_password: ${{ secrets[matrix.servers.password] }}
 
