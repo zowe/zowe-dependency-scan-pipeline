@@ -39,9 +39,9 @@ jobs:
     strategy:
       matrix:
         servers:
-          - {"name": "zzow02", "host": "SSH_MARIST_ACF2_HOST", "password": "SSH_MARIST_ACF2_PASSWORD"}
-          - {"name": "zzow03", "host": "SSH_MARIST_TSS_HOST", "password": "SSH_MARIST_TSS_PASSWORD"}
-          - {"name": "zzow04", "host": "SSH_MARIST_RACF_HOST", "password": "SSH_MARIST_RACF_PASSWORD"}
+          - {"name": "zzow06", "host": "SSH_MARIST_ACF2_HOST", "password": "SSH_MARIST_ACF2_PASSWORD"}
+          - {"name": "zzow07", "host": "SSH_MARIST_TSS_HOST", "password": "SSH_MARIST_TSS_PASSWORD"}
+          - {"name": "zzow08", "host": "SSH_MARIST_RACF_HOST", "password": "SSH_MARIST_RACF_PASSWORD"}
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
