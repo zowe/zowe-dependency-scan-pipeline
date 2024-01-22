@@ -24,6 +24,10 @@ import { Logger } from "../../utils/Logger";
 import { Utilities } from "../../utils/Utilities";
 import { IAction } from "../IAction";
 
+/**
+ * TODO:
+ * WARNING: This action is not working as originally intended right now, and will likely be abandoned during a refactor.
+ */
 @injectable()
 export class InstallAction implements IAction {
 
@@ -41,9 +45,9 @@ export class InstallAction implements IAction {
     public run(): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             const projectDirs: string[] = Utilities.getSubDirs(Constants.CLONE_DIR);
-            const rulesDirs = this.repoRules.getExtraProjectPaths(projectDirs);
+          //  const rulesDirs = this.repoRules.getExtraProjectPaths(projectDirs);
             this.installQueue.push(projectDirs);
-            this.installQueue.push(rulesDirs);
+         //   this.installQueue.push(rulesDirs);
             this.installQueue.drain = () => {
                 resolve(true);
             };
@@ -72,9 +76,9 @@ export class InstallAction implements IAction {
 
                 // let gradleArgs = ["build", "-x", "test", "-x", "check"];
                 let gradleArgs = ["compileJava"]
-                if (this.repoRules.hasExtraGradleArgs(projectDir)) {
+               /* if (this.repoRules.hasExtraGradleArgs(projectDir)) {
                     gradleArgs = gradleArgs.concat(this.repoRules.getExtraGradleArgs(projectDir));
-                }
+                }*/
                 console.log(`Issuing ./gradlew build in ${absDir} with args ${gradleArgs}`);
                 const installProcess = spawn.sync(`./gradlew`, gradleArgs, { cwd: absDir, env: process.env, shell: true });
                 this.log.logOutputSync(installProcess, projectDir, "install");

@@ -24,7 +24,8 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "5.0.5",
     "toml": "^3.0.0",
-    "xml2js": "0.4.23"
+    "xml2js": "0.4.23",
+    "yaml": "^2.3.4"
   },
   "devDependencies": {
     "@octokit/plugin-retry": "2.1.1",
@@ -32,9 +33,12 @@
     "@types/async": "^2.4.2",
     "@types/cross-spawn": "^6.0.0",
     "@types/fs-extra": "8.0.0",
+    "@types/lodash": "^4.14.202",
     "@types/node": "^12.0.2",
     "@types/rimraf": "4.0.5",
     "@types/xml2js": "^0.4.5",
+    "@types/yaml": "^1.9.7",
+    "lodash": "^4.17.21",
     "tslint": "^5.13.1",
     "typescript": "5.2.2"
   }

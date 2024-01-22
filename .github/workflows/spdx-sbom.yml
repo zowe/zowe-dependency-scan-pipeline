@@ -1,5 +1,6 @@
 name: SPDX SBOM Generation
-
+# Potential overlap with license-generation workflow; this is kept for now but not run.
+##  This generates something like a "deploy SBOM", which could be useful in the future.
 on:
   workflow_dispatch:
     inputs:

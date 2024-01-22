@@ -31,7 +31,7 @@ export class OwaspScanReportAction implements IAction {
     private scanQueue: async.AsyncQueue<any> = async.queue(this.scanProject.bind(this), Constants.PARALLEL_SCAN_COUNT);
 
     constructor() {
-        if (Constants.CLEAN_REPO_DIR_ON_START && (Constants.EXEC_SCANS || Constants.EXEC_REPORTS)) {
+        if (Constants.CLEAN_REPO_DIR_ON_START && (Constants.EXEC_SCANS || Constants.EXEC_LICENSES_NOTICES)) {
             rimraf.sync(Constants.OWASP_REPORTS_DIR);
         }
         if (!fs.existsSync(Constants.OWASP_REPORTS_DIR)) {

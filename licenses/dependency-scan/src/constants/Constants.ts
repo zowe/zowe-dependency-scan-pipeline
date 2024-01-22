@@ -32,6 +32,8 @@ export class Constants {
 
     public static readonly OWASP_REPORTS_DIR: string = path.join(Constants.BASE_WORK_DIR, "owasp_reports");
 
+    public static readonly SBOM_REPORTS_DIR: string = path.join(Constants.BASE_WORK_DIR, "sbom_reports");
+    
     public static readonly ZOWE_MANIFEST_PATH: string = path.join(Constants.BUILD_RESOURCES_DIR, "zowe-manifest.json");
 
     public static readonly REPO_RULE_PATH: string = path.join(".", "resources", "repoRules.json");
@@ -56,9 +58,7 @@ export class Constants {
     public static readonly CLEAN_LOGS_ON_START: boolean = true;
 
     // Must fix application invocation later, as part of eventual conversion to CLI plugin this should become far more natural.
-    public static readonly APP_LICENSE_SCAN: boolean = Utilities.getEnv("APP_LICENSE_SCAN", true);
-
-    public static readonly APP_NOTICES_SCAN: boolean = Utilities.getEnv("APP_NOTICES_SCAN", false);
+    public static readonly APP_ORT_REPORTS: boolean = Utilities.getEnv("APP_ORT_REPORTS", true);
 
     public static readonly APP_OWASP_SCAN: boolean = Utilities.getEnv("APP_OWASP_SCAN", false);
 
@@ -79,7 +79,9 @@ export class Constants {
 
     public static readonly EXEC_SCANS: boolean = Utilities.getEnv("ZOWE_STEP_SCAN", true);
 
-    public static readonly EXEC_REPORTS: boolean = Utilities.getEnv("ZOWE_STEP_REPORT", true);
+    public static readonly EXEC_LICENSES_NOTICES: boolean = Utilities.getEnv("ZOWE_STEP_REPORT", true);
+
+    public static readonly EXEC_SBOM: boolean = Utilities.getEnv("ZOWE_STEP_SBOM", true);
 
     public static readonly SCAN_INDIVIDUALS: boolean = Utilities.getEnv("ZOWE_SCAN_INDIVIDUAL", true);
 

@@ -18,9 +18,7 @@ import "reflect-metadata";
 import * as rimraf from "rimraf";
 import { CloneAction } from "../actions/base/CloneAction";
 import { InstallAction } from "../actions/base/InstallAction";
-import { LicenseReportAction } from "../actions/license/LicenseReportAction";
-import { LicenseScanAction } from "../actions/license/LicenseScanAction";
-import { NoticeReportAction } from "../actions/notices/NoticeReportAction";
+import { OrtScanAction } from "../actions/ort/OrtScanAction";
 import { OwaspPublishAction } from "../actions/owasp/OwaspPublishAction";
 import { OwaspScanReportAction } from "../actions/owasp/OwaspScanReportAction";
 import { ScanApplication } from "../app/ScanApplication";
@@ -28,12 +26,13 @@ import { Constants } from "../constants/Constants";
 import { TYPES } from "../constants/Types";
 import { RepositoryRules } from "../repos/RepositoryRules";
 import { Logger } from "../utils/Logger";
+import { OrtReportAction } from "../actions/ort/OrtReportAction";
+import { OrtSbomAction } from "../actions/ort/OrtSbomAction";
 
 export function bootstrap(container: Container) {
     return new Promise<ScanApplication>((resolveApp, rejectApp) => {
         if (!container.isBound(TYPES.App)) {
             new Promise<boolean>((resolve, reject) => {
-
 
                 if (Constants.DOWNLOAD_MANIFEST) {
                     console.log("Making dir " + Constants.BUILD_RESOURCES_DIR);
@@ -74,9 +73,9 @@ export function bootstrap(container: Container) {
                 container.bind(TYPES.Logger).to(Logger).inSingletonScope();
                 container.bind(TYPES.CloneAction).to(CloneAction).inSingletonScope();
                 container.bind(TYPES.InstallAction).to(InstallAction).inSingletonScope();
-                container.bind(TYPES.NoticesReportAction).to(NoticeReportAction).inSingletonScope();
-                container.bind(TYPES.LicenseScanAction).to(LicenseScanAction).inSingletonScope();
-                container.bind(TYPES.LicenseReportAction).to(LicenseReportAction).inSingletonScope();
+                container.bind(TYPES.OrtSbomAction).to(OrtSbomAction).inSingletonScope();
+                container.bind(TYPES.OrtScanAction).to(OrtScanAction).inSingletonScope();
+                container.bind(TYPES.OrtReportAction).to(OrtReportAction).inSingletonScope();
                 container.bind(TYPES.OwaspScanReportAction).to(OwaspScanReportAction).inSingletonScope();
                 container.bind(TYPES.OwaspPublishAction).to(OwaspPublishAction).inSingletonScope();
                 container.bind(TYPES.RepoRules).to(RepositoryRules).inSingletonScope();
