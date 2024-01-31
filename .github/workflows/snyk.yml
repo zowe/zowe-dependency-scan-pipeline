@@ -7,8 +7,8 @@ on:
     - cron:  '30 5 * * 6'
 
 env:
-  # SNYK_SCAN_COMMAND: test
-  SNYK_SCAN_COMMAND: monitor
+  SNYK_SCAN_COMMAND: test
+  # SNYK_SCAN_COMMAND: monitor
 
 # full repository list from Zowe manifest.json sourceDependencies
 # - api-layer
