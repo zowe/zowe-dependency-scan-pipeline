@@ -1,29 +1,16 @@
-### License
+### Zowe Dependency Scan Pipeline(s)
 
-The contents of this repository are licensed under EPL-2.0. However, this repository contains a fork of LicenseFinder modified for usage in Zowe pipelines.
+This repository contains multiple scripts and tools which assist us in running various pipelines, mostly scans, against the Zowe Codebase. 
 
-The original repository for LicenseFinder can be found here: https://github.com/pivotal/LicenseFinder
+Currently, the following scans or pipelines are available:
 
-The original LicenseFinder is licensed as:
-
-The MIT License
-
-Copyright (c) 2012-2020 Pivotal Software, Inc. All Rights Reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+| Name | Purpose | Repo Path | Status | 
+| ----- | ----- | ----- | ----- | 
+| Dependency License Scans | Generates NOTICES and TPSR.md, which is a complete collection of dependency licenses, using the zowe manifest from [zowe-install-packaging](zowe/zowe-install-packaging). | [Scan Location](./licenses/dependency-scan/) | [Running in GHA](https://github.com/zowe/zowe-dependency-scan-pipeline/actions/workflows/license-generation.yml) | 
+| Dependency SBOM Scans w/ORT | Generates SPDX 2.2 SBOMs in a YAML format using the zowe manifest from [zowe-install-packaging](zowe/zowe-install-packaging). The generated SBOMs include all transitive dependencies for supported languages and build tools, which includes Node/NPM/Yarn, Rust/Cargo, and Java/Gradle/Maven. | [Scan Location](./licenses/dependency-scan/) | [Running in GHA](https://github.com/zowe/zowe-dependency-scan-pipeline/actions/workflows/license-generation.yml) |
+| Binary SBOM Scan w/FOSS | Generates 1.x RDF SBOMs using the binaries delivered as part of the Zowe release process (PAX, CLI Standalone ZIP). | [Scan Location](./licenses/sbom/) | [Not Running, but present in GHA.](https://github.com/zowe/zowe-dependency-scan-pipeline/actions/workflows/spdx-sbom.yml) This scan could be useful again in the future as SBOM standards evolve to cover more points in the S3C lifecycle, such as source, build, and artifact. This scan would be useful as "artifact" SBOM. | 
+|  Cleanup Scripts | Runs periodic cleanup scripts which help us manage infrastructure resources, such as disk space on persistent build machines and net artifact consumption Artifactory. | [Scan Location](./.github/workflows/cleanup.yml), [Scripts](./scripts), [Tooling](./artifactory-tools/) | [Running in GHA](https://github.com/zowe/zowe-dependency-scan-pipeline/actions/workflows/cleanup.yml) |
+| Snyk Scans | Scans projects for vulnerabilities using the Snyk database and uploads the results to the Zowe Security Squad's Repository | [Scan Location](./.github/workflows/snyk.yml) | [Possibly deprecated, still Running in GHA](https://github.com/zowe/zowe-dependency-scan-pipeline/actions/workflows/snyk.yml). We have access to continuous Snyk scanning through the Linux Foundation, so this pipeline is redundant but may still have some use by uploading scan artifacts for review. |
+| OWASP Scans | Scans dependencies for known vulnerabilities and weaknesses using the OWASP CLI. | [Scan Location](./licenses/dependency-scan) | Deprecated by other scans run within the community. |
+| Performance Test Suite | Contains client, server, and metric capture components that can be setup to run a set of performance tests against Zowe. | [Code Location](./performance/) | Not running. This test suite has been shelved for some time and would require a code review pass to bring it back up to a functioning state. | 
+| Docker Build Pipeline | Creates Docker containers used to run some of the above actions. Docker files are [located here](./.dockerfiles/) | [Pipeline Location](./.github/workflows/create-dockerfiles.yml) | [Running in GHA on-demand](https://github.com/zowe/zowe-dependency-scan-pipeline/actions/workflows/create-dockerfiles.yml)
