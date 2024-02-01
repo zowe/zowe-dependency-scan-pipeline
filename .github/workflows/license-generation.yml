@@ -161,7 +161,7 @@ jobs:
           cp ../resources/* zowe_cli_licenses/
           cp ../resources/* zowe_zos_licenses/
 
-          zip -rj logs.zip build/logs/*
+          zip -r logs.zip build/logs/*
      
           # Aggregate
           [[-ecp build/notice_reports/${{ env.NOTICES_AGGREGATE_FILE }} zowe_licenses/zowe_full_notices.txt
