@@ -61,11 +61,10 @@ export class OrtScanAction implements IAction {
         const analyzerFlags = this.repoRules.getOrtAnalyzerFlags(projectDir);
      
 
-        const licenseProcess = spawn("ort", [analyzerFlags, "analyze", "-i",
+        const licenseProcess = spawn("ort", [Constants.ORT_LOG_LEVEL, analyzerFlags, "analyze", "-i",
                 projectDir,
                 "-o",
                 projectDir,
-                Constants.ORT_LOG_LEVEL,
                 "-f",
                 "JSON"], {
                 cwd: process.env.cwd,
