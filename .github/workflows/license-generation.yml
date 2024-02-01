@@ -82,13 +82,13 @@ jobs:
 
   create-licenses:
 
-    runs-on: macos-13 # larger machine, 4 CPUs instead of ubuntu's 2
+    runs-on: macos-12 # larger machine, 3 CPUs instead of ubuntu's 2
+
   
     container:
       image: zowe-docker-snapshot.jfrog.io/ompzowe/zowecicd-license-base:latest
 
     steps:
-
       - name: Update variables if releasing
         run: | 
           if [ "$PUBLISH_RELEASE" = true ]; then
