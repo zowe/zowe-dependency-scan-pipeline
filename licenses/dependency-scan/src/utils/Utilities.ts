@@ -11,9 +11,26 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { env } from "process";
 import { isNullOrUndefined } from "util";
 
 export class Utilities {
+
+    public static getOrtDebug(envVar: string, defaultLevel: string): string {
+        const envValue = Utilities.getEnvStr(envVar, defaultLevel);
+        switch(envValue.toLowerCase()) {
+            case "info": 
+                return "--info";
+            case "warn":
+                return "--warn";
+            case "debug":
+                return "--debug";
+            case "error":
+                return "--error";
+            default:
+                throw new Error(`Ort debug level set by ${envVar} must be one of 'info', 'debug', 'error', or 'warn'. Defaults to 'warn'` );
+        }
+    }
 
     public static getEnvStr(envVar: string, defaultValue: string = ""): string {
         if (!isNullOrUndefined(process.argv) && process.argv.includes(envVar)) {

@@ -40,6 +40,16 @@ on:
         options:
           - 'true'
           - 'false'
+      ort_log_level:
+        description: Set ORT's Log Level. Defaults to 'warn'
+        required: false
+        type: choice
+        default: 'warn'
+        options:
+          - 'warn'
+          - 'info'
+          - 'error'
+          - 'debug'
 
 env:
   PUBLISH_RELEASE:  ${{ github.event.inputs.publish_release }}
@@ -96,8 +106,10 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '20'
+
       - name: 'Install Ansible'
         uses: zowe-actions/shared-actions/prepare-workflow@main
+        
       - name: '[Zowe Actions] Prepare workflow'
         uses: zowe-actions/shared-actions/prepare-workflow@main
       
@@ -167,6 +179,8 @@ jobs:
           cp build/sbom_reports/${{ env.CLI_SBOM_ARTIFACT_NAME }} ${{ env.CLI_SBOM_ARTIFACT_NAME }}
           cp build/sbom_reports/${{ env.ZOS_SBOM_ARTIFACT_NAME }} ${{ env.ZOS_SBOM_ARTIFACT_NAME }}
 
+          zip -rj logs.zip build/logs/*
+
       - name: Remove existing artifacts
         id: cleanup
         if: ${{ github.event.inputs.publish_release }} && ${{ github.event.inputs.overwrite_release }}
@@ -229,6 +243,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: |
+            ${{ env.DEPENDENCY_SCAN_HOME }}/logs.zip
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}.bundle
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}  

@@ -88,4 +88,6 @@ export class Constants {
     public static readonly SCAN_AGGREGATE: boolean = Utilities.getEnv("ZOWE_SCAN_AGGREGATE", true);
 
     public static readonly SKIP_INSTALL_SPECIFIC: string = Utilities.getEnvStr("SKIP_INSTALL_SPECIFIC", "")
+
+    public static readonly ORT_DEBUG_LEVEL: string = Utilities.getOrtDebug("ORT_DEBUG_LEVEL", "--warn");
 }

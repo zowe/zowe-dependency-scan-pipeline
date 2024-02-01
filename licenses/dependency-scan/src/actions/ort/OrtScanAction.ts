@@ -65,6 +65,7 @@ export class OrtScanAction implements IAction {
                 projectDir,
                 "-o",
                 projectDir,
+                Constants.ORT_DEBUG_LEVEL,
                 "-f",
                 "JSON"], {
                 cwd: process.env.cwd,
