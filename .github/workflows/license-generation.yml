@@ -80,10 +80,21 @@ env:
 
 jobs:
 
+  setup-runner:
+    runs-on: macos-13
+    outputs:
+      RUNNER: ${{ runner.name }}
+    steps: 
+      - name: Install docker
+        run: |
+          brew install docker colima
+          colima start
+
+
   create-licenses:
 
-    runs-on: macos-12 # larger machine, 3 CPUs instead of ubuntu's 2
-
+    needs: setup-runner
+    runs-on: ${{ needs.setup-runner.outputs.RUNNER }}
   
     container:
       image: zowe-docker-snapshot.jfrog.io/ompzowe/zowecicd-license-base:latest
