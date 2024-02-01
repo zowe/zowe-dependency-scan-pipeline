@@ -82,7 +82,7 @@ jobs:
 
   create-licenses:
 
-    runs-on: ubuntu-latest
+    runs-on: macos-13 # larger machine, 4 CPUs instead of ubuntu's 2
   
     container:
       image: zowe-docker-snapshot.jfrog.io/ompzowe/zowecicd-license-base:latest
