@@ -16,7 +16,7 @@ import { isNullOrUndefined } from "util";
 
 export class Utilities {
 
-    public static getOrtDebug(envVar: string, defaultLevel: string): string {
+    public static getOrtLogLevel(envVar: string, defaultLevel: string): string {
         const envValue = Utilities.getEnvStr(envVar, defaultLevel);
         switch(envValue.toLowerCase()) {
             case "info": 

@@ -76,6 +76,7 @@ env:
   ARTIFACT_REPO: init_in_step_one
   ARTIFACT_VERSION: init_in_step_one
   ORT_VERSION: 12.0.0
+  ORT_LOG_LEVEL: ${{ github.event.inputs.ort_log_level }}
 
 jobs:
 

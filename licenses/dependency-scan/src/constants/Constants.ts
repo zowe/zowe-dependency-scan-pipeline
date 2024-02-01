@@ -89,5 +89,5 @@ export class Constants {
 
     public static readonly SKIP_INSTALL_SPECIFIC: string = Utilities.getEnvStr("SKIP_INSTALL_SPECIFIC", "")
 
-    public static readonly ORT_DEBUG_LEVEL: string = Utilities.getOrtDebug("ORT_DEBUG_LEVEL", "--warn");
+    public static readonly ORT_LOG_LEVEL: string = Utilities.getOrtLogLevel("ORT_LOG_LEVEL", "warn");
 }

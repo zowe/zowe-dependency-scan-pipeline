@@ -215,7 +215,7 @@ export class OrtReportAction implements IAction {
         console.log("Running ORT License and Notice report on " + resolvedDir);
         const reportProcess = spawn("ort", ["report", "-i", resolvedDir + "/analyzer-result.json",
             "-o", Constants.LICENSE_REPORTS_DIR + path.sep + path.basename(projectPath),
-            Constants.ORT_DEBUG_LEVEL,
+            Constants.ORT_LOG_LEVEL,
             "-f", "PlainTextTemplate",
             "-O", "PlainTextTemplate=template.id=NOTICE_DEFAULT", // generates notices
             "-O", `PlainTextTemplate=template.path=${Constants.SOURCE_RESOURCES_DIR}/../resources/tpsr-full-template.md.ftl` //generates tpsr section

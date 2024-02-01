@@ -103,7 +103,7 @@ export class OrtSbomAction implements IAction {
         console.log("Running ORT SBOM generation for " + resolvedDir);
         const reportProcess = spawn("ort", ["report", "-i", resolvedDir + "/analyzer-result.json",
             "-o", Constants.SBOM_REPORTS_DIR + path.sep + path.basename(projectPath),
-            Constants.ORT_DEBUG_LEVEL,
+            Constants.ORT_LOG_LEVEL,
             "-O", `SpdxDocument=document.name=${path.basename(projectPath)}`,
             "-f", "SpdxDocument"
             ], {
