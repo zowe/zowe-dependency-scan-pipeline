@@ -47,9 +47,9 @@ export class Constants {
 
     public static readonly PARALLEL_INSTALL_COUNT: number = 6;
 
-    public static readonly PARALLEL_SCAN_COUNT: number = 1;
+    public static readonly PARALLEL_SCAN_COUNT: number = 2;
 
-    public static readonly PARALLEL_REPORT_COUNT: number = 1;
+    public static readonly PARALLEL_REPORT_COUNT: number = 2;
 
     public static readonly PARALLEL_NOTICE_REPORT_COUNT: number = 4;
 
