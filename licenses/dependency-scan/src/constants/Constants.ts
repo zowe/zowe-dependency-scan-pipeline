@@ -71,7 +71,7 @@ export class Constants {
     // only change if re-running builds / modifying manifest or other metadata locally
     public static readonly DOWNLOAD_MANIFEST: boolean = Utilities.getEnv("ZOWE_DL_MANIFEST", true);
 
-    public static readonly ZOWE_MANIFEST_BRANCH: string = Utilities.getEnvStr("ZOWE_MANIFEST_BRANCH", "v1.7.0");
+    public static readonly ZOWE_MANIFEST_BRANCH: string = Utilities.getEnvStr("ZOWE_MANIFEST_BRANCH", "v2.x/rc");
 
     public static readonly EXEC_CLONE: boolean = Utilities.getEnv("ZOWE_STEP_CLONE", true);
 

@@ -59,7 +59,13 @@ export class OrtScanAction implements IAction {
         console.log("Scanning individual project " + projectDir);
 
         const analyzerFlags = this.repoRules.getOrtAnalyzerFlags(projectDir);
-     
+        
+        if (projectDir.includes("orion-editor-component")) {
+            console.log("Fixing orion-editor-components old references to gizaartifactory...");
+            const fixedPkgLock = fs.readFileSync(projectDir + path.sep + "package-lock.json").toString()
+                .replaceAll('gizaartifactory', 'zowe');
+            fs.writeFileSync(projectDir + path.sep + "package-lock.json", fixedPkgLock);
+        }
 
         const licenseProcess = spawn("ort", [Constants.ORT_LOG_LEVEL, analyzerFlags, "analyze", "-i",
                 projectDir,
