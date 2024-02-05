@@ -147,6 +147,8 @@ jobs:
           ZOWE_MANIFEST_BRANCH: ${{ env.ZOWE_RELEASE_BRANCH }}
         working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
         run: |
+          # Rustup is set to default in the container, but it's not picked up in this run block
+          rustup default stable  
           yarn install && yarn build
           node lib/index.js
           cd build

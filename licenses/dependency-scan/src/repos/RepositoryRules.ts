@@ -30,7 +30,7 @@ export class RepositoryRules {
 
     public makeOrtYaml(project: string): string {
 
-        const merged = _.merge(this.repoRules["default"], this.repoRules[project]);
+        const merged = _.merge({}, this.repoRules["default"], this.repoRules[project]);
 
         return stringify(merged);
 
