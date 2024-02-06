@@ -65,6 +65,7 @@ env:
   NOTICES_CLI_FILE: notices_cli.txt
   NOTICES_ZOS_FILE: notices_zos.txt
   ARTIFACT_PATH: org/zowe/licenses
+  ARTIFACT_PATH_SBOM: init_in_step_one
   VERSION: ${{ github.event.inputs.zowe_version }}
   AGG_ARTIFACT_NAME: zowe_licenses_full.zip
   CLI_ARTIFACT_NAME: zowe_licenses_cli.zip
@@ -94,28 +95,27 @@ jobs:
           if [ "$PUBLISH_RELEASE" = true ]; then
               echo "ARTIFACT_REPO=libs-release-local" >> $GITHUB_ENV
               echo "ARTIFACT_VERSION=$VERSION" >> $GITHUB_ENV
+              echo "ARTIFACT_PATH_SBOM=org/zowe/${{ env.VERSION }}/sbom >> $GITHUB_ENV"
               echo "FILENAME_PATTERN={filename}${{ env.RELEASE_SUFFIX }}{fileext}" >> $GITHUB_ENV
           else
               echo "ARTIFACT_REPO=libs-snapshot-local" >> $GITHUB_ENV
               echo "ARTIFACT_VERSION=$VERSION-SNAPSHOT" >> $GITHUB_ENV
+              echo "ARTIFACT_PATH_SBOM=org/zowe/${{ env.VERSION }}-SNAPSHOT/sbom >> $GITHUB_ENV"
               echo "FILENAME_PATTERN={filename}-${{ env.VERSION }}-SNAPSHOT{timestamp}{fileext}" >> $GITHUB_ENV
           fi
     
       - name: Checkout current repo
         uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: 'Install Ansible'
-        uses: zowe-actions/shared-actions/prepare-workflow@main
         
       - name: '[Zowe Actions] Prepare workflow'
         uses: zowe-actions/shared-actions/prepare-workflow@main
       
       - name: 'Setup jFrog CLI'
-        uses: jfrog/setup-jfrog-cli@v2
+        uses: jfrog/setup-jfrog-cli@v4
         env:
           JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
 
@@ -228,7 +228,7 @@ jobs:
           git config --global --add safe.directory /__w/zowe-dependency-scan-pipeline/zowe-dependency-scan-pipeline
 
       - name: Publish to Artifactory
-        id: publish
+        id: publish-license
         timeout-minutes: 10
         uses: zowe-actions/shared-actions/publish@main
         with:
@@ -240,6 +240,17 @@ jobs:
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}  
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}
+
+      - name: Publish to Artifactory
+        id: publish-sbom
+        timeout-minutes: 10
+        uses: zowe-actions/shared-actions/publish@main
+        with:
+          publish-target-file-pattern: ${{ env.FILENAME_PATTERN }}
+          publish-target-path-pattern: ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH_SBOM }}/  # version is embedded in the path_sbom var
+          perform-release: ${{ env.PUBLISH_RELEASE }}
+          sigstore-sign-artifacts: true
+          artifacts: |
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}
