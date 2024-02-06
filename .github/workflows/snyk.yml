@@ -99,11 +99,11 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           repository: zowe/${{ matrix.repository }}
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
       
@@ -146,7 +146,7 @@ jobs:
           command: ${{ env.SNYK_SCAN_COMMAND }}
           args: --sarif-file-output=${{ env.SCAN_REPORT_DIR }}/snyk.sarif --all-projects
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: snyk-report
           path: .snyk-reports/
@@ -164,13 +164,13 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           repository: zowe/${{ matrix.repository }}
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
-          node-version: '14'
+          node-version: '18'
       
       - name: Run npm install
         continue-on-error: true
@@ -211,7 +211,7 @@ jobs:
           command: ${{ env.SNYK_SCAN_COMMAND }}
           args: --sarif-file-output=${{ env.SCAN_REPORT_DIR }}/snyk.sarif --all-projects
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: snyk-report
           path: .snyk-reports/
@@ -222,12 +222,12 @@ jobs:
       - snyk-gradle
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           repository: zowe/security-reports
           token: ${{ secrets.ZOWE_ROBOT_TOKEN }}
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: snyk-report
           path: Snyk/
