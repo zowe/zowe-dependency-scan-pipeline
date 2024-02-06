@@ -94,12 +94,12 @@ jobs:
           if [ "$PUBLISH_RELEASE" = true ]; then
               echo "ARTIFACT_REPO=libs-release-local" >> $GITHUB_ENV
               echo "ARTIFACT_VERSION=$VERSION" >> $GITHUB_ENV
-              echo "ARTIFACT_PATH_SBOM=org/zowe/${{ env.VERSION }}/sbom >> $GITHUB_ENV"
+              echo "ARTIFACT_PATH_SBOM=org/zowe/${{ env.VERSION }}/sbom" >> $GITHUB_ENV
               echo "FILENAME_PATTERN={filename}${{ env.RELEASE_SUFFIX }}{fileext}" >> $GITHUB_ENV
           else
               echo "ARTIFACT_REPO=libs-snapshot-local" >> $GITHUB_ENV
               echo "ARTIFACT_VERSION=$VERSION-SNAPSHOT" >> $GITHUB_ENV
-              echo "ARTIFACT_PATH_SBOM=org/zowe/${{ env.VERSION }}-SNAPSHOT/sbom >> $GITHUB_ENV"
+              echo "ARTIFACT_PATH_SBOM=org/zowe/${{ env.VERSION }}-SNAPSHOT/sbom" >> $GITHUB_ENV
               echo "FILENAME_PATTERN={filename}-${{ env.VERSION }}-SNAPSHOT{timestamp}{fileext}" >> $GITHUB_ENV
           fi
     
