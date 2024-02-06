@@ -47,9 +47,9 @@ export class Constants {
 
     public static readonly PARALLEL_INSTALL_COUNT: number = 6;
 
-    public static readonly PARALLEL_SCAN_COUNT: number = 1;
+    public static readonly PARALLEL_SCAN_COUNT: number = 2;
 
-    public static readonly PARALLEL_REPORT_COUNT: number = 1;
+    public static readonly PARALLEL_REPORT_COUNT: number = 2;
 
     public static readonly PARALLEL_NOTICE_REPORT_COUNT: number = 4;
 
@@ -71,7 +71,7 @@ export class Constants {
     // only change if re-running builds / modifying manifest or other metadata locally
     public static readonly DOWNLOAD_MANIFEST: boolean = Utilities.getEnv("ZOWE_DL_MANIFEST", true);
 
-    public static readonly ZOWE_MANIFEST_BRANCH: string = Utilities.getEnvStr("ZOWE_MANIFEST_BRANCH", "v1.7.0");
+    public static readonly ZOWE_MANIFEST_BRANCH: string = Utilities.getEnvStr("ZOWE_MANIFEST_BRANCH", "v2.x/rc");
 
     public static readonly EXEC_CLONE: boolean = Utilities.getEnv("ZOWE_STEP_CLONE", true);
 
@@ -88,4 +88,6 @@ export class Constants {
     public static readonly SCAN_AGGREGATE: boolean = Utilities.getEnv("ZOWE_SCAN_AGGREGATE", true);
 
     public static readonly SKIP_INSTALL_SPECIFIC: string = Utilities.getEnvStr("SKIP_INSTALL_SPECIFIC", "")
+
+    public static readonly ORT_LOG_LEVEL: string = Utilities.getOrtLogLevel("ORT_LOG_LEVEL", "warn");
 }

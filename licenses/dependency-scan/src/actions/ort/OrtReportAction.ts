@@ -213,7 +213,7 @@ export class OrtReportAction implements IAction {
         const resolvedDir = path.join(Constants.CLONE_DIR, projectPath);
         const normalizedProjectName = projectPath.replace(/[\\\/]/g, "-");
         console.log("Running ORT License and Notice report on " + resolvedDir);
-        const reportProcess = spawn("ort", ["report", "-i", resolvedDir + "/analyzer-result.json",
+        const reportProcess = spawn("ort", [Constants.ORT_LOG_LEVEL, "report", "-i", resolvedDir + "/analyzer-result.json",
             "-o", Constants.LICENSE_REPORTS_DIR + path.sep + path.basename(projectPath),
             "-f", "PlainTextTemplate",
             "-O", "PlainTextTemplate=template.id=NOTICE_DEFAULT", // generates notices

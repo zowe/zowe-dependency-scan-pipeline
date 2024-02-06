@@ -11,10 +11,10 @@ jobs:
   cleanup-artifactory:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: 'Setup jFrog CLI'
-        uses: jfrog/setup-jfrog-cli@v2
+        uses: jfrog/setup-jfrog-cli@v4
         # env:
         #   JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
       
@@ -45,7 +45,7 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Cleanup ${{ matrix.servers.name }}
         run: |
@@ -69,7 +69,7 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Cleanup ${{ matrix.servers.name }}
         run: |

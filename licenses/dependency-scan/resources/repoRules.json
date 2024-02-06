@@ -33,6 +33,21 @@
 			]
 		}
 	},
+	"sample-angular-app": {	
+		"analyzer": {
+			"allow_dynamic_versions": true
+		}
+	},
+	"sample-iframe-app": {	
+		"analyzer": {
+			"allow_dynamic_versions": true
+		}
+	},
+	"sample-react-app": {	
+		"analyzer": {
+			"allow_dynamic_versions": true
+		}
+	},
 	"vscode-extension-for-zowe": {
 		"excludes": {
 			"paths": [
