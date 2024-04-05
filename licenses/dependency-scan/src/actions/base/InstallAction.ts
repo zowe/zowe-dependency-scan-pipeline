@@ -104,7 +104,7 @@ export class InstallAction implements IAction {
                 /// -- Alternatives to skip-integrity-check are dropping network-concurrency to 1 and/or setting a mutex on yarn install.
                 console.log("Issuing yarn install in " + absDir);
                 const installProcess = spawn("yarn", ["install",
-                    ((projectDir === "vscode-extension-for-zowe") ? "" : "--production"),
+                    ((projectDir === "zowe-explorer-vscode") ? "" : "--production"),
                     "--network-timeout", "300000", "--ignore-engines",
                     "--registry", "https://zowe.jfrog.io/zowe/api/npm/npm-release",
                     "--skip-integrity-check", "--network-concurrency", "5"], { cwd: absDir, env: process.env, shell: true });

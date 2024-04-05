@@ -48,7 +48,9 @@
 			"allow_dynamic_versions": true
 		}
 	},
-	"vscode-extension-for-zowe": {
+	"zowe-cli": {
+	},
+	"zowe-explorer-vscode": {
 		"excludes": {
 			"paths": [
 				{
@@ -58,7 +60,5 @@
 				}
 			]
 		}
-	},
-	"zowe-cli": {
 	}
 }
