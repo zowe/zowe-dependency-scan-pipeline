@@ -88,7 +88,7 @@ jobs:
           - zlux-workflow
           - zosmf-auth
           - zowe-cli
-          - zowe-cli-cics-plugin
+          - cics-for-zowe-client
           - zowe-cli-db2-plugin
           - zowe-cli-ftp-plugin
           - zowe-cli-ims-plugin
