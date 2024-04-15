@@ -74,7 +74,6 @@ jobs:
           - sample-iframe-app
           - sample-react-app
           - tn3270-ng2
-          - vscode-extension-for-zowe
           - vt-ng2
           - zlux-app-manager
           - zlux-app-server
@@ -89,12 +88,13 @@ jobs:
           - zlux-workflow
           - zosmf-auth
           - zowe-cli
-          - zowe-cli-cics-plugin
+          - cics-for-zowe-client
           - zowe-cli-db2-plugin
           - zowe-cli-ftp-plugin
           - zowe-cli-ims-plugin
           - zowe-cli-mq-plugin
           - zowe-cli-scs-plugin
+          - zowe-explorer-vscode
           - zss-auth
 
     runs-on: ubuntu-latest
