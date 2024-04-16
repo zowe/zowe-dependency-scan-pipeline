@@ -12,7 +12,7 @@
 
 ################################################################################
 # This script cleans up expired snapshots builds.
-# 
+#
 # Example: ./clean-nightly.sh -a artifactory-server
 ################################################################################
 
@@ -25,6 +25,7 @@ DEFAULT_ARTIFACTORY_SERVER=zowe-jack
 OS_CATEGORY=$(uname)
 SNAPSHOT_BUILD_PATH_LIST=snapshots-paths.txt
 SNAPSHOT_BUILD_KEEP_PATTERN="^[0-9]+\.[0-9]+\.[0-9]+-([vV][0-9]+[\.\-][xX]-)?(STAGING|SNAPSHOT|SNAPSHOTS|RC)\$"
+SNAPSHOT_BUILD_KEEP_ZLUX="^[0-9]+\.[0-9]+\.[0-9]+-([vV][0-9]+[\.\-][xX]-)?(STAGING|RC)-.*\$"
 SNAPSHOT_BUILD_KEEP_DAYS=30
 
 ################################################################################
@@ -58,21 +59,21 @@ function usage {
 }
 while getopts ":ha:" opt; do
   case $opt in
-    h)
-      usage
-      exit 0
-      ;;
-    a)
-      ARTIFACTORY_SERVER=$OPTARG
-      ;;
-    \?)
-      echo "[${SCRIPT_NAME}][error] invalid option: -$OPTARG" >&2
-      exit 1
-      ;;
-    :)
-      echo "[${SCRIPT_NAME}][error] invalid option argument: -$OPTARG requires an argument" >&2
-      exit 1
-      ;;
+  h)
+    usage
+    exit 0
+    ;;
+  a)
+    ARTIFACTORY_SERVER=$OPTARG
+    ;;
+  \?)
+    echo "[${SCRIPT_NAME}][error] invalid option: -$OPTARG" >&2
+    exit 1
+    ;;
+  :)
+    echo "[${SCRIPT_NAME}][error] invalid option argument: -$OPTARG requires an argument" >&2
+    exit 1
+    ;;
   esac
 done
 
@@ -91,8 +92,10 @@ for pattern in $(cat "${SCRIPT_PWD}/${SNAPSHOT_BUILD_PATH_LIST}"); do
   for folder in $SUBFOLDERS; do
     if [[ $folder =~ $SNAPSHOT_BUILD_KEEP_PATTERN ]]; then
       echo "[${SCRIPT_NAME}] - ${folder} ==> keep"
+    elif [[ $folder =~ $SNAPSHOT_BUILD_KEEP_ZLUX ]]; then
+      echo "${folder} ==> keep [zlux]"
     else
-      LAST_MODIFIED="$(jfrog rt curl --server-id "${ARTIFACTORY_SERVER}" --silent -XGET /api/storage/${pattern}${folder}?lastModified |  jq -r '.lastModified')"
+      LAST_MODIFIED="$(jfrog rt curl --server-id "${ARTIFACTORY_SERVER}" --silent -XGET /api/storage/${pattern}${folder}?lastModified | jq -r '.lastModified')"
       if [ "${LAST_MODIFIED}" = "null" ]; then
         echo "[${SCRIPT_NAME}] - ${folder} (empty) deleting ..."
         if jfrog rt curl --server-id "${ARTIFACTORY_SERVER}" -XDELETE "/${pattern}${folder}"; then
