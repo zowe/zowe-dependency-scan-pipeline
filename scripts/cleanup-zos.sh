@@ -126,5 +126,13 @@ if [ -f "${opercmd}" ]; then
 fi
 
 ################################################################################
+compressRexx=/tmp/compress.rexx
+if [ -f "${compressRexx}" ]; then
+  echo "[${SCRIPT_NAME}] compress datasets"
+  "${compressRexx}" VENDOR.PROCLIB
+  "${compressRexx}" VENDOR.PARMLIB
+fi
+
+################################################################################
 echo "[${SCRIPT_NAME}] done."
 exit 0
