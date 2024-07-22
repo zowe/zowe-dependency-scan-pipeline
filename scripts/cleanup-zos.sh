@@ -129,8 +129,8 @@ fi
 compressRexx=/tmp/compress.rexx
 if [ -f "${compressRexx}" ]; then
   echo "[${SCRIPT_NAME}] compress datasets"
-  "${compressRexx}" VENDOR.PROCLIB
-  "${compressRexx}" VENDOR.PARMLIB
+  "${compressRexx}" VENDOR.PROCLIB </dev/null
+  "${compressRexx}" VENDOR.PARMLIB </dev/null
 fi
 
 ################################################################################
