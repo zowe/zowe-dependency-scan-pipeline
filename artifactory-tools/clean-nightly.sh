@@ -23,7 +23,7 @@ SCRIPT_PWD=$(cd $(dirname "$0") && pwd)
 RUN_PWD=$(pwd)
 DEFAULT_ARTIFACTORY_SERVER=zowe-jack
 DEFAULT_NIGHTLY_BUILD_FULL_PATH=libs-release-local/org/zowe/nightly/
-NIGHTLY_BUILD_PATTERNS="zowe-1.*.pax zowe-smpe-1.*.tar zowe-smpe-1.*.zip zowe-containerization-1.*.zip server-bundle.amd64-1.*.tar cli/zowe-cli-1.*.zip v2/zowe-2.*.pax zowe-smpe-2.*.tar zowe-smpe-2.*.zip v3/zowe-3.*.pax"
+NIGHTLY_BUILD_PATTERNS="zowe-1.*.pax zowe-smpe-1.*.tar zowe-smpe-1.*.zip zowe-containerization-1.*.zip server-bundle.amd64-1.*.tar cli/zowe-cli-1.*.zip v2/zowe-2.*.pax zowe-smpe-2.*.tar zowe-smpe-2.*.zip v3/zowe-3.*.pax zowe-smpe-3.*.tar zowe-smpe-3.*.zip"
 NIGHTLY_BUILD_COUNT=30
 
 ################################################################################
