@@ -1,0 +1,3 @@
+JSON.lua was removed to comply with licensing considerations (it was a creative commons component).
+
+This project is currently in stasis, to re-enable it automation should be updated to retrieve JSON.lua as part of the build process.

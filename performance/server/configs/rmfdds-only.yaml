@@ -1,0 +1,32 @@
+server:
+  http:
+    enabled: true
+    port: 19001
+  https:
+    enabled: true
+    port: 19000
+    key: sslcert/server.key
+    cert: sslcert/server.cert
+metrics:
+  - name: rmf.dds
+    # estimated overhead 0.4%
+    worker: rmf.dds
+    options:
+      interval: 10
+      # --- optional to overwrite DEFAULT_RMF_DDS_OPTIONS
+      # rmfDdsOptions:
+      #   protocol: http
+      #   host: <your-host>
+      #   port: 8803
+      #   username:
+      #   password:
+      # --- RMF DDS options can also be passed with environment variables
+      # - RMF_DDS_PROTOCOL
+      # - RMF_DDS_HOST
+      # - RMF_DDS_PORT
+      # - RMF_DDS_USERNAME
+      # - RMF_DDS_PASSWORD
+      # --- optional to overwrite DEFAULT_RMF_DDS_METRICS
+      # metrics:
+      #   cpu:
+      #     - PROCESSOR.8D49E0
