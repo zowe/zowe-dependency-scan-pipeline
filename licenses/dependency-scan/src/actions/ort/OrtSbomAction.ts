@@ -34,6 +34,7 @@ export class OrtSbomAction implements IAction {
 
     private readonly SBOM_ZOS_REPORT = path.resolve(Constants.SBOM_REPORTS_DIR, "sbom_zos.spdx.yml");
     private readonly SBOM_CLI_REPORT = path.resolve(Constants.SBOM_REPORTS_DIR, "sbom_cli.spdx.yml");
+    private readonly SBOM_VSCODE_REPORT = path.resolve(Constants.SBOM_REPORTS_DIR, "sbom_vscode.spdx.yml");
     private readonly SBOM_AGG_REPORT = path.resolve(Constants.SBOM_REPORTS_DIR, "sbom_aggregate.spdx.yml");
     private sbomQueue: async.AsyncQueue<any> = async.queue(this.reportSboms.bind(this), Constants.PARALLEL_NOTICE_REPORT_COUNT);
 
@@ -85,6 +86,8 @@ export class OrtSbomAction implements IAction {
                         fs.appendFileSync(this.SBOM_AGG_REPORT, fs.readFileSync(sbomFile).toString());
                         if (sbomReport.destinations.join(",").includes("CLI")) {
                             fs.appendFileSync(this.SBOM_CLI_REPORT, fs.readFileSync(sbomFile).toString());
+                        } else if (sbomReport.destinations.join(",").includes("Visual Studio Code")) {
+                            fs.appendFileSync(this.SBOM_VSCODE_REPORT, fs.readFileSync(sbomFile).toString());
                         } else {
                             fs.appendFileSync(this.SBOM_ZOS_REPORT, fs.readFileSync(sbomFile).toString());
                         }

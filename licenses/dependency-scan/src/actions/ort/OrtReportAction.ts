@@ -35,6 +35,7 @@ export class OrtReportAction implements IAction {
 
     private readonly AGG_REPORT_MARKDOWN_FILE = path.resolve(Constants.LICENSE_REPORTS_DIR, "markdown_dependency_report.md");
     private readonly CLI_REPORT_MARKDOWN_FILE = path.resolve(Constants.LICENSE_REPORTS_DIR, "cli_dependency_report.md")
+    private readonly VSCODE_REPORT_MARKDOWN_FILE = path.resolve(Constants.LICENSE_REPORTS_DIR, "vscode_dependency_report.md")
     private readonly ZOS_REPORT_MARKDOWN_FILE = path.resolve(Constants.LICENSE_REPORTS_DIR, "zos_dependency_report.md")
 
     private reportQueue: async.AsyncQueue<any> = async.queue(this.reportProject.bind(this), Constants.PARALLEL_REPORT_COUNT);
@@ -91,6 +92,7 @@ export class OrtReportAction implements IAction {
             const sourceDependencies: ZoweManifestSourceDependency[] = this.zoweManifest.sourceDependencies;
             const aggregateNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_aggregate.txt");
             const cliNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_cli.txt");
+            const vscodeNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_vscode.txt");
             const zosNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_zos.txt");
 
             (sourceDependencies).forEach((dependency: ZoweManifestSourceDependency) => {
@@ -106,6 +108,8 @@ export class OrtReportAction implements IAction {
                         fs.appendFileSync(aggregateNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
                         if (noticeInstance.destinations.join(",").includes("CLI")) {
                             fs.appendFileSync(cliNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
+                        } else if (noticeInstance.destinations.join(",").includes("Visual Studio Code")) {
+                            fs.appendFileSync(vscodeNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
                         } else {
                             fs.appendFileSync(zosNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
                         }
@@ -125,9 +129,11 @@ export class OrtReportAction implements IAction {
 
             const aggregateReportFile = fs.createWriteStream(this.AGG_REPORT_MARKDOWN_FILE, { flags: "a" });
             const cliReportFile = fs.createWriteStream(this.CLI_REPORT_MARKDOWN_FILE)
+            const vscodeReportFile = fs.createWriteStream(this.VSCODE_REPORT_MARKDOWN_FILE)
             const zosReportFile = fs.createWriteStream(this.ZOS_REPORT_MARKDOWN_FILE)
             aggregateReportFile.write("# Zowe Third Party Library Usage\n\n");
             cliReportFile.write("# Zowe CLI Third Party Library Usage\n\n");
+            vscodeReportFile.write("# Zowe Explorer for VS Code Third Party Library Usage\n\n");
             zosReportFile.write("# Zowe z/OS Third Party Library Usage\n\n");
             (sourceDependencies).forEach((dependency) => {
                 aggregateReportFile.write("* [" + dependency.componentGroup + "](#" + dependency.componentGroup.replace(/\s/g, "-").toLowerCase()
@@ -136,6 +142,9 @@ export class OrtReportAction implements IAction {
                     if (dependency.entries[0].destinations.join(",").includes("CLI")) {
                         cliReportFile.write("* [" + dependency.componentGroup + "](#" + dependency.componentGroup.replace(/\s/g, "-").toLowerCase()
                             + "-dependency-attributions)" + "\n");
+                    } else if (dependency.entries[0].destinations.join(",").includes("Visual Studio Code")) {
+                        vscodeReportFile.write("* [" + dependency.componentGroup + "](#" + dependency.componentGroup.replace(/\s/g, "-").toLowerCase()
+                            + "-dependency-attributions)" + "\n");
                     } else {
                         zosReportFile.write("* [" + dependency.componentGroup + "](#" + dependency.componentGroup.replace(/\s/g, "-").toLowerCase()
                             + "-dependency-attributions)" + "\n");
@@ -143,8 +152,9 @@ export class OrtReportAction implements IAction {
                 }
             });
             aggregateReportFile.write("\n");
-            zosReportFile.write("\n");
             cliReportFile.write("\n");
+            vscodeReportFile.write("\n");
+            zosReportFile.write("\n");
 
             (sourceDependencies).forEach((dependency: ZoweManifestSourceDependency) => {
                 const reports: ReportInfo[] = (dependency.entries.map((depEntry): ReportInfo => {
@@ -157,10 +167,12 @@ export class OrtReportAction implements IAction {
 
                 let totalDepCt = 0;
                 let cliDepCt = 0;
+                let vscodeDepCt = 0;
                 let zosDepCt = 0;
                 let missingReport: boolean = false;
                 let fullReportString = "";
                 let cliReportString = fullReportString
+                let vscodeReportString = fullReportString
                 let zosReportString = fullReportString
                 reports.forEach((reportInstance: ReportInfo) => {
                     try {
@@ -176,6 +188,10 @@ export class OrtReportAction implements IAction {
                                 cliDepCt += reportDepCt
                                 cliReportString += `### ${dependency.componentGroup} Dependency Attributions\n`
                                 cliReportString += lines.join("\n");
+                            } else if (reportInstance.destinations.join(",").includes("Visual Studio Code")) {
+                                vscodeDepCt += reportDepCt
+                                vscodeReportString += `### ${dependency.componentGroup} Dependency Attributions\n`
+                                vscodeReportString += lines.join("\n");
                             } else {
                                 zosDepCt += reportDepCt
                                 zosReportString += `### ${dependency.componentGroup} Dependency Attributions\n`
@@ -195,6 +211,10 @@ export class OrtReportAction implements IAction {
                 if (cliDepCt > 0) {
                     cliReportFile.write(cliReportString);
                     cliReportFile.write("\n\n")
+                }
+                if (vscodeDepCt > 0) {
+                    vscodeReportFile.write(vscodeReportString);
+                    vscodeReportFile.write("\n\n")
                 }
                 if (zosDepCt > 0) {
                     zosReportFile.write(zosReportString);
