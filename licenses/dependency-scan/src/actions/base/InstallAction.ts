@@ -74,11 +74,7 @@ export class InstallAction implements IAction {
                 const bootstrapGradle = spawn.sync(`./bootstrap_gradlew.sh`, [], { cwd: absDir, env: process.env, shell: true });
                 this.log.logOutputSync(bootstrapGradle, projectDir, "install");
 
-                // let gradleArgs = ["build", "-x", "test", "-x", "check"];
                 let gradleArgs = ["compileJava"]
-               /* if (this.repoRules.hasExtraGradleArgs(projectDir)) {
-                    gradleArgs = gradleArgs.concat(this.repoRules.getExtraGradleArgs(projectDir));
-                }*/
                 console.log(`Issuing ./gradlew build in ${absDir} with args ${gradleArgs}`);
                 const installProcess = spawn.sync(`./gradlew`, gradleArgs, { cwd: absDir, env: process.env, shell: true });
                 this.log.logOutputSync(installProcess, projectDir, "install");
@@ -87,9 +83,22 @@ export class InstallAction implements IAction {
             if (Utilities.dirHasNodeProject(absDir)) {
                 fs.copyFileSync("resources/private_npmrc/.npmrc", path.join(absDir, ".npmrc"));
                 fs.copyFileSync("resources/private_npmrc/.yarnrc", path.join(absDir, ".yarnrc"));
-                if (fs.existsSync(path.join(absDir, "package-lock.json"))) {
-                    fs.unlinkSync(path.join(absDir, "package-lock.json"));
+
+                const registry =["--registry", "https://zowe.jfrog.io/zowe/api/npm/npm-release"]
+                //default npm install prod
+                let installCmd = "npm";
+                let installArgs = ["install", "--omit=dev", ...registry];
+                
+                if (Utilities.hasPnpmLockFile(`${absDir}`)) {
+                    installCmd = "pnpm";
+                    installArgs = ["install", "--frozen-lockfile", "--prod", ...registry]
+                } else if (Utilities.hasNpmLockfile(`${absDir}`)) {
+                    installArgs = ["ci", "--omit=dev", ...registry]
+                } else if (Utilities.hasYarnLockfile(`${absDir}`)) {
+                    installCmd = "yarn";
+                    installArgs = ["install", "--production", "--frozen-lockfile", "--ignore-engines", ...registry]
                 }
+
                 if (fs.existsSync(path.join(absDir, "node_modules"))) {
                     try {
                         rimraf.sync(path.join(absDir, "node_modules"), { maxRetries: 10 });
@@ -103,11 +112,7 @@ export class InstallAction implements IAction {
                 // So far, there are no failures downstream due to an integrity mismatch at this step.
                 /// -- Alternatives to skip-integrity-check are dropping network-concurrency to 1 and/or setting a mutex on yarn install.
                 console.log("Issuing yarn install in " + absDir);
-                const installProcess = spawn("yarn", ["install",
-                    ((projectDir === "zowe-explorer-vscode") ? "" : "--production"),
-                    "--network-timeout", "300000", "--ignore-engines",
-                    "--registry", "https://zowe.jfrog.io/zowe/api/npm/npm-release",
-                    "--skip-integrity-check", "--network-concurrency", "5"], { cwd: absDir, env: process.env, shell: true });
+                const installProcess = spawn(installCmd, installArgs, { cwd: absDir, env: process.env, shell: true });
                 processPromises.push(this.log.logOutputAsync(installProcess, projectDir, "install"));
             }
             if (Utilities.dirHasCargoProject(absDir)) {

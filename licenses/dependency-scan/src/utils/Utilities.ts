@@ -106,4 +106,16 @@ export class Utilities {
     public static dirHasCargoProject(dir: string) {
         return fs.existsSync(path.join(dir, "Cargo.toml"));
     }
+
+    public static hasPnpmLockFile(dir: string): boolean {
+        return fs.existsSync(`${dir}/pnpm-lock.yaml`);
+    }
+
+    public static hasNpmLockfile(dir: string): boolean {
+        return fs.existsSync(`${dir}/package-lock.json`) || fs.existsSync(`${dir}/npm-shrinkwrap.json`);
+    }
+    
+    public static hasYarnLockfile(dir: string): boolean {
+        return fs.existsSync(`${dir}/yarn.lock`);
+    }
 }
