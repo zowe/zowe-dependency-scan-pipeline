@@ -51,7 +51,7 @@ RUN rustup install stable && rustup default stable
 RUN cargo install cargo-license
 RUN cargo install get-license-helper
 
-ARG ORT_VERSION=15.1.0
+ARG ORT_VERSION=33.1.0
 
 RUN git clone https://github.com/oss-review-toolkit/ort
 WORKDIR /home/build/ort
