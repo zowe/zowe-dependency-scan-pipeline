@@ -60,7 +60,7 @@
 				},
 				{
 					"pattern": "**/zedc/**",
-					"reason": "TEST_DEPENDENCY_OF",
+					"reason": "TEST_TOOL_OF",
 					"comment": "Development CLI"
 				}
 			]
