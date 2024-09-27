@@ -57,6 +57,11 @@
 					"pattern": "**/samples/**",
 					"reason": "EXAMPLE_OF",
 					"comment": "Sample APIs"
+				},
+				{
+					"pattern": "**/zedc/**",
+					"reason": "TEST_DEPENDENCY_OF",
+					"comment": "Development CLI"
 				}
 			]
 		}
