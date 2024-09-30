@@ -26,6 +26,8 @@ ENV PATH="$HOME/.cargo/bin:$PATH"
 
 RUN npm install -g yarn
 
+RUN wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.bashrc" SHELL="$(which bash)" bash -
+
 ENV owasp_version=5.3.2
 ENV owasp_dc_download="https://github.com/jeremylong/DependencyCheck/releases/download/v${owasp_version}/"
 
@@ -49,7 +51,7 @@ RUN rustup install stable && rustup default stable
 RUN cargo install cargo-license
 RUN cargo install get-license-helper
 
-ARG ORT_VERSION=15.1.0
+ARG ORT_VERSION=33.1.0
 
 RUN git clone https://github.com/oss-review-toolkit/ort
 WORKDIR /home/build/ort

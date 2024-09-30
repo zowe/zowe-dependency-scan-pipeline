@@ -28,10 +28,10 @@ on:
         type: string
         required: false
         default: ''
-      zowe_sources_branch: 
+      zowe_sources_branch:
         description: The branch of zowe-install-packaging used to determine sources included in the scan
         required: true
-        default: 'v2.x/rc' 
+        default: 'v2.x/rc'
       dummy_build:
         description: Creates empty zip files, bypassing license scans. For test purposes only.
         required: false
@@ -52,26 +52,30 @@ on:
           - 'debug'
 
 env:
-  PUBLISH_RELEASE:  ${{ github.event.inputs.publish_release }}
+  PUBLISH_RELEASE: ${{ github.event.inputs.publish_release }}
   RELEASE_SUFFIX: ${{ github.event.inputs.release_suffix }}
-  REPLACE_EXISTING_RELEASE:  ${{ github.event.inputs.replace_release }} 
+  REPLACE_EXISTING_RELEASE: ${{ github.event.inputs.replace_release }}
   ZOWE_RELEASE_BRANCH: ${{ github.event.inputs.zowe_sources_branch }}
   PENDING_APPROVAL_REPORT_NAME: dependency_approval_action_aggregates.json
   DEPENDENCY_SCAN_HOME: licenses/dependency-scan
   MARKDOWN_REPORT_NAME: markdown_dependency_report.md
   MARKDOWN_CLI_REPORT: cli_dependency_report.md
+  MARKDOWN_VSCODE_REPORT: vscode_dependency_report.md
   MARKDOWN_ZOS_REPORT: zos_dependency_report.md
   NOTICES_AGGREGATE_FILE: notices_aggregate.txt
   NOTICES_CLI_FILE: notices_cli.txt
+  NOTICES_VSCODE_FILE: notices_vscode.txt
   NOTICES_ZOS_FILE: notices_zos.txt
   ARTIFACT_PATH: org/zowe/licenses
   ARTIFACT_PATH_SBOM: init_in_step_one
   VERSION: ${{ github.event.inputs.zowe_version }}
   AGG_ARTIFACT_NAME: zowe_licenses_full.zip
   CLI_ARTIFACT_NAME: zowe_licenses_cli.zip
+  VSCODE_ARTIFACT_NAME: zowe_licenses_vscode.zip
   ZOS_ARTIFACT_NAME: zowe_licenses_zos.zip
   AGG_SBOM_ARTIFACT_NAME: sbom_aggregate.spdx.yml
   CLI_SBOM_ARTIFACT_NAME: sbom_cli.spdx.yml
+  VSCODE_SBOM_ARTIFACT_NAME: sbom_vscode.spdx.yml
   ZOS_SBOM_ARTIFACT_NAME: sbom_zos.spdx.yml
   FILENAME_PATTERN: init_in_step_one
   ARTIFACT_REPO: init_in_step_one
@@ -84,13 +88,13 @@ jobs:
   create-licenses:
 
     runs-on: ubuntu-latest
-  
+
     container:
       image: zowe-docker-release.jfrog.io/ompzowe/zowecicd-license-base:latest
 
     steps:
       - name: Update variables if releasing
-        run: | 
+        run: |
           if [ "$PUBLISH_RELEASE" = true ]; then
               echo "ARTIFACT_REPO=libs-release-local" >> $GITHUB_ENV
               echo "ARTIFACT_VERSION=$VERSION" >> $GITHUB_ENV
@@ -102,44 +106,48 @@ jobs:
               echo "ARTIFACT_PATH_SBOM=org/zowe/${{ env.VERSION }}-SNAPSHOT/sbom" >> $GITHUB_ENV
               echo "FILENAME_PATTERN={filename}-${{ env.VERSION }}-SNAPSHOT{timestamp}{fileext}" >> $GITHUB_ENV
           fi
-    
+
       - name: Checkout current repo
         uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-        
+
       - name: '[Zowe Actions] Prepare workflow'
         uses: zowe-actions/shared-actions/prepare-workflow@main
-      
+
       - name: 'Setup jFrog CLI'
         uses: jfrog/setup-jfrog-cli@v4
         env:
           JF_ENV_1: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
 
       - name: '[TEST-ONLY] Dummy scan step'
-        if: ${{ github.event.inputs.dummy_build == 'true' }} 
+        if: ${{ github.event.inputs.dummy_build == 'true' }}
         working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
-        run: | 
+        run: |
           mkdir -p zowe_licenses
           mkdir -p zowe_cli_licenses
+          mkdir -p zowe_vscode_licenses
           mkdir -p zowe_zos_licenses
           echo "HI" >> dummy.txt
           cp dummy.txt zowe_licenses
           cp dummy.txt zowe_cli_licenses
+          cp dummy.txt zowe_vscode_licenses
           cp dummy.txt zowe_zos_licenses
 
           zip -j ${{ env.AGG_ARTIFACT_NAME }} zowe_licenses/*
           zip -j ${{ env.CLI_ARTIFACT_NAME }} zowe_cli_licenses/*
+          zip -j ${{ env.VSCODE_ARTIFACT_NAME }} zowe_vscode_licenses/*
           zip -j ${{ env.ZOS_ARTIFACT_NAME }} zowe_zos_licenses/*
           echo "" > ${{ env.AGG_SBOM_ARTIFACT_NAME }}
-          echo "" > ${{ env.ZOS_SBOM_ARTIFACT_NAME }}
           echo "" > ${{ env.CLI_SBOM_ARTIFACT_NAME }}
+          echo "" > ${{ env.VSCODE_SBOM_ARTIFACT_NAME }}
+          echo "" > ${{ env.ZOS_SBOM_ARTIFACT_NAME }}
 
 
       - name: Scan Licenses on Branch ${{ env.ZOWE_RELEASE_BRANCH }}
-        if: ${{ github.event.inputs.dummy_build == 'false' }} 
+        if: ${{ github.event.inputs.dummy_build == 'false' }}
         env:
           APP_NOTICES_SCAN: true
           APP_LICENSE_SCAN: true
@@ -147,23 +155,26 @@ jobs:
         working-directory: ${{ env.DEPENDENCY_SCAN_HOME }}
         run: |
           # Rustup is set to default in the container, but it's not picked up in this run block
-          rustup default stable  
+          rustup default stable
+          npm install -g pnpm@8
           yarn install && yarn build
           node lib/index.js
           cd build
-          zip -r logs.zip logs/ 
+          zip -r logs.zip logs/
           zip -r license_reports.zip license_reports/
           zip -r notice_reports.zip notice_reports/
           cd ..
           mkdir -p zowe_licenses
           mkdir -p zowe_cli_licenses
+          mkdir -p zowe_vscode_licenses
           mkdir -p zowe_zos_licenses
           cp ../resources/* zowe_licenses/
           cp ../resources/* zowe_cli_licenses/
+          cp ../resources/* zowe_vscode_licenses/
           cp ../resources/* zowe_zos_licenses/
 
           zip -r logs.zip build/logs/*
-     
+
           # Aggregate
           cp build/notice_reports/${{ env.NOTICES_AGGREGATE_FILE }} zowe_licenses/zowe_full_notices.txt
           cp build/license_reports/${{ env.MARKDOWN_REPORT_NAME }} zowe_licenses/zowe_full_dependency_list.md
@@ -173,6 +184,12 @@ jobs:
           cp build/notice_reports/${{ env.NOTICES_CLI_FILE }} zowe_cli_licenses/zowe_cli_notices.txt
           cp build/license_reports/${{ env.MARKDOWN_CLI_REPORT }} zowe_cli_licenses/zowe_cli_dependency_list.md
           zip -j ${{ env.CLI_ARTIFACT_NAME }} zowe_cli_licenses/*
+
+          # VSCode
+          cp build/notice_reports/${{ env.NOTICES_VSCODE_FILE }} zowe_vscode_licenses/zowe_vscode_notices.txt
+          cp build/license_reports/${{ env.MARKDOWN_VSCODE_REPORT }} zowe_vscode_licenses/zowe_vscode_dependency_list.md
+          zip -j ${{ env.VSCODE_ARTIFACT_NAME }} zowe_vscode_licenses/*
+
           # z/OS
           cp build/notice_reports/${{ env.NOTICES_ZOS_FILE }} zowe_zos_licenses/zowe_zos_notices.txt
           cp build/license_reports/${{ env.MARKDOWN_ZOS_REPORT }} zowe_zos_licenses/zowe_zos_dependency_list.md
@@ -181,6 +198,7 @@ jobs:
           # SBOMs
           cp build/sbom_reports/${{ env.AGG_SBOM_ARTIFACT_NAME }} ${{ env.AGG_SBOM_ARTIFACT_NAME }}
           cp build/sbom_reports/${{ env.CLI_SBOM_ARTIFACT_NAME }} ${{ env.CLI_SBOM_ARTIFACT_NAME }}
+          cp build/sbom_reports/${{ env.VSCODE_SBOM_ARTIFACT_NAME }} ${{ env.VSCODE_SBOM_ARTIFACT_NAME }}
           cp build/sbom_reports/${{ env.ZOS_SBOM_ARTIFACT_NAME }} ${{ env.ZOS_SBOM_ARTIFACT_NAME }}
 
 
@@ -203,6 +221,11 @@ jobs:
             --user ${{ secrets.ZOWE_JFROG_ELEVATED_USER }} \
             --password ${{secrets.ZOWE_JFROG_ELEVATED_KEY }} \
             --url https://zowe.jfrog.io/artifactory \
+            ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.VSCODE_ARTIFACT_NAME }}
+          jfrog rt del\
+            --user ${{ secrets.ZOWE_JFROG_ELEVATED_USER }} \
+            --password ${{secrets.ZOWE_JFROG_ELEVATED_KEY }} \
+            --url https://zowe.jfrog.io/artifactory \
             ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.ZOS_ARTIFACT_NAME }}
           jfrog rt del\
             --user ${{ secrets.ZOWE_JFROG_ELEVATED_USER }} \
@@ -214,6 +237,11 @@ jobs:
             --password ${{secrets.ZOWE_JFROG_ELEVATED_KEY }} \
             --url https://zowe.jfrog.io/artifactory \
             ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}
+          jfrog rt del\
+            --user ${{ secrets.ZOWE_JFROG_ELEVATED_USER }} \
+            --password ${{secrets.ZOWE_JFROG_ELEVATED_KEY }} \
+            --url https://zowe.jfrog.io/artifactory \
+            ${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.VSCODE_SBOM_ARTIFACT_NAME }}
           jfrog rt del\
             --user ${{ secrets.ZOWE_JFROG_ELEVATED_USER }} \
             --password ${{secrets.ZOWE_JFROG_ELEVATED_KEY }} \
@@ -237,7 +265,8 @@ jobs:
           sigstore-sign-artifacts: true
           artifacts: |
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}  
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.VSCODE_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}
 
       - name: Publish to Artifactory
@@ -252,9 +281,10 @@ jobs:
           artifacts: |
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.VSCODE_SBOM_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}
 
-      - name: Archive Aggregates  
+      - name: Archive Aggregates
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
@@ -262,13 +292,17 @@ jobs:
             ${{ env.DEPENDENCY_SCAN_HOME }}/logs.zip
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_ARTIFACT_NAME }}.bundle
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}  
-            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}.bundle    
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_ARTIFACT_NAME }}.bundle
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.VSCODE_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.VSCODE_ARTIFACT_NAME }}.bundle
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_ARTIFACT_NAME }}.bundle
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}.bundle
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}.bundle
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.VSCODE_SBOM_ARTIFACT_NAME }}
+            ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.VSCODE_SBOM_ARTIFACT_NAME }}.bundle
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}
             ${{ env.DEPENDENCY_SCAN_HOME }}/${{ env.ZOS_SBOM_ARTIFACT_NAME }}.bundle
