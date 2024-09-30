@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: zowe-docker-snapshot.jfrog.io/ompzowe/zowecicd-license-base:test-timothy
+      image: zowe-docker-release.jfrog.io/ompzowe/zowecicd-license-base:latest
 
     steps:
       - name: Update variables if releasing
