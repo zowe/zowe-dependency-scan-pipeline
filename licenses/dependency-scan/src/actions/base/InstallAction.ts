@@ -88,15 +88,15 @@ export class InstallAction implements IAction {
                 //default npm install prod
                 let installCmd = "npm";
                 let installArgs = ["install", "--omit=dev", ...registry];
-                
+
                 if (Utilities.hasPnpmLockFile(`${absDir}`)) {
                     installCmd = "pnpm";
-                    installArgs = ["install", "--frozen-lockfile", "--prod", ...registry]
+                    installArgs = ["install", "--frozen-lockfile", "--prod", "--ignore-scripts", ...registry]
                 } else if (Utilities.hasNpmLockfile(`${absDir}`)) {
-                    installArgs = ["ci", "--omit=dev", ...registry]
+                    installArgs = ["ci", "--omit=dev", "--ignore-scripts", ...registry]
                 } else if (Utilities.hasYarnLockfile(`${absDir}`)) {
                     installCmd = "yarn";
-                    installArgs = ["install", "--production", "--frozen-lockfile", "--ignore-engines", ...registry]
+                    installArgs = ["install", "--production", "--frozen-lockfile", "--ignore-engines", "--ignore-scripts", ...registry]
                 }
 
                 if (fs.existsSync(path.join(absDir, "node_modules"))) {
