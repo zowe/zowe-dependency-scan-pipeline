@@ -11,5 +11,6 @@
 
 export type ReportInfo = {
     destinations: string[],
+    core: boolean,
     reportName: string,
 }
