@@ -49,15 +49,6 @@
 		}
 	},
 	"zowe-cli": {
-		"excludes": {
-			"paths": [
-				{
-					"pattern": "**/__tests__/**",
-					"reason": "TEST_OF",
-					"comment": "test cases"
-				}
-			]
-		}
 	},
 	"zowe-client-python-sdk": {
 		"excludes": {

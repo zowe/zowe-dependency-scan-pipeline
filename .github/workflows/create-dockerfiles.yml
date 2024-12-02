@@ -54,4 +54,12 @@ jobs:
           file: .dockerfiles/ort.Dockerfile
           tags: ${{ env.TARGET_DOCKER_REGISTRY }}/ompzowe/zowecicd-license-base:${{ github.event.inputs.image_version }}
 
+      - name: Build and push v2 docker release
+        id: docker_build_v2
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          file: .dockerfiles/ort.zowev2.Dockerfile
+          tags: ${{ env.TARGET_DOCKER_REGISTRY }}/ompzowe/zowecicd-license-base:v2-${{ github.event.inputs.image_version }}
+
       
