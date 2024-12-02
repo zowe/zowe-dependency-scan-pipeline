@@ -64,6 +64,9 @@ RUN ./gradlew installDist
 # RUN unzip ort.zip
 ENV PATH=/home/build/ort/cli/build/install/ort/bin:$PATH
 
+RUN pip install git+https://github.com/aboutcode-org/python-inspector --break-system-packages
+RUN pip install setuptools --break-system-packages
+
 WORKDIR /home/build
 
 ENTRYPOINT [ "tail", "-f", "/dev/null" ]

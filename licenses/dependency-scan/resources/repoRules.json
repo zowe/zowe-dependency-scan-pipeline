@@ -49,6 +49,36 @@
 		}
 	},
 	"zowe-cli": {
+		"excludes": {
+			"paths": [
+				{
+					"pattern": "**/__tests__/**",
+					"reason": "TEST_OF",
+					"comment": "test cases"
+				}
+			]
+		}
+	},
+	"zowe-client-python-sdk": {
+		"excludes": {
+			"paths": [
+				{
+					"pattern": "samples/**",
+					"reason": "EXAMPLE_OF",
+					"comment": "Sample project"
+				}, 
+				{
+					"pattern": "docs/**",
+					"reason": "EXAMPLE_OF",
+					"comment": "project documentation"
+				}, 
+				{
+					"pattern": "tests/**",
+					"reason": "TEST_OF",
+					"comment": "test cases"
+				}
+			]
+		}
 	},
 	"zowe-explorer-vscode": {
 		"excludes": {
