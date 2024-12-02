@@ -7,10 +7,10 @@ LABEL version="1.0.0"
 
 USER root
 
-RUN apt-get update -y && apt-get upgrade -y
-RUN apt-get install -y curl bash python3 zip unzip wget software-properties-common python3-pip git
-RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
-RUN apt-get update -y && apt-get install -y nodejs openjdk-11-jdk pkg-config
+RUN apt-get update -y && apt-get upgrade -y && \
+    apt-get install -y curl bash python3 zip unzip wget software-properties-common python3-pip git && \
+    curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get update -y && apt-get install -y nodejs openjdk-11-jdk pkg-config 
 
 RUN	mkdir /report
 RUN mkdir -p /home/build
@@ -25,7 +25,6 @@ ENV PATH=$PATH:"$HOME/.npm-global/bin"
 ENV PATH="$HOME/.cargo/bin:$PATH"
 
 RUN npm install -g yarn
-
 RUN wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.bashrc" SHELL="$(which bash)" bash -
 
 ENV owasp_version=5.3.2
@@ -64,8 +63,7 @@ RUN ./gradlew installDist
 # RUN unzip ort.zip
 ENV PATH=/home/build/ort/cli/build/install/ort/bin:$PATH
 
-RUN pip install git+https://github.com/aboutcode-org/python-inspector --break-system-packages
-RUN pip install setuptools --break-system-packages
+RUN pip install git+https://github.com/aboutcode-org/python-inspector setuptools 
 
 WORKDIR /home/build
 
