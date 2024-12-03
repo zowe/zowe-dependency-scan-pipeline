@@ -32,17 +32,17 @@ export class RepositoryRules {
         let mergedYaml = _.cloneDeep(this.repoRules["default"]);
 
         // lodash merge wasn't recursing correctly _.merge(defaultRules, projectRules)
-        if (this.repoRules[project]?.excludes.paths) {
+        if (this.repoRules[project]?.excludes?.paths) {
             for (let path of this.repoRules[project].excludes.paths) {
                 mergedYaml.excludes.paths.push(path);
             }
         }
-        if (this.repoRules[project]?.excludes.scopes) {
+        if (this.repoRules[project]?.excludes?.scopes) {
             for (let scope of this.repoRules[project].excludes.scopes) {
                 mergedYaml.excludes.scopes.push(scope);
             }
         }
-        if (this.repoRules[project]?.toolsEnabled.length > 0) {
+        if (this.repoRules[project]?.toolsEnabled?.length > 0) {
             mergedYaml.analyzer.enabled_package_managers = this.repoRules[project].toolsEnabled;
         }
         
