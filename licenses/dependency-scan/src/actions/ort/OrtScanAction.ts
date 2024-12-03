@@ -78,7 +78,6 @@ export class OrtScanAction implements IAction {
                 env: process.env,
                 shell: false
         });
-        console.log(ortOptions)
      
         const processComplete = this.log.logOutputAsync(licenseProcess, projectDir, "license_scan");
         processComplete.then((res) => {
