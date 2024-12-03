@@ -42,7 +42,7 @@ export class RepositoryRules {
                 mergedYaml.excludes.scopes.push(scope);
             }
         }
-        if (this.repoRules[project].toolsEnabled.length > 0) {
+        if (this.repoRules[project]?.toolsEnabled.length > 0) {
             mergedYaml.analyzer.enabled_package_managers = this.repoRules[project].toolsEnabled;
         }
         
