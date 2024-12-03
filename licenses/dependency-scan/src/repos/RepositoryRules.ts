@@ -25,26 +25,35 @@ export class RepositoryRules {
 
     @inject(TYPES.RepoRulesData) private readonly repoRules: RepoRulesType;
     private readonly defaultGradleTool: string = "GradleInspector";
-    private readonly skipEncluded: string = "ort.analyzer.skipExcluded=true"
     private readonly forceOverwrite: string = "org.forceOverwrite=true"
 
     public makeOrtYaml(project: string): string {
 
-        const merged = _.merge({}, this.repoRules["default"], this.repoRules[project]);
+        let mergedYaml = _.cloneDeep(this.repoRules["default"]);
 
-        return stringify(merged);
-
+        // lodash merge wasn't recursing correctly _.merge(defaultRules, projectRules)
+        if (this.repoRules[project].excludes.paths) {
+            for (let path of this.repoRules[project].excludes.paths) {
+                mergedYaml.excludes.paths.push(path);
+            }
+        }
+        if (this.repoRules[project].excludes.scopes) {
+            for (let scope of this.repoRules[project].excludes.scopes) {
+                mergedYaml.excludes.scopes.push(scope);
+            }
+        }
+        if (this.repoRules[project].toolsEnabled.length > 0) {
+            mergedYaml.analyzer.enabled_package_managers = this.repoRules[project].toolsEnabled;
+        }
+        
+        return stringify(mergedYaml);
     }
 
     public getOrtAnalyzerFlags(projectDir: string): string[] { 
         let project = path.basename(projectDir);
         let flags: string[] = [];
-        // always try to skip excluded to improve performance
-        flags.push("-P", this.skipEncluded);
 
-        if (this.repoRules[project]?.toolsEnabled?.length > 0) {
-            flags.push("-P", this.getPkgManagerFlag(this.repoRules[project]?.toolsEnabled));
-        } else if (Utilities.dirHasGradleProject(projectDir)) {
+        if (Utilities.dirHasGradleProject(projectDir) && this.repoRules[project]?.toolsEnabled == null) {
             flags.push("-P", this.getPkgManagerFlag([this.defaultGradleTool]))
         } // else we don't specify and rely on default discovery of pkg manager
 
