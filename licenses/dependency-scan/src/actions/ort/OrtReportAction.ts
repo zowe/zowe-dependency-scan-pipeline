@@ -24,6 +24,7 @@ import { ZoweManifestSourceDependency } from "../../repos/ZoweManifestSourceDepe
 import { Logger } from "../../utils/Logger";
 import { Utilities } from "../../utils/Utilities";
 import { IAction } from "../IAction";
+import { ReportWriters } from "./ReportWriters";
 
 
 @injectable()
@@ -90,14 +91,15 @@ export class OrtReportAction implements IAction {
     private completeNoticesReport(): Promise<any> {
         return new Promise((resolve, reject) => { 
             const sourceDependencies: ZoweManifestSourceDependency[] = this.zoweManifest.sourceDependencies;
-            const aggregateNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_aggregate.txt");
-            const cliNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_cli.txt");
-            const vscodeNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_vscode.txt");
-            const zosNoticesFile = path.join(Constants.NOTICE_REPORTS_DIR, "notices_zos.txt");
+
 
             (sourceDependencies).forEach((dependency: ZoweManifestSourceDependency) => {
                 const notices = (dependency.entries.map((depEntry): ReportInfo => {
-                    return { destinations: depEntry.destinations, reportName: depEntry.repository }
+                    let core = true;
+                    if (depEntry.core != null) {
+                        core = depEntry.core;
+                    }
+                    return { destinations: depEntry.destinations, core: core, reportName: depEntry.repository }
                 }))
 
                 notices.forEach((noticeInstance: ReportInfo) => {
@@ -105,14 +107,9 @@ export class OrtReportAction implements IAction {
                     // check if we have notices.txt (yarn) or license-dependency.xml (gradle)
                     const noticesTxtFile = path.join(noticeDestinationDir, "notices.txt");
                     if (fs.existsSync(noticesTxtFile)) {
-                        fs.appendFileSync(aggregateNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
-                        if (noticeInstance.destinations.join(",").includes("CLI")) {
-                            fs.appendFileSync(cliNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
-                        } else if (noticeInstance.destinations.join(",").includes("Visual Studio Code")) {
-                            fs.appendFileSync(vscodeNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
-                        } else {
-                            fs.appendFileSync(zosNoticesFile, fs.readFileSync(noticesTxtFile).toString() + "\n");
-                        }
+                       ReportWriters.noticeReporters.forEach((p) => {
+                         p(noticeInstance.destinations.join(","), noticeInstance.core, noticesTxtFile);
+                       })
                     } else {
                         console.log("Could not find notices for " + noticeInstance.reportName);
                     }
@@ -156,9 +153,14 @@ export class OrtReportAction implements IAction {
             vscodeReportFile.write("\n");
             zosReportFile.write("\n");
 
+            // logic might need some updates to handle better core/non-core paths going forward (11/27/24)
             (sourceDependencies).forEach((dependency: ZoweManifestSourceDependency) => {
                 const reports: ReportInfo[] = (dependency.entries.map((depEntry): ReportInfo => {
-                    return { destinations: depEntry.destinations, reportName: depEntry.repository }
+                    let core = true;
+                    if (depEntry.core != null) {
+                        core = depEntry.core;
+                    }
+                    return { destinations: depEntry.destinations, core: core, reportName: depEntry.repository }
                 }))
 
                 reports.forEach((repoReport: ReportInfo) => {
@@ -181,9 +183,11 @@ export class OrtReportAction implements IAction {
                             .split("\n").filter(Boolean);
                         const reportDepCt = lines.length;
                         if (reportDepCt > 2) { // We always have 2 lines for header + table separator
-                            totalDepCt += reportDepCt;
-                            fullReportString += `### ${dependency.componentGroup} Dependency Attributions\n`;
-                            fullReportString += lines.join("\n")
+                            if (reportInstance.core) {
+                                totalDepCt += reportDepCt;
+                                fullReportString += `### ${dependency.componentGroup} Dependency Attributions\n`;
+                                fullReportString += lines.join("\n")
+                            }
                             if (reportInstance.destinations.join(",").includes("CLI")) {
                                 cliDepCt += reportDepCt
                                 cliReportString += `### ${dependency.componentGroup} Dependency Attributions\n`

@@ -12,5 +12,6 @@
 export type RepositoryInfo = {
     repository: string,
     tag: string,
+    core?: boolean,
     destinations?: string[]
 };

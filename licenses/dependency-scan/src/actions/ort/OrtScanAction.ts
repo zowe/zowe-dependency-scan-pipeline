@@ -67,12 +67,13 @@ export class OrtScanAction implements IAction {
             fs.writeFileSync(projectDir + path.sep + "package-lock.json", fixedPkgLock);
         }
 
-        const licenseProcess = spawn("ort", [Constants.ORT_LOG_LEVEL, analyzerFlags, "analyze", "-i",
-                projectDir,
-                "-o",
-                projectDir,
-                "-f",
-                "JSON"], {
+        const ortOptions = [Constants.ORT_LOG_LEVEL];
+        if (analyzerFlags.length > 0) {
+            ortOptions.push(analyzerFlags);
+        }
+        ortOptions.push("analyze", "-i", projectDir, "-o", projectDir, "-f", "JSON");
+
+        const licenseProcess = spawn("ort", ortOptions, {
                 cwd: process.env.cwd,
                 env: process.env,
                 shell: false

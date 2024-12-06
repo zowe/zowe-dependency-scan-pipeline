@@ -27,7 +27,7 @@ export class CloneAction implements IAction {
 
     @inject(TYPES.Logger) private readonly log: Logger;
     @inject(TYPES.ZoweManifest) private readonly repoData: ZoweManifest;
-    private cloneQueue: async.AsyncQueue<any> = async.queue(this.cloneRepository.bind(this), Constants.PARALLEL_CLONE_COUNT);
+    private readonly cloneQueue: async.AsyncQueue<any> = async.queue(this.cloneRepository.bind(this), Constants.PARALLEL_CLONE_COUNT);
 
     constructor() {
         console.log("Making dir " + Constants.CLONE_DIR);

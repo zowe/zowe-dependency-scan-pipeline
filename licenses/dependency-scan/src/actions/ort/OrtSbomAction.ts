@@ -24,6 +24,7 @@ import { IAction } from "../IAction";
 import { Utilities } from "../../utils/Utilities";
 import { ZoweManifestSourceDependency } from "../../repos/ZoweManifestSourceDependency";
 import { ReportInfo } from "../../repos/RepositoryReportDest";
+import { ReportWriters } from "./ReportWriters";
 
 @injectable()
 export class OrtSbomAction implements IAction {
@@ -32,10 +33,7 @@ export class OrtSbomAction implements IAction {
     @inject(TYPES.RepoRules) private readonly repoRules: any;
     @inject(TYPES.ZoweManifest) private readonly zoweManifest: ZoweManifest;
 
-    private readonly SBOM_ZOS_REPORT = path.resolve(Constants.SBOM_REPORTS_DIR, "sbom_zos.spdx.yml");
-    private readonly SBOM_CLI_REPORT = path.resolve(Constants.SBOM_REPORTS_DIR, "sbom_cli.spdx.yml");
-    private readonly SBOM_VSCODE_REPORT = path.resolve(Constants.SBOM_REPORTS_DIR, "sbom_vscode.spdx.yml");
-    private readonly SBOM_AGG_REPORT = path.resolve(Constants.SBOM_REPORTS_DIR, "sbom_aggregate.spdx.yml");
+    private readonly SBOM_REPORTERS = ReportWriters.sbomReporters;
     private sbomQueue: async.AsyncQueue<any> = async.queue(this.reportSboms.bind(this), Constants.PARALLEL_NOTICE_REPORT_COUNT);
 
     constructor() {
@@ -76,21 +74,20 @@ export class OrtSbomAction implements IAction {
             const sourceDependencies: ZoweManifestSourceDependency[] = this.zoweManifest.sourceDependencies;
             (sourceDependencies).forEach((dependency: ZoweManifestSourceDependency) => {
                 const reports = (dependency.entries.map((depEntry): ReportInfo => {
-                    return { destinations: depEntry.destinations, reportName: depEntry.repository }
+                    let core = true;
+                    if (depEntry.core != null) {
+                        core = depEntry.core;
+                    }
+                    return { destinations: depEntry.destinations, core: core, reportName: depEntry.repository }
                 }))
 
                 reports.forEach((sbomReport: ReportInfo) => {
                     const sbomReportDir = path.join(Constants.SBOM_REPORTS_DIR, sbomReport.reportName);
                     const sbomFile = path.join(sbomReportDir, "bom.spdx.yml");
                     if (fs.existsSync(sbomFile)) {
-                        fs.appendFileSync(this.SBOM_AGG_REPORT, fs.readFileSync(sbomFile).toString());
-                        if (sbomReport.destinations.join(",").includes("CLI")) {
-                            fs.appendFileSync(this.SBOM_CLI_REPORT, fs.readFileSync(sbomFile).toString());
-                        } else if (sbomReport.destinations.join(",").includes("Visual Studio Code")) {
-                            fs.appendFileSync(this.SBOM_VSCODE_REPORT, fs.readFileSync(sbomFile).toString());
-                        } else {
-                            fs.appendFileSync(this.SBOM_ZOS_REPORT, fs.readFileSync(sbomFile).toString());
-                        }
+                        this.SBOM_REPORTERS.forEach((report) => {
+                            report(sbomReport.destinations.join(","), sbomReport.core, sbomFile)
+                        });
                     } else {
                         console.log("Could not find SBOM for " + sbomReport.reportName);
                     }

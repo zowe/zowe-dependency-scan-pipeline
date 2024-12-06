@@ -10,7 +10,7 @@ USER root
 RUN apt-get update -y && apt-get upgrade -y && \
     apt-get install -y curl bash python3 zip unzip wget software-properties-common python3-pip git && \
     curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get update -y && apt-get install -y nodejs openjdk-17-jdk pkg-config 
+    apt-get update -y && apt-get install -y nodejs openjdk-11-jdk pkg-config 
 
 RUN	mkdir /report
 RUN mkdir -p /home/build

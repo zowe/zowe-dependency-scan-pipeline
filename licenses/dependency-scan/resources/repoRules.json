@@ -1,5 +1,8 @@
 {
 	"default": {
+		"analyzer": {
+			"skip_excluded": "true"
+		},
 		"excludes": {
             "scopes": [{
                 "pattern": "devDependencies.*",
@@ -23,8 +26,14 @@
         }
 	},
 	"api-layer": {
+		"toolsEnabled": ["GradleInspector","NPM"],
 		"excludes": {
 			"paths": [
+				{
+					"pattern": "onboarding-enabler-nodejs-sample-app/**",
+					"reason": "EXAMPLE_OF",
+					"comment": "Sample project causes a duplicate dependency result in ORT, crashing the scan."
+				},
 				{
 					"pattern": "zss-sample-service/**",
 					"reason": "EXAMPLE_OF",
@@ -49,6 +58,27 @@
 		}
 	},
 	"zowe-cli": {
+	},
+	"zowe-client-python-sdk": {
+		"excludes": {
+			"paths": [
+				{
+					"pattern": "samples/**",
+					"reason": "EXAMPLE_OF",
+					"comment": "Sample project"
+				}, 
+				{
+					"pattern": "docs/**",
+					"reason": "EXAMPLE_OF",
+					"comment": "project documentation"
+				}, 
+				{
+					"pattern": "tests/**",
+					"reason": "TEST_OF",
+					"comment": "test cases"
+				}
+			]
+		}
 	},
 	"zowe-explorer-vscode": {
 		"excludes": {

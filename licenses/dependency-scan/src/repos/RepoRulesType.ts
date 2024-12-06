@@ -15,5 +15,6 @@ export type RepoRule = {
             comment: string,
         }[]
     },
+    analyzer?: any, // see ort spec
     toolsEnabled?: string[]
 }
