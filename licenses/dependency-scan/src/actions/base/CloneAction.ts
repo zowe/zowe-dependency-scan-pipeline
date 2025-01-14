@@ -21,6 +21,7 @@ import { RepositoryInfo } from "../../repos/RepositoryInfo";
 import { ZoweManifest } from "../../repos/ZoweManifest";
 import { Logger } from "../../utils/Logger";
 import { IAction } from "../IAction";
+import path = require("path");
 
 @injectable()
 export class CloneAction implements IAction {
@@ -56,10 +57,26 @@ export class CloneAction implements IAction {
     }
 
     private cloneRepository(repositoryData: RepositoryInfo, cb: (error: any, val?: any) => void) {
-        const cloneProcess = spawn("git", ["clone", "--branch", repositoryData.tag, `https://www.github.com/zowe/${repositoryData.repository}`],
+
+        let cloneCmd;
+        let usingTag = false;
+        const tagRegex = /^[a-zA-Z0-9\-_.]+$/;
+        if (!tagRegex.test(repositoryData.tag)) {
+            // we have a branch
+            cloneCmd = ["clone", "--depth", "1", "--branch",  repositoryData.tag,`https://www.github.com/zowe/${repositoryData.repository}` ]
+        } else {
+            cloneCmd = ["clone", `https://www.github.com/zowe/${repositoryData.repository}`];
+            usingTag = true;
+        }
+        
+        const cloneProcess = spawn("git", cloneCmd,
             { cwd: Constants.CLONE_DIR, env: process.env });
         const logPromise = this.log.logOutputAsync(cloneProcess, repositoryData.repository, "clones");
         logPromise.then((result) => {
+            if (usingTag) {
+                const repoDir = path.join(Constants.CLONE_DIR, repositoryData.repository);
+                spawn.sync("git", ["checkout", repositoryData.tag], {cwd: repoDir, env: process.env});
+            }
             cb(null, result);
             if (result !== 0) {
                 // TODO: do something in fail state?
