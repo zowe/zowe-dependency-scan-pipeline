@@ -45,13 +45,7 @@ async function main() {
         continue;
       }
       console.log(`Running scorecard for ${fullName}`);
-      const scan = cp.exec(`scorecard --repo=github.com/${fullName} --checks=Pinned-Dependencies --format=json -o=${reportsDir}/${shortName}_scorecard.json --show-details --verbosity debug`, (err, stdo, stde) => {
-        console.log(stdo);
-        console.log(stde);
-        console.log(err)
-      });
-      scan.on('message', (c, h) => console.log(c.toString()));
-      scan.on('error', (err) => console.log(err));
+      const scan = cp.exec(`scorecard --repo=github.com/${fullName} --checks=Pinned-Dependencies --format=json -o=${reportsDir}/${shortName}_scorecard.json --show-details --verbosity debug`);
       scansComplete.push(new Promise((resolve) => {
         scan.on('exit', () => resolve());
         scan.on('close', () => resolve());
