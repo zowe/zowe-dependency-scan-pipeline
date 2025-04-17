@@ -10,7 +10,7 @@ const octokit = new Octokit({ auth: process.env['GITHUB_TOKEN'] });
 async function main() {
 
 
-  const reportsDir = path.resolve('.','.reports');
+  const reportsDir = path.resolve('.','reports');
 
 
   /**

@@ -52,7 +52,5 @@ jobs:
       with: 
         name: pinned-dependencies-report
         path: |
-          $GITHUB_WORKSPACE/${{ env.PINNED_DEPS_DIR }}/.reports/
-          ${{ env.PINNED_DEPS_DIR }}/.reports/
-          .reports/
+          ${{ env.PINNED_DEPS_DIR }}/reports/
   
