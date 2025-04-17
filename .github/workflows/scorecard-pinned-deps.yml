@@ -50,6 +50,9 @@ jobs:
     - name: "Publish pinned dependencies report"
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with: 
-        path:
+        name: pinned-dependencies-report
+        path: |
+          $GITHUB_WORKSPACE/${{ env.PINNED_DEPS_DIR }}/.reports/
           ${{ env.PINNED_DEPS_DIR }}/.reports/
+          .reports/
   
