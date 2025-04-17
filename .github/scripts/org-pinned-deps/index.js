@@ -38,6 +38,10 @@ async function main() {
   for (const repo of zoweRepos) {
     const fullName = repo.full_name;
     const shortName = repo.name
+    // docs-site is hanging?
+    if (shortName == 'docs-site') {
+      continue;
+    }
     console.log(`Running scorecard for ${fullName}`);
     const scan = cp.exec(`scorecard --repo=github.com/${fullName} --checks=Pinned-Dependencies --format=json -o=${reportsDir}/${shortName}_scorecard.json --show-details < /dev/null`);
     scansComplete.push(new Promise((resolve) => {
