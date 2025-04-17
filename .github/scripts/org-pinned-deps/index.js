@@ -1,15 +1,16 @@
-const core = require('@actions/core');
-const github = require('@actions/github')
-const fs = require('fs');
-const cp = require('child_process');
-const octokit = github.getOctokit(process.env['GITHUB_TOKEN']);
-const path = require('path')
+
+import * as fs from 'fs';
+import { Octokit } from 'octokit';
+import * as cp from 'child_process'
+import * as path from 'path';
+
+const octokit = new Octokit({ auth: process.env['GITHUB_TOKEN'] });
 
 
 async function main() {
 
 
-  const reportsDir = path.resolve('.','.reports');
+  const reportsDir = path.resolve('.','reports');
 
 
   /**
@@ -24,7 +25,7 @@ async function main() {
    *  ] 
    */
   const zoweRepos = await octokit.paginate(
-    "GET /orgs/{org}/repos",
+    octokit.rest.repos.listForOrg,
     {
       org: 'zowe',
     }
@@ -34,22 +35,26 @@ async function main() {
   }
   fs.mkdirSync(reportsDir);
   const scansComplete = [];
-  for (const repo of zoweRepos.splice(0,4)) {
-    const fullName = repo.full_name;
-    const shortName = repo.name
-    if (shortName == 'docs-site') {
-      continue;
+  let scanChunk = zoweRepos.splice(0,5);
+  while (scanChunk.length > 0) {
+    for (const repo of scanChunk) {
+      const fullName = repo.full_name;
+      const shortName = repo.name
+      // docs-site is hanging?
+      if (shortName == 'docs-site') {
+        continue;
+      }
+      console.log(`Running scorecard for ${fullName}`);
+      const scan = cp.exec(`scorecard --repo=github.com/${fullName} --checks=Pinned-Dependencies --format=json -o=${reportsDir}/${shortName}_scorecard.json --show-details --verbosity debug`);
+      scansComplete.push(new Promise((resolve) => {
+        scan.on('exit', () => resolve());
+        scan.on('close', () => resolve());
+      }));
     }
-    console.log(`Running scorecard for ${fullName}`);
-    const scan = cp.exec(`scorecard --repo=github.com/${fullName} --checks=Pinned-Dependencies --format=json -o=${reportsDir}/${shortName}_scorecard.json --show-details < /dev/null`);
-    scansComplete.push(new Promise((resolve) => {
-      scan.on('exit', () => resolve());
-      scan.on('close', () => resolve());
-    }));
+
+    await Promise.all(scansComplete)
+    scanChunk = zoweRepos.splice(0,5);
   }
-
-  await Promise.all(scansComplete)
-
   // Build summary table for pinned deps 
   let summaryCsv = 'Repository,Unpinned GH Actions,Unpinned ThirdParty Actions,Other Unpinned Dependencies,Total Unpinned\n'
   const dirContents = fs.readdirSync(reportsDir).filter((item)=> !item.endsWith('csv'));
@@ -57,9 +62,9 @@ async function main() {
     const file = path.resolve(reportsDir, entry);
     const reportJson = JSON.parse(fs.readFileSync(file, 'utf-8'));
     const repo = reportJson.repo.name;
-    const checks = reportJson.checks[0];
+    const checks = reportJson.checks != null ? reportJson.checks[0] : null;
     let reportLine = `${repo},`
-    if (checks.details == null) {
+    if (checks == null || checks.details == null) {
       // no workflows or pinnable deps found
       reportLine += ',,,\n';
     } else {

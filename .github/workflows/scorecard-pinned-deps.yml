@@ -16,18 +16,18 @@ jobs:
     steps:
 
     - name: Set up Node
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
       with:
         node-version: '20'
 
     - name: Set up Golang for Scorecard
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b
 
     - name: Install scorecard
-      run:
-        curl -fL https://github.com/ossf/scorecard/releases/download/v${{ env.SCORECARD_VERSION }}/scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz && \ 
-         tar -xvf scorecard_5.1.1_linux_amd64.tar.gz && \
-         cp scorecard*/scorecard $GOPATH/bin
+      run: |
+        curl -fL https://github.com/ossf/scorecard/releases/download/v${{ env.SCORECARD_VERSION }}/scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz -o scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz 
+        tar -xvf scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz
+        cp scorecard $(go env GOPATH)/bin
 
     - name: "Checkout code"
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -42,12 +42,15 @@ jobs:
     # script requires GITHUB_TOKEN and GOPATH/bin to be on the PATH
     - name: "Generate pinned dependencies report"
       working-directory: ${{ env.PINNED_DEPS_DIR }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.ZOWE_ROBOT_TOKEN }}
       run: node index.js
 
   
     - name: "Publish pinned dependencies report"
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with: 
-        path:
-          ${{ env.PINNED_DEPS_DIR }}/.reports/
+        name: pinned-dependencies-report
+        path: |
+          ${{ env.PINNED_DEPS_DIR }}/reports/
   
