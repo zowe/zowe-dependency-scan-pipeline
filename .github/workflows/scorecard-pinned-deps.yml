@@ -42,6 +42,8 @@ jobs:
     # script requires GITHUB_TOKEN and GOPATH/bin to be on the PATH
     - name: "Generate pinned dependencies report"
       working-directory: ${{ env.PINNED_DEPS_DIR }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.ZOWE_ROBOT_TOKEN }}
       run: node index.js
 
   
