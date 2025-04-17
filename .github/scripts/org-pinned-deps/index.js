@@ -62,9 +62,9 @@ async function main() {
     const file = path.resolve(reportsDir, entry);
     const reportJson = JSON.parse(fs.readFileSync(file, 'utf-8'));
     const repo = reportJson.repo.name;
-    const checks = reportJson?.checks[0];
+    const checks = reportJson.checks != null ? reportJson.checks[0] : null;
     let reportLine = `${repo},`
-    if (checks?.details == null) {
+    if (checks == null || checks.details == null) {
       // no workflows or pinnable deps found
       reportLine += ',,,\n';
     } else {
