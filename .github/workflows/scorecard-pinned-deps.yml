@@ -1,5 +1,4 @@
-name: License Bundle Generation
-
+name: Pinned Dependency Report
 on:
   workflow_dispatch:
 
