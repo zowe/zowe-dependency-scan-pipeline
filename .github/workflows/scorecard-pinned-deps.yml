@@ -1,0 +1,54 @@
+name: License Bundle Generation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PINNED_DEPS_DIR: .github/scripts/org-pinned-deps
+  SCORECARD_VERSION: "5.1.1"
+
+jobs:
+
+  run-scans:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Set up Golang for Scorecard
+      uses: actions/setup-go@v5
+
+    - name: Install scorecard
+      run:
+        curl -fL https://github.com/ossf/scorecard/releases/download/v${{ env.SCORECARD_VERSION }}/scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz && \ 
+         tar -xvf scorecard_5.1.1_linux_amd64.tar.gz && \
+         cp scorecard*/scorecard $GOPATH/bin
+
+    - name: "Checkout code"
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        persist-credentials: false
+
+    - name: "Install Script Dependencies"
+      working-directory: ${{ env.PINNED_DEPS_DIR }}
+      run:
+        npm ci
+
+    # script requires GITHUB_TOKEN and GOPATH/bin to be on the PATH
+    - name: "Generate pinned dependencies report"
+      working-directory: ${{ env.PINNED_DEPS_DIR }}
+      run: node index.js
+
+  
+    - name: "Publish pinned dependencies report"
+      uses: actions/upload-artifact@v4
+      with: 
+        path:
+          ${{ env.PINNED_DEPS_DIR }}/.reports/
+  
