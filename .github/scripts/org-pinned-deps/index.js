@@ -35,23 +35,26 @@ async function main() {
   }
   fs.mkdirSync(reportsDir);
   const scansComplete = [];
-  for (const repo of zoweRepos) {
-    const fullName = repo.full_name;
-    const shortName = repo.name
-    // docs-site is hanging?
-    if (shortName == 'docs-site') {
-      continue;
+  let scanChunk = zoweRepos.splice(0,5);
+  while (scanChunk.length > 0) {
+    for (const repo of scanChunk) {
+      const fullName = repo.full_name;
+      const shortName = repo.name
+      // docs-site is hanging?
+      if (shortName == 'docs-site') {
+        continue;
+      }
+      console.log(`Running scorecard for ${fullName}`);
+      const scan = cp.exec(`scorecard --repo=github.com/${fullName} --checks=Pinned-Dependencies --format=json -o=${reportsDir}/${shortName}_scorecard.json --show-details < /dev/null`);
+      scansComplete.push(new Promise((resolve) => {
+        scan.on('exit', () => resolve());
+        scan.on('close', () => resolve());
+      }));
     }
-    console.log(`Running scorecard for ${fullName}`);
-    const scan = cp.exec(`scorecard --repo=github.com/${fullName} --checks=Pinned-Dependencies --format=json -o=${reportsDir}/${shortName}_scorecard.json --show-details < /dev/null`);
-    scansComplete.push(new Promise((resolve) => {
-      scan.on('exit', () => resolve());
-      scan.on('close', () => resolve());
-    }));
+
+    await Promise.all(scansComplete)
+    scanChunk = zoweRepos.splice(0,5);
   }
-
-  await Promise.all(scansComplete)
-
   // Build summary table for pinned deps 
   let summaryCsv = 'Repository,Unpinned GH Actions,Unpinned ThirdParty Actions,Other Unpinned Dependencies,Total Unpinned\n'
   const dirContents = fs.readdirSync(reportsDir).filter((item)=> !item.endsWith('csv'));
