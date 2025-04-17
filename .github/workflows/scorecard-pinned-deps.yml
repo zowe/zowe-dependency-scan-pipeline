@@ -25,9 +25,9 @@ jobs:
 
     - name: Install scorecard
       run:
-        curl -fL https://github.com/ossf/scorecard/releases/download/v${{ env.SCORECARD_VERSION }}/scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz && \ 
-         tar -xvf scorecard_5.1.1_linux_amd64.tar.gz && \
-         cp scorecard*/scorecard $GOPATH/bin
+        curl -fL https://github.com/ossf/scorecard/releases/download/v${{ env.SCORECARD_VERSION }}/scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz -o scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz && \ 
+         tar -xvf scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz && \
+         cp scorecard $GOPATH/bin
 
     - name: "Checkout code"
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
