@@ -27,9 +27,6 @@ jobs:
       run: |
         curl -fL https://github.com/ossf/scorecard/releases/download/v${{ env.SCORECARD_VERSION }}/scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz -o scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz 
         tar -xvf scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz
-        echo $PATH
-        echo $(go env GOPATH)
-        echo $(go env GOBIN)
         cp scorecard $(go env GOPATH)/bin
 
     - name: "Checkout code"

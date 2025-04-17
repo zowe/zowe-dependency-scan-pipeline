@@ -1,9 +1,10 @@
-const core = require('@actions/core');
-const github = require('@actions/github')
-const fs = require('fs');
-const cp = require('child_process');
-const octokit = github.getOctokit(process.env['GITHUB_TOKEN']);
-const path = require('path')
+
+import * as fs from 'fs';
+import { Octokit } from 'octokit';
+import * as cp from 'child_process'
+import * as path from 'path';
+
+const octokit = new Octokit({ auth: process.env['GITHUB_TOKEN'] });
 
 
 async function main() {
@@ -24,7 +25,7 @@ async function main() {
    *  ] 
    */
   const zoweRepos = await octokit.paginate(
-    "GET /orgs/{org}/repos",
+    octokit.rest.repos.listForOrg,
     {
       org: 'zowe',
     }
@@ -34,12 +35,9 @@ async function main() {
   }
   fs.mkdirSync(reportsDir);
   const scansComplete = [];
-  for (const repo of zoweRepos.splice(0,4)) {
+  for (const repo of zoweRepos) {
     const fullName = repo.full_name;
     const shortName = repo.name
-    if (shortName == 'docs-site') {
-      continue;
-    }
     console.log(`Running scorecard for ${fullName}`);
     const scan = cp.exec(`scorecard --repo=github.com/${fullName} --checks=Pinned-Dependencies --format=json -o=${reportsDir}/${shortName}_scorecard.json --show-details < /dev/null`);
     scansComplete.push(new Promise((resolve) => {
