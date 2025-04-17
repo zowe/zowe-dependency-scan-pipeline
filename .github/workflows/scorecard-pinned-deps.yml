@@ -24,7 +24,7 @@ jobs:
       uses: actions/setup-go@v5
 
     - name: Install scorecard
-      run:
+      run: |
         curl -fL https://github.com/ossf/scorecard/releases/download/v${{ env.SCORECARD_VERSION }}/scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz -o scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz 
         tar -xvf scorecard_${{ env.SCORECARD_VERSION }}_linux_amd64.tar.gz
         cp scorecard $GOPATH/bin
