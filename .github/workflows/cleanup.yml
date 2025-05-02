@@ -39,9 +39,9 @@ jobs:
     strategy:
       matrix:
         servers:
-          - {"name": "zzow06", "host": "SSH_MARIST_ACF2_HOST", "password": "SSH_MARIST_ACF2_PASSWORD"}
-          - {"name": "zzow07", "host": "SSH_MARIST_TSS_HOST", "password": "SSH_MARIST_TSS_PASSWORD"}
-          - {"name": "zzow08", "host": "SSH_MARIST_RACF_HOST", "password": "SSH_MARIST_RACF_PASSWORD"}
+          - {"name": "zzow09", "host": "SSH_MARIST_ACF2_HOST", "password": "SSH_MARIST_ACF2_PASSWORD"}
+          - {"name": "zzow10", "host": "SSH_MARIST_TSS_HOST", "password": "SSH_MARIST_TSS_PASSWORD"}
+          - {"name": "zzow11", "host": "SSH_MARIST_RACF_HOST", "password": "SSH_MARIST_RACF_PASSWORD"}
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
@@ -49,11 +49,11 @@ jobs:
 
       - name: Cleanup ${{ matrix.servers.name }}
         run: |
-          sshpass -p "${ssh_password}" scp -P ${ssh_port} -o StrictHostKeyChecking=no -o PubkeyAuthentication=no scripts/cleanup-zos.sh ${ssh_user}@${ssh_host}:/tmp/cleanup-zos.sh
-          sshpass -p "${ssh_password}" scp -P ${ssh_port} -o StrictHostKeyChecking=no -o PubkeyAuthentication=no scripts/compress.rexx ${ssh_user}@${ssh_host}:/tmp/compress.rexx
+          sshpass -p "${ssh_password}" scp -P ${ssh_port} -o StrictHostKeyChecking=no -o PubkeyAuthentication=no scripts/cleanup-zos.sh ${ssh_user}@${ssh_host}:/tmp/cleanup-zos.sh.ascii
+          sshpass -p "${ssh_password}" scp -P ${ssh_port} -o StrictHostKeyChecking=no -o PubkeyAuthentication=no scripts/compress.rexx ${ssh_user}@${ssh_host}:/tmp/compress.rexx.ascii
 
           SSHPASS=${ssh_password} sshpass -e ssh -tt -o StrictHostKeyChecking=no -o PubkeyAuthentication=no -p ${ssh_port} ${ssh_user}@${ssh_host} << EOF
-          cd /tmp && chmod +x cleanup-zos.sh && chmod +x compress.rexx && ./cleanup-zos.sh
+          cd /tmp && iconv -f ISO8859-1 -t IBM-1047 compress.rexx.ascii > compress.rexx && iconv -f ISO8859-1 -t IBM-1047 cleanup-zos.sh.ascii > cleanup-zos.sh && chmod +x cleanup-zos.sh && chmod +x compress.rexx && ./cleanup-zos.sh
           echo "done" && exit 0
           EOF
         env:
