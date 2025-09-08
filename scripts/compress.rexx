@@ -12,8 +12,8 @@ end
 say 'Compressing 'dataset
 
 address TSO
-"ALLOC FI(SYSUT1) DSN('"dataset"') OLD"
-"ALLOC FI(SYSUT2) DSN('"dataset"') OLD"
+"ALLOC FI(SYSUT1) DSN('"dataset"') SHR"
+"ALLOC FI(SYSUT2) DSN('"dataset"') SHR"
 "ALLOC FI(SYSPRINT) DUMMY"
 "ALLOC FI(SYSIN) UNIT(VIO) SPACE(15) BLKSIZE(80) LRECL(80) ",
      "RECFM(F B) DSORG(PS) NEW DELETE REUSE"
