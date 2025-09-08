@@ -131,7 +131,7 @@ if [ -f "${compressRexx}" ]; then
   echo "[${SCRIPT_NAME}] compress datasets"
   "${compressRexx}" VENDOR.PROCLIB </dev/null
   "${compressRexx}" VENDOR.PARMLIB </dev/null
-  "${compressRexx}" VENDOR.TCPPARMS </dev/null
+  "${compressRexx}" ${USER_HLQ}.TCPPARMS </dev/null
 fi
 
 ################################################################################
