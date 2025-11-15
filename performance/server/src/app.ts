@@ -13,7 +13,7 @@ import * as http from "http";
 import * as https from "https";
 import * as fs from "fs";
 import * as path from "path";
-import { safeLoad } from "js-yaml";
+import { load } from "js-yaml";
 
 import { ZMS_LOGGER_LABEL, ZMS_CONFIG_DIR, ZMS_CONFIG_FILE } from "./constants";
 import { ZMSConfig, ZMSException } from "./types";
@@ -24,7 +24,7 @@ import routes from "./routes";
 (async () => {
   // read configs
   logger.info("reading config file ...");
-  const config: ZMSConfig = safeLoad(fs.readFileSync(ZMS_CONFIG_FILE).toString()) as ZMSConfig;
+  const config: ZMSConfig = load(fs.readFileSync(ZMS_CONFIG_FILE).toString()) as ZMSConfig;
   logger.debug("> config loaded %j", config);
 
   // init metrics manager
