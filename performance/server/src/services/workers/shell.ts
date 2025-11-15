@@ -10,7 +10,7 @@
 
 import { exec, ExecOptions } from "child_process";
 import { promisify } from "util";
-import { safeLoad } from "js-yaml";
+import { load } from "js-yaml";
 import ZMSBaseWorker from "./base";
 import {
   ZMSShellWorkerOptions, PartialZMSShellWorkerOptions,
@@ -54,7 +54,7 @@ export default class ZMSShellWorker extends ZMSBaseWorker {
       if (this.options.outputFormat === "json") {
         result = JSON.parse(stdout) as MetricWorkerResultItem[];
       } else if (this.options.outputFormat === "yaml") {
-        result = safeLoad(stdout) as MetricWorkerResultItem[];
+        result = load(stdout) as MetricWorkerResultItem[];
       } else {
         throw new ZMSException(`unsupported output format: ${this.options.outputFormat}`);
       }
