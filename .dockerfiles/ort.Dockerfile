@@ -63,7 +63,7 @@ RUN wget  -O ort.zip "https://github.com/oss-review-toolkit/ort/releases/downloa
 RUN unzip ort.zip
 ENV PATH=/home/build/ort/cli/build/install/ort/bin:$PATH
 
-RUN pip install git+https://github.com/aboutcode-org/python-inspector setuptools 
+# RUN pip install git+https://github.com/aboutcode-org/python-inspector setuptools 
 
 WORKDIR /home/build
 
