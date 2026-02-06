@@ -59,13 +59,12 @@ ARG ORT_VERSION=33.1.0
 # RUN ./gradlew installDist
 
 ## ORT Binary install - requires Java 17+, which causes issues with some of our v2 projects (Java 11)
-RUN wget  -O ort.zip "https://github.com/oss-review-toolkit/ort/releases/download/$ORT_VERSION/ort-$ORT_VERSION.zip"
+RUN wget -qO ort.zip "https://github.com/oss-review-toolkit/ort/releases/download/$ORT_VERSION/ort-$ORT_VERSION.zip"
 RUN unzip ort.zip
 ENV PATH=/home/build/ort/cli/build/install/ort/bin:$PATH
 
 # python-inspector 0.14.4
-RUN pip install git+https://github.com/aboutcode-org/python-inspector@7e19ea6 setuptool 
-
+RUN pip install git+https://github.com/aboutcode-org/python-inspector@51f6484dcefebb9138bb529f97a89d8dc464b8b4
 WORKDIR /home/build
 
 ENTRYPOINT [ "tail", "-f", "/dev/null" ]
