@@ -63,7 +63,7 @@ RUN ./gradlew installDist
 # RUN unzip ort.zip
 ENV PATH=/home/build/ort/cli/build/install/ort/bin:$PATH
 
-RUN pip install git+https://github.com/aboutcode-org/python-inspector setuptools 
+RUN pip install git+https://github.com/aboutcode-org/python-inspector@51f6484dcefebb9138bb529f97a89d8dc464b8b4
 
 WORKDIR /home/build
 
