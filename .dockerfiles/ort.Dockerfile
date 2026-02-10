@@ -52,15 +52,15 @@ RUN cargo install get-license-helper
 
 ARG ORT_VERSION=33.1.0
 
-RUN git clone https://github.com/oss-review-toolkit/ort
-WORKDIR /home/build/ort
-RUN git checkout "$ORT_VERSION"
-RUN git submodule update --init --recursive
-RUN ./gradlew installDist
+# RUN git clone https://github.com/oss-review-toolkit/ort
+# WORKDIR /home/build/ort
+# RUN git checkout "$ORT_VERSION"
+# RUN git submodule update --init --recursive
+# RUN ./gradlew installDist
 
 ## ORT Binary install - requires Java 17+, which causes issues with some of our v2 projects (Java 11)
-# RUN wget  -O ort.zip "https://github.com/oss-review-toolkit/ort/releases/download/$ORT_VERSION/ort-$ORT_VERSION.zip"
-# RUN unzip ort.zip
+RUN wget  -O ort.zip "https://github.com/oss-review-toolkit/ort/releases/download/$ORT_VERSION/ort-$ORT_VERSION.zip"
+RUN unzip ort.zip
 ENV PATH=/home/build/ort/cli/build/install/ort/bin:$PATH
 
 RUN pip install git+https://github.com/aboutcode-org/python-inspector setuptools 
