@@ -25,7 +25,7 @@ ENV PATH=$PATH:"$HOME/.npm-global/bin"
 ENV PATH="$HOME/.cargo/bin:$PATH"
 
 RUN npm install -g yarn
-RUN wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.bashrc" SHELL="$(which bash)" bash -
+RUN npm install -g pnpm@8
 
 ENV owasp_version=5.3.2
 ENV owasp_dc_download="https://github.com/jeremylong/DependencyCheck/releases/download/v${owasp_version}/"
@@ -63,7 +63,7 @@ RUN ./gradlew installDist
 # RUN unzip ort.zip
 ENV PATH=/home/build/ort/cli/build/install/ort/bin:$PATH
 
-RUN pip install git+https://github.com/aboutcode-org/python-inspector setuptools 
+RUN pip install git+https://github.com/aboutcode-org/python-inspector@51f6484dcefebb9138bb529f97a89d8dc464b8b4
 
 WORKDIR /home/build
 
