@@ -25,7 +25,7 @@ ENV PATH=$PATH:"$HOME/.npm-global/bin"
 ENV PATH="$HOME/.cargo/bin:$PATH"
 
 RUN npm install -g yarn
-RUN wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.bashrc" SHELL="$(which bash)" bash -
+RUN npm install -g pnpm@10
 
 ENV owasp_version=5.3.2
 ENV owasp_dc_download="https://github.com/jeremylong/DependencyCheck/releases/download/v${owasp_version}/"
@@ -59,12 +59,12 @@ ARG ORT_VERSION=33.1.0
 # RUN ./gradlew installDist
 
 ## ORT Binary install - requires Java 17+, which causes issues with some of our v2 projects (Java 11)
-RUN wget  -O ort.zip "https://github.com/oss-review-toolkit/ort/releases/download/$ORT_VERSION/ort-$ORT_VERSION.zip"
-RUN unzip ort.zip
-ENV PATH=/home/build/ort/cli/build/install/ort/bin:$PATH
+RUN wget -qO ort.zip "https://github.com/oss-review-toolkit/ort/releases/download/$ORT_VERSION/ort-$ORT_VERSION.zip"
+RUN unzip ort.zip && mv "ort-$ORT_VERSION" ort
+ENV PATH=/home/build/ort/bin:$PATH
 
-RUN pip install git+https://github.com/aboutcode-org/python-inspector setuptools 
-
+# python-inspector 0.14.4
+RUN pip install git+https://github.com/aboutcode-org/python-inspector@51f6484dcefebb9138bb529f97a89d8dc464b8b4
 WORKDIR /home/build
 
 ENTRYPOINT [ "tail", "-f", "/dev/null" ]
