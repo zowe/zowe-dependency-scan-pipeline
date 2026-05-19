@@ -32,7 +32,7 @@ export class OwaspPublishAction implements IAction {
     @inject(TYPES.ZoweManifest) private readonly zoweManifest: ZoweManifest;
 
     private readonly TABLE_HEADER =
-        `| Component | Third-party Software | Version | License | GitHub |\n` +
+        `| Component | Third-party Software | Version | License | Link   |\n` +
         `| ----------| -------------------- | --------| ------- | ------ |`;
     private readonly REPORT_MARKDOWN_FILE = path.resolve(Constants.LICENSE_REPORTS_DIR, "markdown_dependency_report.md");
     private reportQueue: async.AsyncQueue<any> = async.queue(this.reportProject.bind(this), Constants.PARALLEL_REPORT_COUNT);

@@ -20,7 +20,7 @@
 
 [#assign PurlUtils = statics['org.ossreviewtoolkit.model.utils.PurlUtilsKt']]
 [#if projects?has_content]
-| Third-party Software | Version | License | GitHub |
+| Third-party Software | Version | License | Link   |
 | -------------------- | --------| ------- | ------ |
 [#list packages as package]
 [#if !package.excluded]
