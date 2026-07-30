@@ -135,7 +135,7 @@ if [ -f "${compressRexx}" ]; then
 fi
 
 ################################################################################
-echo "[${SCRIPT_NAME}] deleting ZOWEAD3.ZNP#TEST.* and ZOWEAD6.ZNP#TEST datasets via JCL"
+echo "[${SCRIPT_NAME}] deleting ZOWEAD3.ZNP#TEST and ZOWEAD6.ZNP#TEST datasets via JCL"
 SUBMITCMD=""
 if command -v submit >/dev/null 2>&1; then
   SUBMITCMD="submit"
@@ -153,6 +153,33 @@ if [ -n "${SUBMITCMD}" ]; then
 //SYSIN    DD   *
   DELETE ZOWEAD3.ZNP#TEST.** MASK
   DELETE ZOWEAD6.ZNP#TEST.** MASK
+  SET MAXCC = 0
+/*
+EOF
+else
+  echo "[${SCRIPT_NAME}] submit command not available, skipping dataset cleanup JCL"
+fi
+echo
+
+################################################################################
+echo "[${SCRIPT_NAME}] deleting ZOWEAD3.ZNP#TEST.**.GDG and ZOWEAD6.ZNP#TEST.**.GDG datasets via JCL"
+SUBMITCMD=""
+if command -v submit >/dev/null 2>&1; then
+  SUBMITCMD="submit"
+elif [ -x /bin/submit ]; then
+  SUBMITCMD="/bin/submit"
+elif [ -x /usr/bin/submit ]; then
+  SUBMITCMD="/usr/bin/submit"
+fi
+
+if [ -n "${SUBMITCMD}" ]; then
+  "${SUBMITCMD}" << 'EOF'
+//CLEANGDG JOB (),MSGCLASS=H
+//DELETDS  EXEC PGM=IDCAMS
+//SYSPRINT DD   SYSOUT=*
+//SYSIN    DD   *
+  DELETE ZOWEAD3.ZNP#TEST.**.GDG MASK GDG FORCE PURGE
+  DELETE ZOWEAD6.ZNP#TEST.**.GDG MASK GDG FORCE PURGE
   SET MAXCC = 0
 /*
 EOF
