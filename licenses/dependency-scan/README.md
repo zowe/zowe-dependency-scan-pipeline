@@ -6,7 +6,7 @@
 
 Executing `node lib/index.js` from npm script context will not work (with either npm or yarn as invocation method). ENV's are populated which interfere with cloned project dependency resolutions.
 
-This project requires the [ORT CLI](https://github.com/oss-review-toolkit/ort) version 12+ to be installed and available on the PATH.
+This project requires the [ORT CLI](https://github.com/oss-review-toolkit/ort) version 12+ to be installed and the environment variable `ORT_BIN` must be defined, pointing to the directory containing the `ort` executable.
 
 This project requires any of the following to be installed in order for ORT to scan projects within Zowe:
 
