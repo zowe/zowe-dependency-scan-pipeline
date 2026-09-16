@@ -90,4 +90,6 @@ export class Constants {
     public static readonly SKIP_INSTALL_SPECIFIC: string = Utilities.getEnvStr("SKIP_INSTALL_SPECIFIC", "")
 
     public static readonly ORT_LOG_LEVEL: string = Utilities.getOrtLogLevel("ORT_LOG_LEVEL", "warn");
+
+    public static readonly ORT_PROG_FILE: string = path.join(Utilities.getEnvStr("ORT_BIN", ""), "ort");
 }
