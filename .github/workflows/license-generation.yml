@@ -1,9 +1,9 @@
 name: License Bundle Generation
 
 permissions:
-  contents: write
+  contents: read
   id-token: write
-  actions: write
+  actions: read
 
 on:
   workflow_dispatch:

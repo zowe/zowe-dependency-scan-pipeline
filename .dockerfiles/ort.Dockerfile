@@ -61,7 +61,7 @@ ARG ORT_VERSION=33.1.0
 ## ORT Binary install - requires Java 17+, which causes issues with some of our v2 projects (Java 11)
 RUN wget -qO ort.zip "https://github.com/oss-review-toolkit/ort/releases/download/$ORT_VERSION/ort-$ORT_VERSION.zip"
 RUN unzip ort.zip && mv "ort-$ORT_VERSION" ort
-ENV PATH=/home/build/ort/bin:$PATH
+ENV ORT_BIN=/home/build/ort/bin
 
 # python-inspector 0.14.4
 RUN pip install git+https://github.com/aboutcode-org/python-inspector@51f6484dcefebb9138bb529f97a89d8dc464b8b4
