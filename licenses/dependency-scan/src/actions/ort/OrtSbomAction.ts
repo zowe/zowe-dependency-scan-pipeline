@@ -25,9 +25,10 @@ import { Utilities } from "../../utils/Utilities";
 import { ZoweManifestSourceDependency } from "../../repos/ZoweManifestSourceDependency";
 import { ReportInfo } from "../../repos/RepositoryReportDest";
 import { ReportWriters } from "./ReportWriters";
+import { OrtBaseAction } from "./OrtBaseAction";
 
 @injectable()
-export class OrtSbomAction implements IAction {
+export class OrtSbomAction extends OrtBaseAction implements IAction {
 
     @inject(TYPES.Logger) private readonly log: Logger;
     @inject(TYPES.RepoRules) private readonly repoRules: any;
@@ -37,6 +38,7 @@ export class OrtSbomAction implements IAction {
     private sbomQueue: async.AsyncQueue<any> = async.queue(this.reportSboms.bind(this), Constants.PARALLEL_NOTICE_REPORT_COUNT);
 
     constructor() {
+        super();
         console.log("Making dir " + Constants.SBOM_REPORTS_DIR);
         if (Constants.CLEAN_REPO_DIR_ON_START && Constants.EXEC_SBOM) {
             rimraf.sync(Constants.SBOM_REPORTS_DIR);
@@ -101,7 +103,7 @@ export class OrtSbomAction implements IAction {
 
         const resolvedDir = path.join(Constants.CLONE_DIR, projectPath);
         console.log("Running ORT SBOM generation for " + resolvedDir);
-        const reportProcess = spawn("ort", [Constants.ORT_LOG_LEVEL, "report", "-i", resolvedDir + "/analyzer-result.json",
+        const reportProcess = spawn(Constants.ORT_PROG_FILE, [Constants.ORT_LOG_LEVEL, "report", "-i", resolvedDir + "/analyzer-result.json",
             "-o", Constants.SBOM_REPORTS_DIR + path.sep + path.basename(projectPath),
             "-O", `SpdxDocument=document.name=${path.basename(projectPath)}`,
             "-f", "SpdxDocument"

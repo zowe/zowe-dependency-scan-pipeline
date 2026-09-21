@@ -25,10 +25,10 @@ import { Logger } from "../../utils/Logger";
 import { Utilities } from "../../utils/Utilities";
 import { IAction } from "../IAction";
 import { ReportWriters } from "./ReportWriters";
-
+import { OrtBaseAction } from "./OrtBaseAction";
 
 @injectable()
-export class OrtReportAction implements IAction {
+export class OrtReportAction extends OrtBaseAction implements IAction {
 
     @inject(TYPES.Logger) private readonly log: Logger;
     @inject(TYPES.RepoRules) private readonly repoRules: any;
@@ -42,6 +42,7 @@ export class OrtReportAction implements IAction {
     private reportQueue: async.AsyncQueue<any> = async.queue(this.reportProject.bind(this), Constants.PARALLEL_REPORT_COUNT);
 
     constructor() {
+        super();
         console.log("Making dir " + Constants.LICENSE_REPORTS_DIR);
         if (Constants.CLEAN_REPO_DIR_ON_START && (Constants.EXEC_LICENSES_NOTICES || Constants.EXEC_SCANS)) {
             rimraf.sync(Constants.LICENSE_REPORTS_DIR);
@@ -237,7 +238,7 @@ export class OrtReportAction implements IAction {
         const resolvedDir = path.join(Constants.CLONE_DIR, projectPath);
         const normalizedProjectName = projectPath.replace(/[\\\/]/g, "-");
         console.log("Running ORT License and Notice report on " + resolvedDir);
-        const reportProcess = spawn("ort", [Constants.ORT_LOG_LEVEL, "report", "-i", resolvedDir + "/analyzer-result.json",
+        const reportProcess = spawn(Constants.ORT_PROG_FILE, [Constants.ORT_LOG_LEVEL, "report", "-i", resolvedDir + "/analyzer-result.json",
             "-o", Constants.LICENSE_REPORTS_DIR + path.sep + path.basename(projectPath),
             "-f", "PlainTextTemplate",
             "-O", "PlainTextTemplate=template.id=NOTICE_DEFAULT", // generates notices

@@ -20,16 +20,17 @@ import { TYPES } from "../../constants/Types";
 import { Logger } from "../../utils/Logger";
 import { Utilities } from "../../utils/Utilities";
 import { IAction } from "../IAction";
+import { OrtBaseAction } from "./OrtBaseAction";
 
 @injectable()
-export class OrtScanAction implements IAction {
+export class OrtScanAction extends OrtBaseAction implements IAction {
 
     @inject(TYPES.Logger) private readonly log: Logger;
     @inject(TYPES.RepoRules) private readonly repoRules: any;
     private scanQueue: async.AsyncQueue<any> = async.queue(this.scanProject.bind(this), Constants.PARALLEL_SCAN_COUNT);
 
     constructor() {
-        
+        super();
     }
 
     /**
@@ -73,7 +74,7 @@ export class OrtScanAction implements IAction {
         }
         ortOptions.push("analyze", "-i", projectDir, "-o", projectDir, "-f", "JSON");
 
-        const licenseProcess = spawn("ort", ortOptions, {
+        const licenseProcess = spawn(Constants.ORT_PROG_FILE, ortOptions, {
                 cwd: process.env.cwd,
                 env: process.env,
                 shell: false
