@@ -1,5 +1,5 @@
-# Set base image as Debian Buster w/ Packaged Ruby
-FROM debian:trixie
+# Set base image as Debian Bookworm w/ Packaged Ruby
+FROM debian:bookworm
 
 #####################################################
 # version the Dockerfile, so we can do release bump
@@ -8,7 +8,7 @@ LABEL version="1.0.0"
 USER root
 
 RUN apt-get update -y && apt-get upgrade -y && \
-    apt-get install -y curl bash python3 zip unzip wget python3-pip git && \
+    apt-get install -y curl bash python3 zip unzip wget software-properties-common python3-pip git && \
     curl -sL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get update -y && apt-get install -y nodejs openjdk-17-jdk pkg-config
 
