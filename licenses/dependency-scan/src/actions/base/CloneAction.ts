@@ -47,13 +47,31 @@ export class CloneAction implements IAction {
         return new Promise<boolean>((resolve, reject) => {
             (this.repoData.sourceDependencies).forEach((componentEntry) => {
                 componentEntry.entries.forEach((repo: RepositoryInfo) => {
+                    if (!CloneAction.matchesCategoryFilter(repo)) {
+                        return;
+                    }
                     this.cloneQueue.push(repo);
                 });
             });
+            if (this.cloneQueue.length() === 0) {
+                resolve(true);
+                return;
+            }
             this.cloneQueue.drain = () => {
                 resolve(true);
             };
         });
+    }
+
+    private static matchesCategoryFilter(repo: RepositoryInfo): boolean {
+        if (Constants.CATEGORY_FILTER === "all") {
+            return true;
+        }
+        const token = Constants.CATEGORY_DESTINATION_TOKENS[Constants.CATEGORY_FILTER];
+        if (!token) {
+            throw new Error(`Unknown ZOWE_CATEGORY_FILTER '${Constants.CATEGORY_FILTER}'. Must be one of: all, ${Object.keys(Constants.CATEGORY_DESTINATION_TOKENS).join(", ")}`);
+        }
+        return (repo.destinations ?? []).join(",").includes(token);
     }
 
     private cloneRepository(repositoryData: RepositoryInfo, cb: (error: any, val?: any) => void) {
