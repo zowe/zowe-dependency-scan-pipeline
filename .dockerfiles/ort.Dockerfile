@@ -1,5 +1,5 @@
 # Set base image as Debian Buster w/ Packaged Ruby
-FROM debian:bullseye
+FROM debian:trixie
 
 #####################################################
 # version the Dockerfile, so we can do release bump
