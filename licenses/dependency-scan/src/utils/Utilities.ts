@@ -12,7 +12,6 @@
 import * as fs from "fs";
 import * as path from "path";
 import { env } from "process";
-import { isNullOrUndefined } from "util";
 
 export class Utilities {
 
@@ -33,16 +32,16 @@ export class Utilities {
     }
 
     public static getEnvStr(envVar: string, defaultValue: string = ""): string {
-        if (!isNullOrUndefined(process.argv) && process.argv.includes(envVar)) {
+        if (process.argv != null && process.argv.includes(envVar)) {
             const argIndex = process.argv.indexOf(envVar);
-            if (!isNullOrUndefined(process.argv[argIndex + 1])) {
+            if (process.argv[argIndex + 1] != null) {
                 console.log(`Using command line ${envVar}=${process.argv[argIndex + 1]}`);
                 return process.argv[argIndex + 1];
             }
             console.log(`Found command line ${envVar} but no value was supplied as the next arg. Ignoring.`);
             return defaultValue;
         }
-        else if (!isNullOrUndefined(process.env[envVar])) {
+        else if (process.env[envVar] != null) {
             console.log(`Using env ${envVar}=${process.env[envVar]}`);
             return process.env[envVar];
         }
@@ -51,11 +50,11 @@ export class Utilities {
 
     public static getEnv(envVar: string, defaultValue: boolean = false): boolean {
         //TODO: use yargs for better parsing?
-        if (!isNullOrUndefined(process.argv) && process.argv.includes(envVar)) {
+        if (process.argv != null && process.argv.includes(envVar)) {
             console.log("Using command line " + envVar + "=true");
             return true;
         }
-        if (!isNullOrUndefined(process.env[envVar])) {
+        if (process.env[envVar] != null) {
             const envValue = process.env[envVar].toLowerCase();
             if (envValue === "true" ||
                 envValue === "1" ||

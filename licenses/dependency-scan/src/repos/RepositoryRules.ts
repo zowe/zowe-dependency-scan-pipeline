@@ -14,7 +14,6 @@ import * as path from "path";
 import { stringify } from "yaml";
 import * as _ from "lodash";
 import * as fs from "fs-extra";
-import { isNullOrUndefined } from "util";
 import { TYPES } from "../constants/Types";
 import { RepositoryInfo } from "./RepositoryInfo";
 import { ReportInfo } from "./RepositoryReportDest";
