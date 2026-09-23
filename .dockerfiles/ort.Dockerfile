@@ -9,8 +9,8 @@ USER root
 
 RUN apt-get update -y && apt-get upgrade -y && \
     apt-get install -y curl bash python3 zip unzip wget software-properties-common python3-pip git && \
-    curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get update -y && apt-get install -y nodejs openjdk-17-jdk pkg-config 
+    curl -sL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get update -y && apt-get install -y nodejs openjdk-17-jdk pkg-config
 
 RUN	mkdir /report
 RUN mkdir -p /home/build
@@ -25,7 +25,7 @@ ENV PATH=$PATH:"$HOME/.npm-global/bin"
 ENV PATH="$HOME/.cargo/bin:$PATH"
 
 RUN npm install -g yarn
-RUN npm install -g pnpm@10
+RUN npm install -g pnpm@11
 
 ENV owasp_version=5.3.2
 ENV owasp_dc_download="https://github.com/jeremylong/DependencyCheck/releases/download/v${owasp_version}/"
@@ -33,7 +33,7 @@ ENV owasp_dc_download="https://github.com/jeremylong/DependencyCheck/releases/do
 RUN file="dependency-check-${owasp_version}-release.zip"                        && \
     wget "$owasp_dc_download/$file"                                             && \
     unzip ${file}                                                           	&& \
-    rm ${file}          
+    rm ${file}
 
 WORKDIR /home/build
 
