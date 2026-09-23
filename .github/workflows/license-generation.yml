@@ -55,7 +55,8 @@ env:
   PUBLISH_RELEASE: ${{ github.event.inputs.publish_release }}
   RELEASE_SUFFIX: ${{ github.event.inputs.release_suffix }}
   REPLACE_EXISTING_RELEASE: ${{ github.event.inputs.replace_release }}
-  ZOWE_RELEASE_BRANCH: ${{ github.event.inputs.zowe_sources_branch }}
+  # ZOWE_RELEASE_BRANCH: ${{ github.event.inputs.zowe_sources_branch }}
+  ZOWE_RELEASE_BRANCH: v3.x/release-zowex-1.0
   PENDING_APPROVAL_REPORT_NAME: dependency_approval_action_aggregates.json
   DEPENDENCY_SCAN_HOME: licenses/dependency-scan
   MARKDOWN_REPORT_NAME: markdown_dependency_report.md
@@ -111,7 +112,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [license-runner-tag]
     container:
-      image: zowe-docker-release.jfrog.io/ompzowe/zowecicd-license-base:${{ needs.license-runner-tag.outputs.image_tag }}
+      # image: zowe-docker-release.jfrog.io/ompzowe/zowecicd-license-base:${{ needs.license-runner-tag.outputs.image_tag }}
+      image: zowe-docker-snapshot.jfrog.io/ompzowe/zowecicd-license-base:test-timothy
 
     steps:
       - name: Update variables if releasing

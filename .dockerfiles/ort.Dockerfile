@@ -64,7 +64,7 @@ RUN unzip ort.zip && mv "ort-$ORT_VERSION" ort
 ENV ORT_BIN=/home/build/ort/bin
 
 # python-inspector 0.14.4
-RUN pip install git+https://github.com/aboutcode-org/python-inspector@51f6484dcefebb9138bb529f97a89d8dc464b8b4
+RUN pip install --break-system-packages git+https://github.com/aboutcode-org/python-inspector@51f6484dcefebb9138bb529f97a89d8dc464b8b4
 WORKDIR /home/build
 
 ENTRYPOINT [ "tail", "-f", "/dev/null" ]
