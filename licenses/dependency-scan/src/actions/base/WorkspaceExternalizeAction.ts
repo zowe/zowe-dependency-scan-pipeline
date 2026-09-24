@@ -12,6 +12,7 @@
 import * as async from "async";
 import * as spawn from "cross-spawn";
 import * as fs from "fs";
+import { globSync } from "fs";
 import { injectable, inject } from "inversify";
 import * as path from "path";
 import "reflect-metadata";
@@ -68,23 +69,36 @@ export class WorkspaceExternalizeAction implements IAction {
         const debugTag = `[workspace-externalize] ${projectDir}`;
         const absDir = path.join(Constants.CLONE_DIR, projectDir);
 
+        const pnpmYamlPath = path.join(absDir, "pnpm-workspace.yaml");
+        const rootPkgJsonPath = path.join(absDir, "package.json");
+
         let manager: PackageManager | null = null;
-        if (fs.existsSync(path.join(absDir, "pnpm-workspace.yaml"))) {
-            manager = "pnpm";
-        } else if (fs.existsSync(path.join(absDir, "package.json"))) {
-            const rootPkgJson = JSON.parse(fs.readFileSync(path.join(absDir, "package.json"), "utf-8"));
-            if (rootPkgJson.workspaces) {
-                manager = "npm";
+        let rootPkgJson: any = null;
+        let pnpmWorkspaceYaml: any = null;
+
+        try {
+            if (fs.existsSync(pnpmYamlPath)) {
+                manager = "pnpm";
+                pnpmWorkspaceYaml = YAML.parse(fs.readFileSync(pnpmYamlPath, "utf-8")) ?? {};
+            } else if (fs.existsSync(rootPkgJsonPath)) {
+                rootPkgJson = JSON.parse(fs.readFileSync(rootPkgJsonPath, "utf-8"));
+                if (rootPkgJson.workspaces) {
+                    manager = "npm";
+                }
             }
+        } catch (e) {
+            console.log(`${debugTag}: WARN failed to parse workspace configuration: ${e}`);
+            cb(null);
+            return;
         }
 
-        if (manager == null) {
+        if (!manager) {
             cb(null);
             return;
         }
 
         try {
-            const members = WorkspaceExternalizeAction.listWorkspaceMembers(manager, absDir);
+            const members = WorkspaceExternalizeAction.listWorkspaceMembers(manager, absDir, rootPkgJson, pnpmWorkspaceYaml);
             if (members.length === 0) {
                 cb(null);
                 return;
@@ -134,17 +148,11 @@ export class WorkspaceExternalizeAction implements IAction {
                 "!" + path.relative(absDir, sibling.absolutePath).split(path.sep).join("/"));
 
             if (manager === "pnpm") {
-                const workspaceYamlPath = path.join(absDir, "pnpm-workspace.yaml");
-                const workspaceYaml = YAML.parse(fs.readFileSync(workspaceYamlPath, "utf-8")) ?? {};
-                workspaceYaml.packages = [...(workspaceYaml.packages ?? []), ...excludePatterns];
-                fs.writeFileSync(workspaceYamlPath, YAML.stringify(workspaceYaml));
+                pnpmWorkspaceYaml.packages = [...(pnpmWorkspaceYaml.packages ?? []), ...excludePatterns];
+                fs.writeFileSync(pnpmYamlPath, YAML.stringify(pnpmWorkspaceYaml));
             } else {
-                const rootPkgJson = pkgJsonCache.get(rootPkgJsonPath);
-                if (Array.isArray(rootPkgJson.workspaces)) {
-                    rootPkgJson.workspaces.push(...excludePatterns);
-                } else if (Array.isArray(rootPkgJson.workspaces?.packages)) {
-                    rootPkgJson.workspaces.packages.push(...excludePatterns);
-                }
+                const ws = rootPkgJson.workspaces;
+                (Array.isArray(ws) ? ws : ws.packages).push(...excludePatterns);
                 dirtyPkgJsonPaths.add(rootPkgJsonPath);
             }
 
@@ -168,8 +176,7 @@ export class WorkspaceExternalizeAction implements IAction {
                 }
                 : {
                     cmd: "npm",
-                    args: ["install", ...affectedMemberNames.map((n) => `--workspace=${n}`),
-                        "--package-lock-only", "--ignore-scripts", "--no-audit", "--no-fund", "--legacy-peer-deps"],
+                    args: ["install", "--package-lock-only", "--ignore-scripts", "--no-audit", "--no-fund", "--legacy-peer-deps"],
                 };
 
             console.log(`${debugTag}: regenerating lockfile via '${lockfileCmd.cmd} ${lockfileCmd.args.join(" ")}'`);
@@ -189,27 +196,39 @@ export class WorkspaceExternalizeAction implements IAction {
         }
     }
 
-    private static listWorkspaceMembers(manager: PackageManager, absDir: string): WorkspaceMember[] {
-        if (manager === "pnpm") {
-            const result = spawn.sync("pnpm", ["-r", "list", "--depth", "0", "--json"], { cwd: absDir, env: process.env, shell: true, encoding: "utf-8" });
-            const entries: any[] = JSON.parse(result.stdout || "[]");
-            return entries
-                .filter((entry) => entry.version != null && path.resolve(entry.path) !== path.resolve(absDir))
-                .map((entry) => ({
-                    name: entry.name,
-                    version: entry.version,
-                    absolutePath: entry.path,
-                    isPrivate: entry.private === true,
-                }));
-        }
+    private static listWorkspaceMembers(
+        manager: PackageManager,
+        absDir: string,
+        rootPkgJson: any,
+        pnpmWorkspaceYaml: any
+    ): WorkspaceMember[] {
+        const raw = manager === "pnpm" ? pnpmWorkspaceYaml?.packages : rootPkgJson?.workspaces;
+        const patterns: string[] = Array.isArray(raw) ? raw : (raw?.packages ?? []);
+        const globPatterns = patterns
+            .filter((p) => p && !p.startsWith("!"))
+            .map((p) => path.posix.join(p, "package.json"));
 
-        const result = spawn.sync("npm", ["query", ".workspace", "--package-lock-only", "--json"], { cwd: absDir, env: process.env, shell: true, encoding: "utf-8" });
-        const entries: any[] = JSON.parse(result.stdout || "[]");
-        return entries.map((entry) => ({
-            name: entry.name,
-            version: entry.version,
-            absolutePath: entry.path,
-            isPrivate: entry.private === true,
-        }));
+        try {
+            return globSync(globPatterns, { cwd: absDir })
+                .filter((rel) => path.dirname(rel) !== ".")
+                .map((rel) => {
+                    try {
+                        const fullPath = path.join(absDir, rel);
+                        const pkg = JSON.parse(fs.readFileSync(fullPath, "utf-8"));
+                        return pkg.name ? {
+                            name: pkg.name,
+                            version: pkg.version || "0.0.0",
+                            absolutePath: path.dirname(fullPath),
+                            isPrivate: pkg.private === true,
+                        } : null;
+                    } catch {
+                        return null;
+                    }
+                })
+                .filter((m): m is WorkspaceMember => m != null);
+        } catch (e) {
+            console.log(`[workspace-externalize] WARN failed to glob workspace members: ${e}`);
+            return [];
+        }
     }
 }
