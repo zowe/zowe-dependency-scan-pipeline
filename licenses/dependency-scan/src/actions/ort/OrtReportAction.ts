@@ -285,8 +285,10 @@ export class OrtReportAction extends OrtBaseAction implements IAction {
      * appends them to the per-repo markdown report as if they were regular third-party packages.
      */
     private appendWorkspaceSiblingAttributions(resolvedDir: string, tpsrFileTo: string): void {
+        const debugTag = `[workspace-siblings] ${path.basename(resolvedDir)}`;
         const analyzerResultPath = path.join(resolvedDir, "analyzer-result.json");
         if (!fs.existsSync(analyzerResultPath)) {
+            console.log(`${debugTag}: no analyzer-result.json at ${analyzerResultPath}, skipping`);
             return;
         }
 
@@ -298,15 +300,29 @@ export class OrtReportAction extends OrtBaseAction implements IAction {
             return;
         }
 
-        const projects: any[] = analyzerResult?.analyzer?.result?.projects ?? [];
+        console.log(`${debugTag}: top-level keys: ${Object.keys(analyzerResult).join(", ")}`);
+        const analyzerNode = analyzerResult?.analyzer ?? {};
+        const resultNode = analyzerNode?.result ?? {};
+        console.log(`${debugTag}: analyzer.result keys: ${Object.keys(resultNode).join(", ")}`);
+
+        const projects: any[] = resultNode.projects ?? [];
+        console.log(`${debugTag}: ${projects.length} total project(s)`);
+
         const nodeProjects = projects.filter((project) => {
             const type = String(project.id).split(":")[0];
             return type === "NPM" || type === "PNPM";
         });
 
+        console.log(`${debugTag}: ${nodeProjects.length} npm/pnpm project(s): ${nodeProjects.map((p) => p.id).join(", ")}`);
+
         if (nodeProjects.length === 0) {
             return;
         }
+
+        nodeProjects.forEach((project) => {
+            const scopeNames = (project.scopes ?? []).map((s: any) => s.name);
+            console.log(`${debugTag}:   ${project.id}: has "scopes"=${"scopes" in project}, has "scope_names"=${"scope_names" in project}, scope names=[${scopeNames.join(", ")}]`);
+        });
 
         // Every id (real package or sibling project) that's a direct "dependencies" (production, not dev/peer/
         // optional) entry of some OTHER project in this repo.
@@ -320,9 +336,12 @@ export class OrtReportAction extends OrtBaseAction implements IAction {
             });
         });
 
+        console.log(`${debugTag}: prod dependency id(s) referenced by sibling projects: ${[...prodDependencyIds].join(", ") || "(none)"}`);
+
         const rows: string[] = [];
         nodeProjects.forEach((project) => {
             if (!prodDependencyIds.has(project.id)) {
+                console.log(`${debugTag}:   SKIP ${project.id}: not a direct prod dependency of any sibling project`);
                 return;
             }
 
@@ -336,11 +355,13 @@ export class OrtReportAction extends OrtBaseAction implements IAction {
             }
 
             if (isPrivate) {
+                console.log(`${debugTag}:   SKIP ${project.id}: package.json has "private": true`);
                 return;
             }
 
             const idParts = String(project.id).split(":");
             if (idParts.length !== 4) {
+                console.log(`${debugTag}:   SKIP ${project.id}: id does not split into 4 colon-separated parts`);
                 return;
             }
             const [, , name, version] = idParts;
@@ -352,6 +373,7 @@ export class OrtReportAction extends OrtBaseAction implements IAction {
             const url = project.homepage_url
                 || (project.vcs_processed?.url ?? "").replace(/^ssh:\/\/git@/, "https://");
 
+            console.log(`${debugTag}:   INCLUDE ${project.id} -> ${name}@${version}, license=${license}, url=${url}`);
             rows.push(`| ${name} | ${version} | ${license} | [${name}](${url}) | `);
         });
 
