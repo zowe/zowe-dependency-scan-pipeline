@@ -8,7 +8,7 @@ LABEL version="1.0.0"
 USER root
 
 RUN apt-get update -y && apt-get upgrade -y && \
-    apt-get install -y curl bash python3 zip unzip wget python3-pip git && \
+    apt-get install -y curl bash python3 zip unzip wget python3-pip git libmagic1 && \
     curl -sL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get update -y && apt-get install -y nodejs openjdk-25-jdk pkg-config
 
