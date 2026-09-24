@@ -18,7 +18,6 @@
         such as version, source repository link, and license.
 --]
 
-[#assign PurlUtils = statics['org.ossreviewtoolkit.model.utils.PurlUtilsKt']]
 [#if projects?has_content]
 | Third-party Software | Version | License | Link   |
 | -------------------- | --------| ------- | ------ |

@@ -50,7 +50,7 @@ RUN rustup install stable && rustup default stable
 RUN cargo install cargo-license
 RUN cargo install get-license-helper
 
-ARG ORT_VERSION=92.5.0
+ARG ORT_VERSION=92.6.0
 
 # RUN git clone https://github.com/oss-review-toolkit/ort
 # WORKDIR /home/build/ort
@@ -65,6 +65,13 @@ ENV ORT_BIN=/home/build/ort/bin
 
 # python-inspector 0.14.4
 RUN pip install --break-system-packages git+https://github.com/aboutcode-org/python-inspector@51f6484dcefebb9138bb529f97a89d8dc464b8b4
+
+# licensedcode-data provides the "scancode-license-data" command
+RUN pip install --break-system-packages licensedcode-data==32.1.0
+RUN scancode-license-data --path /opt/scancode-license-data \
+    && find /opt/scancode-license-data -type f -not -name "*.LICENSE" -exec rm -f {} + \
+    && rm -rf /opt/scancode-license-data/static
+
 WORKDIR /home/build
 
 ENTRYPOINT [ "tail", "-f", "/dev/null" ]
