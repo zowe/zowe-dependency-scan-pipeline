@@ -11,30 +11,42 @@
 			}
 		},
 		"excludes": {
-            "scopes": [{
-                "pattern": "devDependencies.*",
-                "reason": "TEST_DEPENDENCY_OF",
-                "comment": "Dev/Test Dependencies"
-            }, {
-                "pattern": "test.*",
-                "reason": "TEST_DEPENDENCY_OF",
-                "comment": "Dev/Test Dependencies"
-            }],
-            "paths": [{
-                "pattern": "**/__tests__/**",
-                "reason": "TEST_OF",
-                "comment": "Common Test Directory"
-            }, {
-                "pattern": "scripts/**",
-                "reason": "BUILD_TOOL_OF",
-                "comment": "Common scripting directory not included in final build"
-            }
-            ]
+            "scopes": [
+				{
+					"pattern": "devDependencies.*",
+					"reason": "TEST_DEPENDENCY_OF",
+					"comment": "Dev/Test Dependencies"
+				},
+				{
+					"pattern": "test.*",
+					"reason": "TEST_DEPENDENCY_OF",
+					"comment": "Dev/Test Dependencies"
+				}
+			],
+            "paths": [
+				{
+					"pattern": "**/__tests__/**",
+					"reason": "TEST_OF",
+					"comment": "Common Test Directory"
+				},
+				{
+					"pattern": "scripts/**",
+					"reason": "BUILD_TOOL_OF",
+					"comment": "Common scripting directory not included in final build"
+				}
+			]
         }
 	},
 	"api-layer": {
 		"toolsEnabled": ["GradleInspector","NPM"],
 		"excludes": {
+			"packages": [
+				{
+					"id": ".*:.*-bom:.*",
+					"reason": "BUILD_DEPENDENCY_OF",
+					"comment": "Exclude Maven and Gradle dependencies matching the -bom naming convention."
+				}
+			],
 			"paths": [
 				{
 					"pattern": "onboarding-enabler-nodejs-sample-app/**",
