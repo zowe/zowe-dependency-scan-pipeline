@@ -262,6 +262,7 @@ export class OrtReportAction extends OrtBaseAction implements IAction {
             fs.mkdirpSync(path.dirname(tpsrFileTo));
             fs.copyFileSync(noticeFileFrom, noticeFileTo);
             fs.copyFileSync(tpsrFileFrom, tpsrFileTo);
+            this.appendWorkspaceSiblingAttributions(resolvedDir, tpsrFileTo);
             cb(null, result);
             if (result !== 0) {
                 // TODO: do something in fail state?
@@ -271,6 +272,92 @@ export class OrtReportAction extends OrtBaseAction implements IAction {
             console.log(error);
         });
 
+    }
+
+    /**
+     * ORT models npm/pnpm workspace members as first-party "projects", not "packages" - so a workspace member
+     * that's a real, published, production dependency of a sibling (e.g. an API package consumed by a VS Code
+     * extension in the same monorepo) is silently dropped from the notice, since reporters only walk "packages".
+     * ORT's project model has no concept of npm's "private" field either, so we can't tell it apart from a
+     * private/internal workspace helper package that should stay excluded purely from analyzer-result.json.
+     * This reads analyzer-result.json directly to find npm/pnpm workspace projects that are (a) a direct production
+     * dependency of another project in this same repo and (b) not "private" in their own package.json on disk, and
+     * appends them to the per-repo markdown report as if they were regular third-party packages.
+     */
+    private appendWorkspaceSiblingAttributions(resolvedDir: string, tpsrFileTo: string): void {
+        const analyzerResultPath = path.join(resolvedDir, "analyzer-result.json");
+        if (!fs.existsSync(analyzerResultPath)) {
+            return;
+        }
+
+        let analyzerResult: any;
+        try {
+            analyzerResult = JSON.parse(fs.readFileSync(analyzerResultPath, "utf-8"));
+        } catch (error) {
+            console.log("WARN: Could not parse analyzer-result.json for workspace sibling attribution: " + error);
+            return;
+        }
+
+        const projects: any[] = analyzerResult?.analyzer?.result?.projects ?? [];
+        const nodeProjects = projects.filter((project) => {
+            const type = String(project.id).split(":")[0];
+            return type === "NPM" || type === "PNPM";
+        });
+
+        if (nodeProjects.length === 0) {
+            return;
+        }
+
+        // Every id (real package or sibling project) that's a direct "dependencies" (production, not dev/peer/
+        // optional) entry of some OTHER project in this repo.
+        const prodDependencyIds = new Set<string>();
+        nodeProjects.forEach((project) => {
+            const dependenciesScope = (project.scopes ?? []).find((scope: any) => scope.name === "dependencies");
+            (dependenciesScope?.dependencies ?? []).forEach((dep: any) => {
+                if (dep.id !== project.id) {
+                    prodDependencyIds.add(dep.id);
+                }
+            });
+        });
+
+        const rows: string[] = [];
+        nodeProjects.forEach((project) => {
+            if (!prodDependencyIds.has(project.id)) {
+                return;
+            }
+
+            const packageJsonPath = path.join(resolvedDir, project.definition_file_path);
+            let isPrivate = false;
+            try {
+                isPrivate = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")).private === true;
+            } catch (error) {
+                console.log(`WARN: Could not read ${packageJsonPath} to check its "private" flag: ${error}`);
+                return;
+            }
+
+            if (isPrivate) {
+                return;
+            }
+
+            const idParts = String(project.id).split(":");
+            if (idParts.length !== 4) {
+                return;
+            }
+            const [, , name, version] = idParts;
+
+            const license = project.declared_licenses_processed?.spdx_expression
+                || project.declared_licenses?.[0]
+                || "none";
+
+            const url = project.homepage_url
+                || (project.vcs_processed?.url ?? "").replace(/^ssh:\/\/git@/, "https://");
+
+            rows.push(`| ${name} | ${version} | ${license} | [${name}](${url}) | `);
+        });
+
+        if (rows.length > 0) {
+            fs.appendFileSync(tpsrFileTo, "\n" + rows.join("\n") + "\n");
+        }
     }
 
 }
