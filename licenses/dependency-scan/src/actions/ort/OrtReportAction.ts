@@ -319,19 +319,37 @@ export class OrtReportAction extends OrtBaseAction implements IAction {
             return;
         }
 
-        nodeProjects.forEach((project) => {
-            const scopeNames = (project.scopes ?? []).map((s: any) => s.name);
-            console.log(`${debugTag}:   ${project.id}: has "scopes"=${"scopes" in project}, has "scope_names"=${"scope_names" in project}, scope names=[${scopeNames.join(", ")}]`);
-        });
+        // Large multi-project results use ORT's shared DependencyGraph format instead of embedding "scopes" per
+        // project: a scope's direct dependencies are {root, fragment} indices where "root" indexes directly into
+        // the graph's "packages" list (NOT into "nodes" - see DependencyGraph.kt's own doc comments and
+        // constructReferenceTree(), which key its lookup map by node.pkg, i.e. a package index).
+        const dependencyGraphs: any = resultNode.dependency_graphs ?? {};
+        console.log(`${debugTag}: dependency_graphs keys: ${Object.keys(dependencyGraphs).join(", ") || "(none)"}`);
 
         // Every id (real package or sibling project) that's a direct "dependencies" (production, not dev/peer/
         // optional) entry of some OTHER project in this repo.
         const prodDependencyIds = new Set<string>();
         nodeProjects.forEach((project) => {
-            const dependenciesScope = (project.scopes ?? []).find((scope: any) => scope.name === "dependencies");
-            (dependenciesScope?.dependencies ?? []).forEach((dep: any) => {
-                if (dep.id !== project.id) {
-                    prodDependencyIds.add(dep.id);
+            const idParts = String(project.id).split(":");
+            const pmType = idParts[0];
+            const namespace = idParts[1] ?? "";
+            const name = idParts[2] ?? "";
+            const version = idParts[3] ?? "";
+
+            const graph = dependencyGraphs[pmType];
+            if (!graph) {
+                console.log(`${debugTag}:   ${project.id}: no dependency_graphs["${pmType}"] entry`);
+                return;
+            }
+
+            const scopeKey = `${namespace}:${name}:${version}:dependencies`;
+            const rootIndices: any[] = graph.scopes?.[scopeKey] ?? [];
+            console.log(`${debugTag}:   ${project.id}: scope key "${scopeKey}" -> ${rootIndices.length} direct prod dep(s)`);
+
+            rootIndices.forEach((rootIndex) => {
+                const depId = (graph.packages ?? [])[rootIndex.root];
+                if (depId && depId !== project.id) {
+                    prodDependencyIds.add(depId);
                 }
             });
         });
