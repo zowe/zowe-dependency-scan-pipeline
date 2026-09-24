@@ -31,7 +31,10 @@ interface WorkspaceMember {
     isPrivate: boolean;
 }
 
-const DEPENDENCY_FIELDS = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
+// peerDependencies is intentionally excluded: a peer dependency declares a compatibility *range*, not an
+// install-time pin, so rewriting it to an exact version would misrepresent it. Combined with running the npm
+// regen with --legacy-peer-deps below, peer ranges elsewhere in the graph are also never a resolution blocker.
+const DEPENDENCY_FIELDS = ["dependencies", "devDependencies", "optionalDependencies"];
 
 /**
  * ORT models npm/pnpm workspace members as first-party "projects", not "packages" - so a workspace member that's a
@@ -166,7 +169,7 @@ export class WorkspaceExternalizeAction implements IAction {
                 : {
                     cmd: "npm",
                     args: ["install", ...affectedMemberNames.map((n) => `--workspace=${n}`),
-                        "--package-lock-only", "--ignore-scripts", "--no-audit", "--no-fund"],
+                        "--package-lock-only", "--ignore-scripts", "--no-audit", "--no-fund", "--legacy-peer-deps"],
                 };
 
             console.log(`${debugTag}: regenerating lockfile via '${lockfileCmd.cmd} ${lockfileCmd.args.join(" ")}'`);
@@ -200,7 +203,7 @@ export class WorkspaceExternalizeAction implements IAction {
                 }));
         }
 
-        const result = spawn.sync("npm", ["query", ".workspace", "--json"], { cwd: absDir, env: process.env, shell: true, encoding: "utf-8" });
+        const result = spawn.sync("npm", ["query", ".workspace", "--package-lock-only", "--json"], { cwd: absDir, env: process.env, shell: true, encoding: "utf-8" });
         const entries: any[] = JSON.parse(result.stdout || "[]");
         return entries.map((entry) => ({
             name: entry.name,
