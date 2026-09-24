@@ -3,17 +3,22 @@ export type RepoRulesType = {
 }
 
 export type RepoRule = {
-    excludes: {
+    excludes?: {
+        packages?: {
+            id: string,
+            reason: string,
+            comment: string,
+        }[],
         paths?: {
             pattern: string,
             reason: string,
             comment: string,
-        }[]
+        }[],
         scopes?: {
             pattern: string,
             reason: string,
             comment: string,
-        }[]
+        }[],
     },
     analyzer?: any, // see ort spec
     toolsEnabled?: string[]

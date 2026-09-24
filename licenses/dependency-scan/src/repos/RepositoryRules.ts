@@ -28,21 +28,38 @@ export class RepositoryRules {
 
     public makeOrtYaml(project: string): string {
 
-        let mergedYaml = _.cloneDeep(this.repoRules["default"]);
+        const mergedYaml = _.cloneDeep(this.repoRules["default"]);
+        const projectRules = this.repoRules[project];
 
-        // lodash merge wasn't recursing correctly _.merge(defaultRules, projectRules)
-        if (this.repoRules[project]?.excludes?.paths) {
-            for (let path of this.repoRules[project].excludes.paths) {
-                mergedYaml.excludes.paths.push(path);
+        if (projectRules?.analyzer) {
+            mergedYaml.analyzer = _.merge(mergedYaml.analyzer || {}, projectRules.analyzer);
+        }
+
+        if (projectRules?.excludes) {
+            mergedYaml.excludes = mergedYaml.excludes || {};
+            if (projectRules.excludes.packages) {
+                mergedYaml.excludes.packages = mergedYaml.excludes.packages || [];
+                for (let pkg of projectRules.excludes.packages) {
+                    mergedYaml.excludes.packages.push(pkg);
+                }
+            }
+            if (projectRules.excludes.paths) {
+                mergedYaml.excludes.paths = mergedYaml.excludes.paths || [];
+                for (let path of projectRules.excludes.paths) {
+                    mergedYaml.excludes.paths.push(path);
+                }
+            }
+            if (projectRules.excludes.scopes) {
+                mergedYaml.excludes.scopes = mergedYaml.excludes.scopes || [];
+                for (let scope of projectRules.excludes.scopes) {
+                    mergedYaml.excludes.scopes.push(scope);
+                }
             }
         }
-        if (this.repoRules[project]?.excludes?.scopes) {
-            for (let scope of this.repoRules[project].excludes.scopes) {
-                mergedYaml.excludes.scopes.push(scope);
-            }
-        }
-        if (this.repoRules[project]?.toolsEnabled?.length > 0) {
-            mergedYaml.analyzer.enabled_package_managers = this.repoRules[project].toolsEnabled;
+
+        if (projectRules?.toolsEnabled && projectRules.toolsEnabled.length > 0) {
+            mergedYaml.analyzer = mergedYaml.analyzer || {};
+            mergedYaml.analyzer.enabled_package_managers = projectRules.toolsEnabled;
         }
         
         return stringify(mergedYaml);

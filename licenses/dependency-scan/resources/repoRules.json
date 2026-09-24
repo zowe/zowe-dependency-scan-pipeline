@@ -1,11 +1,11 @@
 {
 	"default": {
 		"analyzer": {
-			"skip_excluded": "true",
+			"skip_excluded": true,
 			"package_managers": {
 				"NPM": {
 					"options": {
-						"legacyPeerDeps": "true"
+						"legacyPeerDeps": true
 					}
 				}
 			}
