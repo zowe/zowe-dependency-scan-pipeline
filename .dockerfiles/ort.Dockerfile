@@ -67,7 +67,7 @@ ENV ORT_BIN=/home/build/ort/bin
 RUN pip install --break-system-packages git+https://github.com/aboutcode-org/python-inspector@51f6484dcefebb9138bb529f97a89d8dc464b8b4
 
 # scancode-toolkit-mini provides the "scancode-license-data" command
-RUN pip install --break-system-packages scancode-toolkit-mini==32.5.0 licensedcode-data
+RUN pip install --break-system-packages scancode-toolkit-mini==32.5.0 licensedcode-data setuptools==74.1.3
 RUN scancode-license-data --path /opt/scancode-license-data \
     && find /opt/scancode-license-data -type f -not -name "*.LICENSE" -exec rm -f {} + \
     && rm -rf /opt/scancode-license-data/static
