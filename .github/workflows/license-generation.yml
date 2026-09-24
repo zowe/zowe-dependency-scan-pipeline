@@ -323,7 +323,7 @@ jobs:
 
       - name: Remove existing artifacts
         id: cleanup
-        if: ${{ github.event.inputs.publish_release }} && ${{ github.event.inputs.overwrite_release }}
+        if: ${{ github.event.inputs.publish_release && github.event.inputs.overwrite_release }}
         run: |
           jfrog_del() {
             jfrog rt del \
