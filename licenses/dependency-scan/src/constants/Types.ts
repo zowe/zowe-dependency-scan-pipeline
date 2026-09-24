@@ -24,6 +24,7 @@ export const TYPES = {
     CloneAction: Symbol("CloneAction"),
     InstallAction: Symbol("InstallAction"),
     WorkspaceExternalizeAction: Symbol("WorkspaceExternalizeAction"),
+    PeerDependencyStripAction: Symbol("PeerDependencyStripAction"),
     OrtSbomAction: Symbol("OrtSbomAction"),
     OrtScanAction: Symbol("OrtScanAction"),
     OrtReportAction: Symbol("OrtReportAction"),

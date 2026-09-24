@@ -20,6 +20,7 @@ export class ScanApplication {
     @inject(TYPES.CloneAction) private readonly cloneAction: IAction;
     @inject(TYPES.InstallAction) private readonly installAction: IAction;
     @inject(TYPES.WorkspaceExternalizeAction) private readonly workspaceExternalizeAction: IAction;
+    @inject(TYPES.PeerDependencyStripAction) private readonly peerDependencyStripAction: IAction;
     @inject(TYPES.OrtScanAction) private readonly analyzeScanAction: IAction;
     @inject(TYPES.OrtReportAction) private readonly ortReportAction: IAction;
     @inject(TYPES.OrtSbomAction) private readonly ortSbomAction: IAction;
@@ -43,6 +44,8 @@ export class ScanApplication {
             if(Constants.EXEC_SCANS) {
                 appFns.push(this.workspaceExternalizeAction.run.bind(this.workspaceExternalizeAction));
                 console.log("Will Execute Workspace Externalize Step");
+                appFns.push(this.peerDependencyStripAction.run.bind(this.peerDependencyStripAction));
+                console.log("Will Execute Peer Dependency Strip Step");
                 appFns.push(this.analyzeScanAction.run.bind(this.analyzeScanAction));
                 console.log("Will Execute ORT Scan Step");
             } else {
