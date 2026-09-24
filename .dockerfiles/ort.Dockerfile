@@ -1,5 +1,5 @@
-# Set base image as Debian Bookworm w/ Packaged Ruby
-FROM debian:bookworm
+# Set base image as Debian Trixie w/ Packaged Ruby
+FROM debian:trixie
 
 #####################################################
 # version the Dockerfile, so we can do release bump
@@ -8,9 +8,9 @@ LABEL version="1.0.0"
 USER root
 
 RUN apt-get update -y && apt-get upgrade -y && \
-    apt-get install -y curl bash python3 zip unzip wget software-properties-common python3-pip git && \
+    apt-get install -y curl bash python3 zip unzip wget python3-pip git && \
     curl -sL https://deb.nodesource.com/setup_22.x | bash - && \
-    apt-get update -y && apt-get install -y nodejs openjdk-17-jdk pkg-config
+    apt-get update -y && apt-get install -y nodejs openjdk-21-jdk pkg-config
 
 RUN	mkdir /report
 RUN mkdir -p /home/build
@@ -50,7 +50,7 @@ RUN rustup install stable && rustup default stable
 RUN cargo install cargo-license
 RUN cargo install get-license-helper
 
-ARG ORT_VERSION=33.1.0
+ARG ORT_VERSION=51.1.0
 
 # RUN git clone https://github.com/oss-review-toolkit/ort
 # WORKDIR /home/build/ort
@@ -58,7 +58,7 @@ ARG ORT_VERSION=33.1.0
 # RUN git submodule update --init --recursive
 # RUN ./gradlew installDist
 
-## ORT Binary install - requires Java 17+, which causes issues with some of our v2 projects (Java 11)
+## ORT Binary install - requires Java 21+, which causes issues with some of our v2 projects (Java 11)
 RUN wget -qO ort.zip "https://github.com/oss-review-toolkit/ort/releases/download/$ORT_VERSION/ort-$ORT_VERSION.zip"
 RUN unzip ort.zip && mv "ort-$ORT_VERSION" ort
 ENV ORT_BIN=/home/build/ort/bin
