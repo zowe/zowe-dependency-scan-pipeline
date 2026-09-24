@@ -19,6 +19,7 @@ export class ScanApplication {
 
     @inject(TYPES.CloneAction) private readonly cloneAction: IAction;
     @inject(TYPES.InstallAction) private readonly installAction: IAction;
+    @inject(TYPES.WorkspaceExternalizeAction) private readonly workspaceExternalizeAction: IAction;
     @inject(TYPES.OrtScanAction) private readonly analyzeScanAction: IAction;
     @inject(TYPES.OrtReportAction) private readonly ortReportAction: IAction;
     @inject(TYPES.OrtSbomAction) private readonly ortSbomAction: IAction;
@@ -40,6 +41,8 @@ export class ScanApplication {
             console.log("Performing a License Scan");
           
             if(Constants.EXEC_SCANS) {
+                appFns.push(this.workspaceExternalizeAction.run.bind(this.workspaceExternalizeAction));
+                console.log("Will Execute Workspace Externalize Step");
                 appFns.push(this.analyzeScanAction.run.bind(this.analyzeScanAction));
                 console.log("Will Execute ORT Scan Step");
             } else {

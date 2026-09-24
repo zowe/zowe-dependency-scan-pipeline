@@ -23,6 +23,7 @@ export const TYPES = {
     // Actions
     CloneAction: Symbol("CloneAction"),
     InstallAction: Symbol("InstallAction"),
+    WorkspaceExternalizeAction: Symbol("WorkspaceExternalizeAction"),
     OrtSbomAction: Symbol("OrtSbomAction"),
     OrtScanAction: Symbol("OrtScanAction"),
     OrtReportAction: Symbol("OrtReportAction"),

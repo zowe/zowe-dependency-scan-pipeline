@@ -130,22 +130,28 @@ jobs:
       - name: Determine categories to include
         run: |
           CATEGORY="${{ github.event.inputs.category_filter }}"
+          INCLUDE_ALL=false
           INCLUDE_CLI=false
           INCLUDE_VSCODE=false
           INCLUDE_ZOS=false
           INCLUDE_PYTHON=false
+          if [ "$CATEGORY" = "all" ]; then INCLUDE_ALL=true; fi
           if [ "$CATEGORY" = "all" ] || [ "$CATEGORY" = "cli" ]; then INCLUDE_CLI=true; fi
           if [ "$CATEGORY" = "all" ] || [ "$CATEGORY" = "vscode" ]; then INCLUDE_VSCODE=true; fi
           if [ "$CATEGORY" = "all" ] || [ "$CATEGORY" = "zos" ]; then INCLUDE_ZOS=true; fi
           if [ "$CATEGORY" = "all" ] || [ "$CATEGORY" = "python" ]; then INCLUDE_PYTHON=true; fi
+          echo "INCLUDE_ALL=$INCLUDE_ALL" >> $GITHUB_ENV
           echo "INCLUDE_CLI=$INCLUDE_CLI" >> $GITHUB_ENV
           echo "INCLUDE_VSCODE=$INCLUDE_VSCODE" >> $GITHUB_ENV
           echo "INCLUDE_ZOS=$INCLUDE_ZOS" >> $GITHUB_ENV
           echo "INCLUDE_PYTHON=$INCLUDE_PYTHON" >> $GITHUB_ENV
 
+          # A category-filtered run only clones/scans that category, so the "aggregate" report it produces is
+          # really just that one category's data, not a genuine full aggregate. Only touch the aggregate artifacts
+          # on a full ("all") run - otherwise we'd overwrite the real full aggregate with a partial one.
           {
             echo "PUBLISH_ARTIFACTS<<PUBLISH_ARTIFACTS_EOF"
-            echo "${DEPENDENCY_SCAN_HOME}/${AGG_ARTIFACT_NAME}"
+            if [ "$INCLUDE_ALL" = "true" ]; then echo "${DEPENDENCY_SCAN_HOME}/${AGG_ARTIFACT_NAME}"; fi
             if [ "$INCLUDE_CLI" = "true" ]; then echo "${DEPENDENCY_SCAN_HOME}/${CLI_ARTIFACT_NAME}"; fi
             if [ "$INCLUDE_VSCODE" = "true" ]; then echo "${DEPENDENCY_SCAN_HOME}/${VSCODE_ARTIFACT_NAME}"; fi
             if [ "$INCLUDE_ZOS" = "true" ]; then echo "${DEPENDENCY_SCAN_HOME}/${ZOS_ARTIFACT_NAME}"; fi
@@ -155,7 +161,7 @@ jobs:
 
           {
             echo "PUBLISH_SBOM_ARTIFACTS<<PUBLISH_SBOM_ARTIFACTS_EOF"
-            echo "${DEPENDENCY_SCAN_HOME}/${AGG_SBOM_ARTIFACT_NAME}"
+            if [ "$INCLUDE_ALL" = "true" ]; then echo "${DEPENDENCY_SCAN_HOME}/${AGG_SBOM_ARTIFACT_NAME}"; fi
             if [ "$INCLUDE_CLI" = "true" ]; then echo "${DEPENDENCY_SCAN_HOME}/${CLI_SBOM_ARTIFACT_NAME}"; fi
             if [ "$INCLUDE_VSCODE" = "true" ]; then echo "${DEPENDENCY_SCAN_HOME}/${VSCODE_SBOM_ARTIFACT_NAME}"; fi
             if [ "$INCLUDE_ZOS" = "true" ]; then echo "${DEPENDENCY_SCAN_HOME}/${ZOS_SBOM_ARTIFACT_NAME}"; fi
@@ -175,10 +181,7 @@ jobs:
           {
             echo "ARCHIVE_PATHS<<ARCHIVE_PATHS_EOF"
             echo "${DEPENDENCY_SCAN_HOME}/logs.zip"
-            echo "${DEPENDENCY_SCAN_HOME}/${AGG_ARTIFACT_NAME}"
-            echo "${DEPENDENCY_SCAN_HOME}/${AGG_ARTIFACT_NAME}.bundle"
-            echo "${DEPENDENCY_SCAN_HOME}/${AGG_SBOM_ARTIFACT_NAME}"
-            echo "${DEPENDENCY_SCAN_HOME}/${AGG_SBOM_ARTIFACT_NAME}.bundle"
+            emit_bundle_paths "$INCLUDE_ALL" "$AGG_ARTIFACT_NAME" "$AGG_SBOM_ARTIFACT_NAME"
             emit_bundle_paths "$INCLUDE_CLI" "$CLI_ARTIFACT_NAME" "$CLI_SBOM_ARTIFACT_NAME"
             emit_bundle_paths "$INCLUDE_VSCODE" "$VSCODE_ARTIFACT_NAME" "$VSCODE_SBOM_ARTIFACT_NAME"
             emit_bundle_paths "$INCLUDE_ZOS" "$ZOS_ARTIFACT_NAME" "$ZOS_SBOM_ARTIFACT_NAME"
@@ -333,11 +336,12 @@ jobs:
               "$1"
           }
 
-          jfrog_del "${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.AGG_ARTIFACT_NAME }}*"
-          jfrog_del "${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH_SBOM }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}*"
-
-          # Only remove per-category artifacts for categories included in this run - otherwise a
-          # category-filtered run would wipe out already-published artifacts it isn't replacing.
+          # Only remove artifacts for categories included in this run - otherwise a category-filtered run would
+          # wipe out already-published artifacts (including the full aggregate) it isn't actually replacing.
+          if [ "$INCLUDE_ALL" = "true" ]; then
+            jfrog_del "${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.AGG_ARTIFACT_NAME }}*"
+            jfrog_del "${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH_SBOM }}/${{ env.AGG_SBOM_ARTIFACT_NAME }}*"
+          fi
           if [ "$INCLUDE_CLI" = "true" ]; then
             jfrog_del "${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_VERSION }}/${{ env.CLI_ARTIFACT_NAME }}*"
             jfrog_del "${{ env.ARTIFACT_REPO }}/${{ env.ARTIFACT_PATH_SBOM }}/${{ env.CLI_SBOM_ARTIFACT_NAME }}*"
