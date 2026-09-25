@@ -151,13 +151,42 @@ export class WorkspaceExternalizeAction implements IAction {
                 pnpmWorkspaceYaml.packages = [...(pnpmWorkspaceYaml.packages ?? []), ...excludePatterns];
                 fs.writeFileSync(pnpmYamlPath, YAML.stringify(pnpmWorkspaceYaml));
             } else {
-                const ws = rootPkgJson.workspaces;
+                const rootPkg = pkgJsonCache.get(rootPkgJsonPath);
+                const ws = rootPkg.workspaces;
                 (Array.isArray(ws) ? ws : ws.packages).push(...excludePatterns);
                 dirtyPkgJsonPaths.add(rootPkgJsonPath);
             }
 
             dirtyPkgJsonPaths.forEach((p) => {
                 fs.writeFileSync(p, JSON.stringify(pkgJsonCache.get(p), null, 2) + "\n");
+            });
+
+            if (manager === "npm") {
+                const lockfilePath = path.join(absDir, "package-lock.json");
+                if (fs.existsSync(lockfilePath)) {
+                    try {
+                        const lock = JSON.parse(fs.readFileSync(lockfilePath, "utf-8"));
+                        toExternalize.forEach((sibling) => {
+                            const relPath = path.relative(absDir, sibling.absolutePath).split(path.sep).join("/");
+                            delete lock.packages?.[relPath];
+                            delete lock.packages?.[`node_modules/${sibling.name}`];
+                            delete lock.dependencies?.[sibling.name];
+                        });
+                        fs.writeFileSync(lockfilePath, JSON.stringify(lock, null, 2) + "\n");
+                    } catch (e) {
+                        console.log(`${debugTag}: WARN failed to clean workspace entries from package-lock.json: ${e}`);
+                    }
+                }
+            }
+
+            // Hide each externalized member's package.json so ORT's workspace detection - which scans the
+            // checkout for package.json files rather than trusting the workspaces declaration alone - finds
+            // nothing there to analyze as a standalone first-party Project (which would exclude it from packages)
+            toExternalize.forEach((sibling) => {
+                const memberPkgJson = path.join(sibling.absolutePath, "package.json");
+                if (fs.existsSync(memberPkgJson)) {
+                    fs.renameSync(memberPkgJson, path.join(sibling.absolutePath, "package.json.externalized"));
+                }
             });
 
             // Scope the regen to just the workspace members whose dependency spec actually changed, rather than
