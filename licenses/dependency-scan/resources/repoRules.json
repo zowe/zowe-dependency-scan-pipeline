@@ -1,14 +1,7 @@
 {
 	"default": {
 		"analyzer": {
-			"skip_excluded": true,
-			"package_managers": {
-				"NPM": {
-					"options": {
-						"legacyPeerDeps": true
-					}
-				}
-			}
+			"skip_excluded": true
 		},
 		"excludes": {
             "scopes": [
@@ -40,13 +33,6 @@
 	"api-layer": {
 		"toolsEnabled": ["GradleInspector","NPM"],
 		"excludes": {
-			"packages": [
-				{
-					"id": ".*:.*-bom:.*",
-					"reason": "BUILD_DEPENDENCY_OF",
-					"comment": "Exclude Maven and Gradle dependencies matching the -bom naming convention."
-				}
-			],
 			"paths": [
 				{
 					"pattern": "onboarding-enabler-nodejs-sample-app/**",
@@ -61,17 +47,17 @@
 			]
 		}
 	},
-	"sample-angular-app": {	
+	"sample-angular-app": {
 		"analyzer": {
 			"allow_dynamic_versions": true
 		}
 	},
-	"sample-iframe-app": {	
+	"sample-iframe-app": {
 		"analyzer": {
 			"allow_dynamic_versions": true
 		}
 	},
-	"sample-react-app": {	
+	"sample-react-app": {
 		"analyzer": {
 			"allow_dynamic_versions": true
 		}
@@ -85,12 +71,12 @@
 					"pattern": "samples/**",
 					"reason": "EXAMPLE_OF",
 					"comment": "Sample project"
-				}, 
+				},
 				{
 					"pattern": "docs/**",
 					"reason": "EXAMPLE_OF",
 					"comment": "project documentation"
-				}, 
+				},
 				{
 					"pattern": "tests/**",
 					"reason": "TEST_OF",
