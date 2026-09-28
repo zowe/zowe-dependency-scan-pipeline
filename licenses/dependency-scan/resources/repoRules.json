@@ -47,6 +47,15 @@
 			]
 		}
 	},
+	"cics-for-zowe-client": {
+		"analyzer": {
+			"package_managers": {
+				"NPM": {
+					"options": {"legacyPeerDeps": true}
+				}
+			}
+		}
+	},
 	"sample-angular-app": {
 		"analyzer": {
 			"allow_dynamic_versions": true
@@ -62,7 +71,32 @@
 			"allow_dynamic_versions": true
 		}
 	},
-	"zowe-cli": {
+	"zowe-cli-db2-plugin": {
+		"analyzer": {
+			"package_managers": {
+				"NPM": {
+					"options": {"legacyPeerDeps": true}
+				}
+			}
+		}
+	},
+	"zowe-cli-ftp-plugin": {
+		"analyzer": {
+			"package_managers": {
+				"NPM": {
+					"options": {"legacyPeerDeps": true}
+				}
+			}
+		}
+	},
+	"zowe-cli-mq-plugin": {
+		"analyzer": {
+			"package_managers": {
+				"NPM": {
+					"options": {"legacyPeerDeps": true}
+				}
+			}
+		}
 	},
 	"zowe-client-python-sdk": {
 		"excludes": {

@@ -10,10 +10,12 @@
 */
 
 import * as fs from "fs";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import * as path from "path";
 import "reflect-metadata";
 import { Constants } from "../../constants/Constants";
+import { TYPES } from "../../constants/Types";
+import { RepoRulesType } from "../../repos/RepoRulesType";
 import { Utilities } from "../../utils/Utilities";
 import { IAction } from "../IAction";
 
@@ -28,8 +30,9 @@ const SKIPPED_DIRS = new Set(["node_modules", ".git"]);
  *
  * A first-party package's peer dependencies are by definition provided by the consumer, never shipped with it, so
  * this strips `peerDependencies` (and `peerDependenciesMeta`) from every first-party package.json that ORT will
- * analyze with NPM before the analyzer runs. Anything that's also a devDependency stays in the (excluded)
- * devDependencies scope; anything that's also a real dependency stays in the production scope.
+ * analyze with NPM before the analyzer runs, for repositories where legacyPeerDeps is configured as a repo rule.
+ * Anything that's also a devDependency stays in the (excluded) devDependencies scope; anything that's also a real
+ * dependency stays in the production scope.
  *
  * The lockfile is left untouched: `npm ci` only requires that the ideal tree built from package.json is a subset of
  * the lockfile, which dropping edges from package.json can't violate. pnpm, Yarn and Bun projects are skipped - their
@@ -37,9 +40,13 @@ const SKIPPED_DIRS = new Set(["node_modules", ".git"]);
  */
 @injectable()
 export class PeerDependencyStripAction implements IAction {
+    @inject(TYPES.RepoRulesData) private readonly repoRules!: RepoRulesType;
 
     public run(): Promise<boolean> {
         Utilities.getSubDirs(Constants.CLONE_DIR).forEach((projectDir) => {
+            if (!PeerDependencyStripAction.hasLegacyPeerDeps(this.repoRules, projectDir)) {
+                return;
+            }
             const debugTag = `[peer-dependency-strip] ${projectDir}`;
             const absDir = path.join(Constants.CLONE_DIR, projectDir);
             try {
@@ -98,5 +105,19 @@ export class PeerDependencyStripAction implements IAction {
             }
             dir = path.dirname(dir);
         }
+    }
+
+    private static hasLegacyPeerDeps(repoRules: RepoRulesType, projectDir: string): boolean {
+        const project = path.basename(projectDir);
+        const projectNpm = repoRules?.[project]?.analyzer?.package_managers?.NPM
+            ?? repoRules?.[project]?.analyzer?.package_managers?.npm;
+        const projectOption = projectNpm?.options?.legacyPeerDeps;
+        if (projectOption !== undefined) {
+            return projectOption === true || projectOption === "true";
+        }
+        const defaultNpm = repoRules?.["default"]?.analyzer?.package_managers?.NPM
+            ?? repoRules?.["default"]?.analyzer?.package_managers?.npm;
+        const defaultOption = defaultNpm?.options?.legacyPeerDeps;
+        return defaultOption === true || defaultOption === "true";
     }
 }
