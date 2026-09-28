@@ -134,5 +134,26 @@
 				}
 			]
 		}
+	},
+	"zowex": {
+		"excludes": {
+			"paths": [
+				{
+					"pattern": "**/examples/**",
+					"reason": "EXAMPLE_OF",
+					"comment": "Demo projects for native testing"
+				},
+				{
+					"pattern": "**/python/app/**",
+					"reason": "EXAMPLE_OF",
+					"comment": "Sample REST API not published"
+				},
+				{
+					"pattern": "**/python/bindings/test/**",
+					"reason": "TEST_TOOL_OF",
+					"comment": "Test project for Python bindings"
+				}
+			]
+		}
 	}
 }
