@@ -32,10 +32,7 @@ interface WorkspaceMember {
     isPrivate: boolean;
 }
 
-// peerDependencies is intentionally excluded: a peer dependency declares a compatibility *range*, not an
-// install-time pin, so rewriting it to an exact version would misrepresent it. Combined with running the npm
-// regen with --legacy-peer-deps below, peer ranges elsewhere in the graph are also never a resolution blocker.
-const DEPENDENCY_FIELDS = ["dependencies", "devDependencies", "optionalDependencies"];
+const DEPENDENCY_FIELDS = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"];
 
 /**
  * ORT models npm/pnpm workspace members as first-party "projects", not "packages" - so a workspace member that's a
@@ -205,7 +202,7 @@ export class WorkspaceExternalizeAction implements IAction {
                 }
                 : {
                     cmd: "npm",
-                    args: ["install", "--package-lock-only", "--ignore-scripts", "--no-audit", "--no-fund", "--legacy-peer-deps"],
+                    args: ["install", "--package-lock-only", "--ignore-scripts", "--no-audit", "--no-fund"],
                 };
 
             console.log(`${debugTag}: regenerating lockfile via '${lockfileCmd.cmd} ${lockfileCmd.args.join(" ")}'`);
