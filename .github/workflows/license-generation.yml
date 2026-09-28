@@ -208,7 +208,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '22'
 
       - name: '[Zowe Actions] Prepare workflow'
         uses: zowe-actions/shared-actions/prepare-workflow@main
