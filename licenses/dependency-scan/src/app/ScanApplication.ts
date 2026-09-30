@@ -79,6 +79,6 @@ export class ScanApplication {
         }
 
         // Step 3 - Run Everything in order        
-        appFns.reduce((prev, cur) => prev.then(cur), Promise.resolve());
+        return appFns.reduce((prev, cur) => prev.then(cur), Promise.resolve());
     }
 }

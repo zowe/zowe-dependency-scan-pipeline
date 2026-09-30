@@ -42,7 +42,7 @@ const SKIPPED_DIRS = new Set(["node_modules", ".git"]);
 export class PeerDependencyStripAction implements IAction {
     @inject(TYPES.RepoRulesData) private readonly repoRules!: RepoRulesType;
 
-    public run(): Promise<boolean> {
+    public async run(): Promise<boolean> {
         Utilities.getSubDirs(Constants.CLONE_DIR).forEach((projectDir) => {
             if (!PeerDependencyStripAction.hasLegacyPeerDeps(this.repoRules, projectDir)) {
                 return;
@@ -65,10 +65,10 @@ export class PeerDependencyStripAction implements IAction {
                         console.log(`${debugTag}: stripped peerDependencies from ${relPath}: ${peerNames.join(", ")}`);
                     });
             } catch (error) {
-                console.log(`${debugTag}: WARN failed to strip peer dependencies: ${error}`);
+                throw new Error(`${debugTag}: failed to strip peer dependencies: ${error}`);
             }
         });
-        return Promise.resolve(true);
+        return true;
     }
 
     private static findPackageJsonFiles(dir: string): string[] {

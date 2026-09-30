@@ -9,7 +9,6 @@
 *                                                                                 *
 */
 
-import * as async from "async";
 import * as spawn from "cross-spawn";
 import * as fs from "fs";
 import { globSync } from "fs";
@@ -50,19 +49,15 @@ const DEPENDENCY_FIELDS = ["dependencies", "devDependencies", "peerDependencies"
 export class WorkspaceExternalizeAction implements IAction {
 
     @inject(TYPES.Logger) private readonly log: Logger;
-    private readonly queue: async.AsyncQueue<any> = async.queue(this.externalizeProject.bind(this), Constants.PARALLEL_WORKSPACE_EXTERNALIZE_COUNT);
-
-    public run(): Promise<boolean> {
-        return new Promise<boolean>((resolve) => {
-            const projectDirs: string[] = Utilities.getSubDirs(Constants.CLONE_DIR);
-            this.queue.push(projectDirs);
-            this.queue.drain = () => {
-                resolve(true);
-            };
-        });
+    public async run(): Promise<boolean> {
+        // The lockfile commands are synchronous, so a queue cannot run these projects concurrently.
+        for (const projectDir of Utilities.getSubDirs(Constants.CLONE_DIR)) {
+            this.externalizeProject(projectDir);
+        }
+        return true;
     }
 
-    private externalizeProject(projectDir: string, cb: (error: any, val?: any) => void): void {
+    private externalizeProject(projectDir: string): void {
         const debugTag = `[workspace-externalize] ${projectDir}`;
         const absDir = path.join(Constants.CLONE_DIR, projectDir);
 
@@ -84,20 +79,16 @@ export class WorkspaceExternalizeAction implements IAction {
                 }
             }
         } catch (e) {
-            console.log(`${debugTag}: WARN failed to parse workspace configuration: ${e}`);
-            cb(null);
-            return;
+            throw new Error(`${debugTag}: failed to parse workspace configuration: ${e}`);
         }
 
         if (!manager) {
-            cb(null);
             return;
         }
 
         try {
             const members = WorkspaceExternalizeAction.listWorkspaceMembers(manager, absDir, rootPkgJson, pnpmWorkspaceYaml);
             if (members.length === 0) {
-                cb(null);
                 return;
             }
 
@@ -118,10 +109,9 @@ export class WorkspaceExternalizeAction implements IAction {
             });
 
             const toExternalize = members.filter((m) => !m.isPrivate && (consumersOf.get(m.name) ?? 0) > 0);
-            console.log(`${debugTag}: ${members.length} workspace member(s), ${toExternalize.length} to externalize: ${toExternalize.map((m) => m.name).join(", ") || "(none)"}`);
+            console.log(`${debugTag}: ${members.length} ${manager} workspace subproject(s), ${toExternalize.length} to externalize: ${toExternalize.map((m) => m.name).join(", ") || "(none)"}`);
 
             if (toExternalize.length === 0) {
-                cb(null);
                 return;
             }
 
@@ -171,7 +161,7 @@ export class WorkspaceExternalizeAction implements IAction {
                         });
                         fs.writeFileSync(lockfilePath, JSON.stringify(lock, null, 2) + "\n");
                     } catch (e) {
-                        console.log(`${debugTag}: WARN failed to clean workspace entries from package-lock.json: ${e}`);
+                        throw new Error(`failed to clean workspace entries from package-lock.json: ${e}`);
                     }
                 }
             }
@@ -207,18 +197,18 @@ export class WorkspaceExternalizeAction implements IAction {
 
             console.log(`${debugTag}: regenerating lockfile via '${lockfileCmd.cmd} ${lockfileCmd.args.join(" ")}'`);
             const result = spawn.sync(lockfileCmd.cmd, lockfileCmd.args, { cwd: absDir, env: process.env, shell: true });
+            if (result.error) {
+                throw result.error;
+            }
             this.log.logOutputSync(result, projectDir, "workspace_externalize");
 
             if (result.status !== 0) {
-                console.log(`${debugTag}: WARN lockfile regeneration exited with code ${result.status} - the analyzer step for this repo may now fail. See build/logs/workspace_externalize for details.`);
-            } else {
-                console.log(`${debugTag}: externalized ${toExternalize.map((m) => `${m.name}@${m.version}`).join(", ")}`);
+                throw new Error(`'${lockfileCmd.cmd} ${lockfileCmd.args.join(" ")}' exited with code ${result.status}. See build/logs/workspace_externalize for details.`);
             }
+            console.log(`${debugTag}: externalized ${toExternalize.map((m) => `${m.name}@${m.version}`).join(", ")}`);
 
-            cb(null);
         } catch (error) {
-            console.log(`${debugTag}: WARN failed to externalize workspace members: ${error}`);
-            cb(null);
+            throw new Error(`${debugTag}: failed to externalize workspace members: ${error}`);
         }
     }
 
@@ -234,27 +224,18 @@ export class WorkspaceExternalizeAction implements IAction {
             .filter((p) => p && !p.startsWith("!"))
             .map((p) => path.posix.join(p, "package.json"));
 
-        try {
-            return globSync(globPatterns, { cwd: absDir })
-                .filter((rel) => path.dirname(rel) !== ".")
-                .map((rel) => {
-                    try {
-                        const fullPath = path.join(absDir, rel);
-                        const pkg = JSON.parse(fs.readFileSync(fullPath, "utf-8"));
-                        return pkg.name ? {
-                            name: pkg.name,
-                            version: pkg.version || "0.0.0",
-                            absolutePath: path.dirname(fullPath),
-                            isPrivate: pkg.private === true,
-                        } : null;
-                    } catch {
-                        return null;
-                    }
-                })
-                .filter((m): m is WorkspaceMember => m != null);
-        } catch (e) {
-            console.log(`[workspace-externalize] WARN failed to glob workspace members: ${e}`);
-            return [];
-        }
+        return globSync(globPatterns, { cwd: absDir })
+            .filter((rel) => path.dirname(rel) !== ".")
+            .map((rel) => {
+                const fullPath = path.join(absDir, rel);
+                const pkg = JSON.parse(fs.readFileSync(fullPath, "utf-8"));
+                return pkg.name ? {
+                    name: pkg.name,
+                    version: pkg.version || "0.0.0",
+                    absolutePath: path.dirname(fullPath),
+                    isPrivate: pkg.private === true,
+                } : null;
+            })
+            .filter((m): m is WorkspaceMember => m != null);
     }
 }
