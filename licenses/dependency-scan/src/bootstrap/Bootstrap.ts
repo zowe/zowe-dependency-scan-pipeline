@@ -18,6 +18,8 @@ import "reflect-metadata";
 import * as rimraf from "rimraf";
 import { CloneAction } from "../actions/base/CloneAction";
 import { InstallAction } from "../actions/base/InstallAction";
+import { PeerDependencyStripAction } from "../actions/base/PeerDependencyStripAction";
+import { WorkspaceExternalizeAction } from "../actions/base/WorkspaceExternalizeAction";
 import { OrtScanAction } from "../actions/ort/OrtScanAction";
 import { OwaspPublishAction } from "../actions/owasp/OwaspPublishAction";
 import { OwaspScanReportAction } from "../actions/owasp/OwaspScanReportAction";
@@ -73,6 +75,8 @@ export function bootstrap(container: Container) {
                 container.bind(TYPES.Logger).to(Logger).inSingletonScope();
                 container.bind(TYPES.CloneAction).to(CloneAction).inSingletonScope();
                 container.bind(TYPES.InstallAction).to(InstallAction).inSingletonScope();
+                container.bind(TYPES.WorkspaceExternalizeAction).to(WorkspaceExternalizeAction).inSingletonScope();
+                container.bind(TYPES.PeerDependencyStripAction).to(PeerDependencyStripAction).inSingletonScope();
                 container.bind(TYPES.OrtSbomAction).to(OrtSbomAction).inSingletonScope();
                 container.bind(TYPES.OrtScanAction).to(OrtScanAction).inSingletonScope();
                 container.bind(TYPES.OrtReportAction).to(OrtReportAction).inSingletonScope();

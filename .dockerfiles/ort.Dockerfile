@@ -1,5 +1,5 @@
-# Set base image as Debian Buster w/ Packaged Ruby
-FROM debian:bullseye
+# Set base image as Debian Trixie w/ Packaged Ruby
+FROM debian:trixie
 
 #####################################################
 # version the Dockerfile, so we can do release bump
@@ -8,9 +8,9 @@ LABEL version="1.0.0"
 USER root
 
 RUN apt-get update -y && apt-get upgrade -y && \
-    apt-get install -y curl bash python3 zip unzip wget software-properties-common python3-pip git && \
-    curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get update -y && apt-get install -y nodejs openjdk-17-jdk pkg-config 
+    apt-get install -y curl bash python3 zip unzip wget python3-pip git libmagic1 && \
+    curl -sL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get update -y && apt-get install -y nodejs openjdk-25-jdk pkg-config
 
 RUN	mkdir /report
 RUN mkdir -p /home/build
@@ -25,7 +25,7 @@ ENV PATH=$PATH:"$HOME/.npm-global/bin"
 ENV PATH="$HOME/.cargo/bin:$PATH"
 
 RUN npm install -g yarn
-RUN npm install -g pnpm@10
+RUN npm install -g pnpm@11
 
 ENV owasp_version=5.3.2
 ENV owasp_dc_download="https://github.com/jeremylong/DependencyCheck/releases/download/v${owasp_version}/"
@@ -33,7 +33,7 @@ ENV owasp_dc_download="https://github.com/jeremylong/DependencyCheck/releases/do
 RUN file="dependency-check-${owasp_version}-release.zip"                        && \
     wget "$owasp_dc_download/$file"                                             && \
     unzip ${file}                                                           	&& \
-    rm ${file}          
+    rm ${file}
 
 WORKDIR /home/build
 
@@ -50,7 +50,7 @@ RUN rustup install stable && rustup default stable
 RUN cargo install cargo-license
 RUN cargo install get-license-helper
 
-ARG ORT_VERSION=33.1.0
+ARG ORT_VERSION=92.6.0
 
 # RUN git clone https://github.com/oss-review-toolkit/ort
 # WORKDIR /home/build/ort
@@ -58,13 +58,20 @@ ARG ORT_VERSION=33.1.0
 # RUN git submodule update --init --recursive
 # RUN ./gradlew installDist
 
-## ORT Binary install - requires Java 17+, which causes issues with some of our v2 projects (Java 11)
+## ORT Binary install - requires Java 25+, which causes issues with some of our v2 projects (Java 11)
 RUN wget -qO ort.zip "https://github.com/oss-review-toolkit/ort/releases/download/$ORT_VERSION/ort-$ORT_VERSION.zip"
 RUN unzip ort.zip && mv "ort-$ORT_VERSION" ort
 ENV ORT_BIN=/home/build/ort/bin
 
 # python-inspector 0.14.4
-RUN pip install git+https://github.com/aboutcode-org/python-inspector@51f6484dcefebb9138bb529f97a89d8dc464b8b4
+RUN pip install --break-system-packages git+https://github.com/aboutcode-org/python-inspector@51f6484dcefebb9138bb529f97a89d8dc464b8b4
+
+# scancode-toolkit-mini provides the "scancode-license-data" command
+RUN pip install --break-system-packages scancode-toolkit-mini==32.5.0 licensedcode-data setuptools==74.1.3
+RUN scancode-license-data --path /opt/scancode-license-data \
+    && find /opt/scancode-license-data -type f -not -name "*.LICENSE" -exec rm -f {} + \
+    && rm -rf /opt/scancode-license-data/static
+
 WORKDIR /home/build
 
 ENTRYPOINT [ "tail", "-f", "/dev/null" ]

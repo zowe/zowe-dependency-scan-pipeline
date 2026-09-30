@@ -92,4 +92,15 @@ export class Constants {
     public static readonly ORT_LOG_LEVEL: string = Utilities.getOrtLogLevel("ORT_LOG_LEVEL", "warn");
 
     public static readonly ORT_PROG_FILE: string = path.join(Utilities.getEnvStr("ORT_BIN", ""), "ort");
+
+    // Restricts clone/scan to repos tagged for one category in the manifest. "all" (default) clones/scans everything, as before.
+    public static readonly CATEGORY_FILTER: string = Utilities.getEnvStr("ZOWE_CATEGORY_FILTER", "all").toLowerCase();
+
+    // Substring each category's manifest `destinations` entries are matched against.
+    public static readonly CATEGORY_DESTINATION_TOKENS: { [category: string]: string } = {
+        cli: "CLI",
+        python: "Python",
+        vscode: "Visual Studio Code",
+        zos: "PAX",
+    };
 }

@@ -1,28 +1,33 @@
 {
 	"default": {
 		"analyzer": {
-			"skip_excluded": "true"
+			"skip_excluded": true
 		},
 		"excludes": {
-            "scopes": [{
-                "pattern": "devDependencies.*",
-                "reason": "TEST_DEPENDENCY_OF",
-                "comment": "Dev/Test Dependencies"
-            }, {
-                "pattern": "test.*",
-                "reason": "TEST_DEPENDENCY_OF",
-                "comment": "Dev/Test Dependencies"
-            }],
-            "paths": [{
-                "pattern": "**/__tests__/**",
-                "reason": "TEST_OF",
-                "comment": "Common Test Directory"
-            }, {
-                "pattern": "scripts/**",
-                "reason": "BUILD_TOOL_OF",
-                "comment": "Common scripting directory not included in final build"
-            }
-            ]
+            "scopes": [
+				{
+					"pattern": "devDependencies.*",
+					"reason": "TEST_DEPENDENCY_OF",
+					"comment": "Dev/Test Dependencies"
+				},
+				{
+					"pattern": "test.*",
+					"reason": "TEST_DEPENDENCY_OF",
+					"comment": "Dev/Test Dependencies"
+				}
+			],
+            "paths": [
+				{
+					"pattern": "**/__tests__/**",
+					"reason": "TEST_OF",
+					"comment": "Common Test Directory"
+				},
+				{
+					"pattern": "scripts/**",
+					"reason": "BUILD_TOOL_OF",
+					"comment": "Common scripting directory not included in final build"
+				}
+			]
         }
 	},
 	"api-layer": {
@@ -42,22 +47,56 @@
 			]
 		}
 	},
-	"sample-angular-app": {	
+	"cics-for-zowe-client": {
+		"analyzer": {
+			"package_managers": {
+				"NPM": {
+					"options": {"legacyPeerDeps": true}
+				}
+			}
+		}
+	},
+	"sample-angular-app": {
 		"analyzer": {
 			"allow_dynamic_versions": true
 		}
 	},
-	"sample-iframe-app": {	
+	"sample-iframe-app": {
 		"analyzer": {
 			"allow_dynamic_versions": true
 		}
 	},
-	"sample-react-app": {	
+	"sample-react-app": {
 		"analyzer": {
 			"allow_dynamic_versions": true
 		}
 	},
-	"zowe-cli": {
+	"zowe-cli-db2-plugin": {
+		"analyzer": {
+			"package_managers": {
+				"NPM": {
+					"options": {"legacyPeerDeps": true}
+				}
+			}
+		}
+	},
+	"zowe-cli-ftp-plugin": {
+		"analyzer": {
+			"package_managers": {
+				"NPM": {
+					"options": {"legacyPeerDeps": true}
+				}
+			}
+		}
+	},
+	"zowe-cli-mq-plugin": {
+		"analyzer": {
+			"package_managers": {
+				"NPM": {
+					"options": {"legacyPeerDeps": true}
+				}
+			}
+		}
 	},
 	"zowe-client-python-sdk": {
 		"excludes": {
@@ -66,12 +105,12 @@
 					"pattern": "samples/**",
 					"reason": "EXAMPLE_OF",
 					"comment": "Sample project"
-				}, 
+				},
 				{
 					"pattern": "docs/**",
 					"reason": "EXAMPLE_OF",
 					"comment": "project documentation"
-				}, 
+				},
 				{
 					"pattern": "tests/**",
 					"reason": "TEST_OF",
@@ -92,6 +131,27 @@
 					"pattern": "**/zedc/**",
 					"reason": "TEST_TOOL_OF",
 					"comment": "Development CLI"
+				}
+			]
+		}
+	},
+	"zowex": {
+		"excludes": {
+			"paths": [
+				{
+					"pattern": "**/examples/**",
+					"reason": "EXAMPLE_OF",
+					"comment": "Demo projects for native testing"
+				},
+				{
+					"pattern": "**/python/app/**",
+					"reason": "EXAMPLE_OF",
+					"comment": "Sample REST API not published"
+				},
+				{
+					"pattern": "**/python/bindings/test/**",
+					"reason": "TEST_TOOL_OF",
+					"comment": "Test project for Python bindings"
 				}
 			]
 		}

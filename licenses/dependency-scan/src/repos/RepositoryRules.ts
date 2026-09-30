@@ -14,7 +14,6 @@ import * as path from "path";
 import { stringify } from "yaml";
 import * as _ from "lodash";
 import * as fs from "fs-extra";
-import { isNullOrUndefined } from "util";
 import { TYPES } from "../constants/Types";
 import { RepositoryInfo } from "./RepositoryInfo";
 import { ReportInfo } from "./RepositoryReportDest";
@@ -42,14 +41,17 @@ export class RepositoryRules {
                 mergedYaml.excludes.scopes.push(scope);
             }
         }
+        if (this.repoRules[project]?.analyzer) {
+            mergedYaml.analyzer = _.merge(mergedYaml.analyzer, this.repoRules[project].analyzer);
+        }
         if (this.repoRules[project]?.toolsEnabled?.length > 0) {
             mergedYaml.analyzer.enabled_package_managers = this.repoRules[project].toolsEnabled;
         }
-        
+
         return stringify(mergedYaml);
     }
 
-    public getOrtAnalyzerFlags(projectDir: string): string[] { 
+    public getOrtAnalyzerFlags(projectDir: string): string[] {
         let project = path.basename(projectDir);
         let flags: string[] = [];
 
@@ -65,11 +67,7 @@ export class RepositoryRules {
         return flags;
     }
 
-
     private getPkgManagerFlag(pkgManagers: string[]): string {
         return "ort.analyzer.enabledPackageManagers="+pkgManagers.join(",")
     }
-
-
-
 }

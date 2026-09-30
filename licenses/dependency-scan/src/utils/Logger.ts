@@ -13,7 +13,6 @@ import { ChildProcess, SpawnSyncReturns } from "child_process";
 import * as fs from "fs";
 import { injectable } from "inversify";
 import * as path from "path";
-import { isNullOrUndefined } from "util";
 import { Constants } from "../constants/Constants";
 import { ExtraLogOpts } from "./ExtraLogOpts";
 import rimraf = require("rimraf");
@@ -39,11 +38,11 @@ export class Logger {
         const file = fs.openSync(this.getLogFilepath(fileName, subdir), "a");
         fs.writeSync(file, activeProcess.stdout.toString());
         fs.writeSync(file, activeProcess.stderr.toString());
-        if (!isNullOrUndefined(extraOpts) && !isNullOrUndefined(extraOpts.stdOutOnlyFile) && extraOpts.stdOutOnlyFile.length > 0) {
+        if (extraOpts != null && extraOpts.stdOutOnlyFile != null && extraOpts.stdOutOnlyFile.length > 0) {
             const stdOutFile = fs.openSync(this.getLogFilepath(extraOpts.stdOutOnlyFile, subdir), "a");
             fs.writeSync(stdOutFile, activeProcess.stdout.toString());
         }
-        if (!isNullOrUndefined(extraOpts) && !isNullOrUndefined(extraOpts.stdErrOnlyFile) && extraOpts.stdErrOnlyFile.length > 0) {
+        if (extraOpts != null && extraOpts.stdErrOnlyFile != null && extraOpts.stdErrOnlyFile.length > 0) {
             const stdErrFile = fs.openSync(this.getLogFilepath(extraOpts.stdErrOnlyFile, subdir), "a");
             fs.writeSync(stdErrFile, activeProcess.stderr.toString());
         }
@@ -55,7 +54,7 @@ export class Logger {
             const logFile = fs.openSync(this.getLogFilepath(fileName, subdir), "a");
 
             // stdout
-            if (!isNullOrUndefined(extraOpts) && !isNullOrUndefined(extraOpts.stdOutOnlyFile) && extraOpts.stdOutOnlyFile.length > 0) {
+            if (extraOpts != null && extraOpts.stdOutOnlyFile != null && extraOpts.stdOutOnlyFile.length > 0) {
                 const stdOutFile = fs.openSync(this.getLogFilepath(extraOpts.stdOutOnlyFile, subdir), "a");
                 activeProcess.stdout.on("data", (data) => {
                     fs.write(stdOutFile, Buffer.from(data, "utf-8").toString(), (error) => { if (error) { console.log(error); } });
@@ -66,7 +65,7 @@ export class Logger {
             });
 
             // stderr
-            if (!isNullOrUndefined(extraOpts) && !isNullOrUndefined(extraOpts.stdErrOnlyFile) && extraOpts.stdErrOnlyFile.length > 0) {
+            if (extraOpts != null && extraOpts.stdErrOnlyFile != null && extraOpts.stdErrOnlyFile.length > 0) {
                 const stdErrFile = fs.openSync(this.getLogFilepath(extraOpts.stdErrOnlyFile, subdir), "a");
                 activeProcess.stderr.on("data", (data) => {
                     fs.write(stdErrFile, Buffer.from(data, "utf-8").toString(), (error) => { if (error) { console.log(error); } });
@@ -102,7 +101,7 @@ export class Logger {
 
     public getLogFilepath(fileName: string, subdir?: string) {
         let basePath = Constants.LOG_DIR;
-        if (!isNullOrUndefined(subdir)) {
+        if (subdir != null) {
             const subDirPath = path.join(Constants.LOG_DIR, subdir);
             if (!fs.existsSync(subDirPath)) {
                 fs.mkdirSync(subDirPath);
